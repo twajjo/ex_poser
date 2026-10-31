@@ -210,6 +210,7 @@ On top of the generated layer sits a **thin hand-written idiomatic layer**: `Pos
   - `install_python.json` with `"addon": 1`, installable via Poser's *Install from ZIP Archive*.
 - Elixir package:
   - ExDoc site including the generated modules, plus a Livebook getting-started guide;
+  - `guides/limitations.md` as an ExDoc extra, updated with real method names from `poser_api.json`;
   - `Poser.Launcher` starts `Poser.exe` via a `Port` and waits for the session file.
 - **Remote:**
   - `Poser.Transport.TLS` and a TLS listener option in the add-on (Python 3.7 `ssl` is enough);

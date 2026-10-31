@@ -1,0 +1,6 @@
+[tools]
+erlang = "29.1.2"
+elixir = "1.20.4-otp-29"
+# Poser 14 embeds CPython 3.7.9; its own python.exe can't run standalone,
+# so the add-on is checked against this one.
+python = "3.7.9"
