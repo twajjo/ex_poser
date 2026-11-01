@@ -37,6 +37,8 @@ defmodule Poser.ClientLifecycleTest do
     end
   end
 
+  # the session file is briefly missing while the server restarts
+  @tag :capture_log
   test "reconnects after the server restarts, and old handles are stale" do
     server = PoserTest.Standalone.start!()
     c = start_client(server.session, backoff_initial: 50, backoff_max: 200)

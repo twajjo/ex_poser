@@ -184,5 +184,10 @@ defmodule Poser.ClientTest do
     assert {:error, %Error{kind: :disconnected}} = Client.call("Scene", [], server: name)
     assert System.monotonic_time(:millisecond) - t0 < 50
     assert Client.status(server: name) == :disconnected
+
+    # let the first connect attempt finish inside the log capture
+    eventually(fn ->
+      match?({:error, %Error{details: %{reason: {:session, _}}}}, Client.ping(server: name))
+    end)
   end
 end
