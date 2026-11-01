@@ -18,6 +18,9 @@ defmodule Poser.Transport.TCP do
   def recv_frame(sock, timeout), do: :gen_tcp.recv(sock, 0, timeout)
 
   @impl true
+  def controlling_process(sock, pid), do: :gen_tcp.controlling_process(sock, pid)
+
+  @impl true
   def activate(sock), do: :inet.setopts(sock, active: :once)
 
   @impl true

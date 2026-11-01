@@ -127,6 +127,56 @@ defmodule Poser.ClientTest do
     assert Client.status(server: c) == :connected
   end
 
+  test "requests fail fast while a handshake is stuck" do
+    scripted = PoserTest.ScriptedServer.start!(fn _ -> :ignore end, hello: :never)
+    name = :"poser_client_#{System.unique_integer([:positive])}"
+    start_supervised!({Client, name: name, session: scripted.session, connect_timeout: 5_000})
+
+    t0 = System.monotonic_time(:millisecond)
+    assert {:error, %Error{kind: :disconnected}} = Client.ping(server: name)
+    assert Client.status(server: name) == :disconnected
+    assert System.monotonic_time(:millisecond) - t0 < 100
+  end
+
+  @tag :capture_log
+  test "the last connect error is reported" do
+    name = :"poser_client_#{System.unique_integer([:positive])}"
+
+    log =
+      ExUnit.CaptureLog.capture_log(fn ->
+        start_supervised!({Client, name: name, session: "/nonexistent/session.json"})
+
+        eventually(fn ->
+          match?(
+            {:error, %Error{kind: :disconnected, details: %{reason: {:session, :enoent}}}},
+            Client.call("Scene", [], server: name)
+          )
+        end)
+      end)
+
+    assert log =~ "poserx: cannot connect"
+  end
+
+  @tag :capture_log
+  test "a protocol mismatch is reported as the connect error" do
+    scripted =
+      PoserTest.ScriptedServer.start!(fn _ -> :ignore end,
+        hello: {:e, 0, {:protocol_mismatch, 2, 1}}
+      )
+
+    name = :"poser_client_#{System.unique_integer([:positive])}"
+    start_supervised!({Client, name: name, session: scripted.session})
+
+    eventually(fn ->
+      match?(
+        {:error,
+         %Error{kind: :disconnected, details: %{reason: %Error{kind: :protocol_mismatch}}}},
+        Client.ping(server: name)
+      )
+    end)
+  end
+
+  @tag :capture_log
   test "requests while disconnected fail fast" do
     name = :"poser_client_#{System.unique_integer([:positive])}"
     start_supervised!({Client, name: name, session: "/nonexistent/session.json"})

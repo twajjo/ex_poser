@@ -110,6 +110,9 @@ defmodule Poser.Client do
       pending: %{},
       backoff: opts[:backoff_initial],
       reconnect_timer: nil,
+      # ref of the running handshake task, and why the last attempt failed
+      connecting: nil,
+      last_error: nil,
       # pid => %{handle_id => %Handle{}} for handles returned to that process
       owners: %{},
       monitors: %{},
@@ -124,7 +127,7 @@ defmodule Poser.Client do
 
   @impl true
   def handle_call(:info, _from, %{conn: nil} = state),
-    do: {:reply, {:error, %Error{kind: :disconnected}}, state}
+    do: {:reply, {:error, disconnected_error(state)}, state}
 
   def handle_call(:info, _from, state), do: {:reply, {:ok, state.info}, state}
 
@@ -132,7 +135,7 @@ defmodule Poser.Client do
     do: {:reply, if(state.conn, do: :connected, else: :disconnected), state}
 
   def handle_call({:request, _req, _timeout}, _from, %{conn: nil} = state),
-    do: {:reply, {:error, %Error{kind: :disconnected}}, state}
+    do: {:reply, {:error, disconnected_error(state)}, state}
 
   def handle_call({:request, req, timeout}, from, state) do
     with :ok <- valid_timeout(timeout),
@@ -188,6 +191,15 @@ defmodule Poser.Client do
 
   def handle_info({:heartbeat, _old_epoch}, state), do: {:noreply, state}
 
+  def handle_info({ref, result}, %{connecting: ref} = state) when is_reference(ref) do
+    Process.demonitor(ref, [:flush])
+    {:noreply, connected(%{state | connecting: nil}, result)}
+  end
+
+  def handle_info({:DOWN, ref, :process, _pid, reason}, %{connecting: ref} = state) do
+    {:noreply, connected(%{state | connecting: nil}, {:error, {:handshake_crashed, reason}})}
+  end
+
   def handle_info({:DOWN, _ref, :process, pid, _reason}, state) do
     {owned, owners} = Map.pop(state.owners, pid, %{})
     state = %{state | owners: owners, monitors: Map.delete(state.monitors, pid)}
@@ -211,13 +223,33 @@ defmodule Poser.Client do
 
   # --- Connecting ---
 
+  # The handshake runs in a task so requests keep getting fast `:disconnected`
+  # replies while a connect hangs (e.g. a firewall dropping SYNs).
+  defp connect(%{connecting: ref} = state) when ref != nil, do: state
+
   defp connect(state) do
-    case handshake(state) do
-      {:ok, conn, info} ->
+    %{opts: opts, transport: transport} = state
+    owner = self()
+
+    task =
+      Task.Supervisor.async_nolink(Poser.TaskSupervisor, fn ->
+        with {:ok, conn, info} <- handshake(opts, transport) do
+          :ok = transport.controlling_process(conn, owner)
+          {:ok, conn, info}
+        end
+      end)
+
+    %{state | connecting: task.ref}
+  end
+
+  defp connected(state, {:ok, conn, info}) do
+    case state.transport.activate(conn) do
+      :ok ->
         state = %{
           state
           | conn: conn,
             info: info,
+            last_error: nil,
             # Unique across every client in this VM, so a handle from another
             # client (or an earlier run of this one) is always caught as stale.
             epoch: :erlang.unique_integer([:positive, :monotonic]),
@@ -230,23 +262,27 @@ defmodule Poser.Client do
         state
 
       {:error, reason} ->
-        Logger.debug("poserx: connect failed: #{inspect(reason)}")
-        schedule_reconnect(state)
+        state.transport.close(conn)
+        connected(state, {:error, reason})
     end
   end
 
-  defp handshake(state) do
-    opts = state.opts
-    transport = state.transport
+  defp connected(state, {:error, reason}) do
+    # Warn once per distinct failure, not on every retry.
+    if reason != state.last_error,
+      do: Logger.warning("poserx: cannot connect to Poser: #{inspect(reason)}")
 
+    schedule_reconnect(%{state | last_error: reason})
+  end
+
+  defp handshake(opts, transport) do
     with {:ok, target} <- target(opts),
          {:ok, conn} <- transport.connect(target.host, target.port, opts[:connect_timeout]) do
       hello = {:hello, %{token: target.token, protocol: 1, client: "poserx #{@version}"}}
 
       with :ok <- transport.send_frame(conn, Codec.encode(hello)),
            {:ok, bin} <- transport.recv_frame(conn, opts[:connect_timeout]),
-           {:ok, info} <- hello_reply(Codec.decode(bin)),
-           :ok <- transport.activate(conn) do
+           {:ok, info} <- hello_reply(Codec.decode(bin)) do
         {:ok, conn, info}
       else
         error ->
@@ -255,6 +291,9 @@ defmodule Poser.Client do
       end
     end
   end
+
+  defp disconnected_error(state),
+    do: %Error{kind: :disconnected, details: %{reason: state.last_error}}
 
   defp target(opts) do
     session =
@@ -281,7 +320,7 @@ defmodule Poser.Client do
     end
   end
 
-  defp hello_reply({:ok, {:r, 0, info}}) when is_map(info), do: {:ok, info}
+  defp hello_reply({:ok, {:r, 0, %{protocol: 1} = info}}), do: {:ok, info}
 
   defp hello_reply({:ok, {:e, 0, reason}}),
     do: {:error, Error.from_wire(reason)}

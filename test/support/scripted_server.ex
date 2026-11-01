@@ -32,7 +32,8 @@ defmodule PoserTest.ScriptedServer do
     case :gen_tcp.accept(listen) do
       {:ok, sock} ->
         {:ok, _hello} = :gen_tcp.recv(sock, 0)
-        :ok = :gen_tcp.send(sock, :erlang.term_to_binary(hello))
+        # hello: :never leaves the client waiting for the handshake reply
+        if hello != :never, do: :ok = :gen_tcp.send(sock, :erlang.term_to_binary(hello))
         serve(sock, fun)
         accept(listen, fun, hello)
 
