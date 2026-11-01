@@ -109,7 +109,11 @@ defmodule Poser.Client do
       next_id: 1,
       pending: %{},
       backoff: opts[:backoff_initial],
-      reconnect_timer: nil
+      reconnect_timer: nil,
+      # pid => %{handle_id => %Handle{}} for handles returned to that process
+      owners: %{},
+      monitors: %{},
+      last_inbound: 0
     }
 
     {:ok, state, {:continue, :connect}}
@@ -136,6 +140,7 @@ defmodule Poser.Client do
         {:reply, {:error, stale_error(h)}, state}
 
       nil ->
+        state = disown(state, req)
         {id, state} = next_id(state)
         timeout = timeout || state.opts[:call_timeout]
 
@@ -169,6 +174,30 @@ defmodule Poser.Client do
     end
   end
 
+  def handle_info({:heartbeat, epoch}, %{epoch: epoch, conn: conn} = state) when conn != nil do
+    silent = System.monotonic_time(:millisecond) - state.last_inbound
+
+    if silent > state.opts[:heartbeat_timeout] do
+      {:noreply, disconnect(state, :heartbeat_timeout)}
+    else
+      Process.send_after(self(), {:heartbeat, epoch}, state.opts[:heartbeat_interval])
+      send_untracked(state, :ping)
+    end
+  end
+
+  def handle_info({:heartbeat, _old_epoch}, state), do: {:noreply, state}
+
+  def handle_info({:DOWN, _ref, :process, pid, _reason}, state) do
+    {owned, owners} = Map.pop(state.owners, pid, %{})
+    state = %{state | owners: owners, monitors: Map.delete(state.monitors, pid)}
+
+    case {state.conn, Map.values(owned)} do
+      {nil, _} -> {:noreply, state}
+      {_, []} -> {:noreply, state}
+      {_, handles} -> send_untracked(state, {:release, handles})
+    end
+  end
+
   def handle_info(msg, %{conn: conn} = state) when conn != nil do
     case state.transport.handle_message(conn, msg) do
       {:frame, bin} -> {:noreply, handle_frame(bin, state)}
@@ -189,9 +218,11 @@ defmodule Poser.Client do
           | conn: conn,
             info: info,
             epoch: state.epoch + 1,
-            backoff: state.opts[:backoff_initial]
+            backoff: state.opts[:backoff_initial],
+            last_inbound: System.monotonic_time(:millisecond)
         }
 
+        Process.send_after(self(), {:heartbeat, state.epoch}, state.opts[:heartbeat_interval])
         Events.dispatch(:connected, %{server: state.name, info: info})
         state
 
@@ -273,8 +304,12 @@ defmodule Poser.Client do
           )
     end
 
+    # Handles died with the connection: the add-on's table was per connection.
+    for {_pid, ref} <- state.monitors, do: Process.demonitor(ref, [:flush])
+
     Events.dispatch(:disconnected, %{server: state.name, reason: reason})
-    schedule_reconnect(%{state | conn: nil, info: nil, pending: %{}})
+
+    schedule_reconnect(%{state | conn: nil, info: nil, pending: %{}, owners: %{}, monitors: %{}})
   end
 
   # --- Requests ---
@@ -338,6 +373,8 @@ defmodule Poser.Client do
   # --- Inbound ---
 
   defp handle_frame(bin, state) do
+    state = %{state | last_inbound: System.monotonic_time(:millisecond)}
+
     case Codec.decode(bin) do
       {:ok, term} ->
         handle_term(term, state)
@@ -372,10 +409,45 @@ defmodule Poser.Client do
       {entry, pending} ->
         if entry.timer, do: Process.cancel_timer(entry.timer)
         state = %{state | pending: pending}
-        if entry.from, do: GenServer.reply(entry.from, shape(entry, result))
-        state
+
+        case entry.from do
+          nil ->
+            state
+
+          {pid, _tag} = from ->
+            GenServer.reply(from, shape(entry, result))
+            own(state, pid, returned_handles(result))
+        end
     end
   end
+
+  defp returned_handles({:ok, value}), do: Codec.handles_in(value)
+
+  defp returned_handles({:error, %Error{kind: :batch_failed, details: %{partial: partial}}}),
+    do: Codec.handles_in(partial)
+
+  defp returned_handles(_), do: []
+
+  # Handles returned to a process are released when that process exits.
+  defp own(state, _pid, []), do: state
+
+  defp own(state, pid, handles) do
+    monitors = Map.put_new_lazy(state.monitors, pid, fn -> Process.monitor(pid) end)
+    owned = Map.get(state.owners, pid, %{})
+    owned = Enum.reduce(handles, owned, &Map.put(&2, &1.id, &1))
+    %{state | owners: Map.put(state.owners, pid, owned), monitors: monitors}
+  end
+
+  defp disown(state, {:release, handles}) do
+    ids = handles |> Codec.handles_in() |> MapSet.new(& &1.id)
+
+    owners =
+      Map.new(state.owners, fn {pid, owned} -> {pid, Map.drop(owned, MapSet.to_list(ids))} end)
+
+    %{state | owners: owners}
+  end
+
+  defp disown(state, _req), do: state
 
   defp shape(%{kind: :ping, t0: t0}, {:ok, :pong}),
     do: {:ok, System.monotonic_time(:microsecond) - t0}
