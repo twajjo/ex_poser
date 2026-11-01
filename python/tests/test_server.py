@@ -5,8 +5,10 @@ import threading
 import time
 import unittest
 
+import struct
+
 import fake_poser
-from poser_bridge import codec
+from poser_bridge import codec, erlterms
 from poser_bridge.codec import atom
 from poser_bridge.policy import Policy
 from poser_bridge.server import Server
@@ -134,6 +136,23 @@ class ServerTest(unittest.TestCase):
         s, _ = self.connect(self.start())
         h = self.call(s, (atom("C"), 1, "Scene", [], {}))[2]
         self.assertNotEqual(h[2], 1)
+
+    def send_raw(self, s, data):
+        s.sendall(struct.pack(">I", len(data)) + data)
+
+    def test_undecodable_argument_is_bad_request_not_disconnect(self):
+        s, _ = self.connect(self.start())
+        # a binary that is not UTF-8, so it cannot become a Python str
+        self.send_raw(s, erlterms.encode((atom("C"), 9, b"AppVersion", [b"\xff\xfe"], {})))
+        r = codec.read_frame(s)
+        self.assertEqual(r[:2], (A_E, 9))
+        self.assertEqual(r[2][0], atom("bad_request"))
+        self.assertEqual(self.call(s, (atom("ping"), 10)), (A_R, 10, atom("pong")))
+
+    def test_garbage_frame_keeps_connection(self):
+        s, _ = self.connect(self.start())
+        self.send_raw(s, b"\x83\x99garbage")
+        self.assertEqual(self.call(s, (atom("ping"), 11)), (A_R, 11, atom("pong")))
 
     def test_stats_op(self):
         s, _ = self.connect(self.start())

@@ -73,19 +73,36 @@ defmodule Poser.Codec do
     ArgumentError -> {:error, :undecodable}
   end
 
+  @doc """
+  Converts an outbound value. Raises `ArgumentError` for values Python cannot
+  receive: pids, refs, funs, ports, structs other than `%Poser.Handle{}`, and
+  binaries that are not valid UTF-8 (send raw bytes as `{:bytes, bin}`).
+  """
   @spec to_wire(term()) :: term()
   def to_wire(%Handle{} = h), do: {:poser_obj, h.class, h.id, h.generation, h.label}
+
+  def to_wire(%_{} = v),
+    do: raise(ArgumentError, "cannot send #{inspect(v)} to Poser (structs are not supported)")
+
   def to_wire(v) when v in [nil, true, false], do: v
   def to_wire(v) when is_atom(v), do: Atom.to_string(v)
+  def to_wire(v) when is_number(v), do: v
   def to_wire({:result, n} = ref) when is_integer(n), do: ref
   def to_wire({:bytes, bin} = b) when is_binary(bin), do: b
+
+  def to_wire(v) when is_binary(v) do
+    if String.valid?(v),
+      do: v,
+      else: raise(ArgumentError, "binary is not valid UTF-8; send raw bytes as {:bytes, bin}")
+  end
+
   def to_wire(v) when is_list(v), do: Enum.map(v, &to_wire/1)
 
   def to_wire(v) when is_tuple(v),
     do: v |> Tuple.to_list() |> Enum.map(&to_wire/1) |> List.to_tuple()
 
   def to_wire(v) when is_map(v), do: Map.new(v, fn {k, x} -> {to_wire(k), to_wire(x)} end)
-  def to_wire(v), do: v
+  def to_wire(v), do: raise(ArgumentError, "cannot send #{inspect(v)} to Poser")
 
   @spec from_wire(term(), non_neg_integer() | nil) :: term()
   def from_wire({:poser_obj, class, id, generation, label}, epoch),

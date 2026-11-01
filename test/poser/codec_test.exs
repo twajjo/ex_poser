@@ -62,4 +62,12 @@ defmodule Poser.CodecTest do
              h2
            ]
   end
+
+  test "to_wire rejects values Python cannot receive" do
+    for bad <- [self(), make_ref(), fn -> :ok end, ~D[2020-01-01], <<255, 254>>, [<<255>>]] do
+      assert_raise ArgumentError, fn -> Codec.to_wire(bad) end
+    end
+
+    assert Codec.to_wire({:bytes, <<255, 254>>}) == {:bytes, <<255, 254>>}
+  end
 end

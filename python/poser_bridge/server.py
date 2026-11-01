@@ -12,7 +12,7 @@ import secrets
 import socket
 import threading
 
-from . import codec
+from . import codec, erlterms
 from .codec import atom
 from .dispatch import Dispatcher
 from .handles import HandleTable
@@ -131,7 +131,13 @@ class Connection(object):
             if not self._handshake(codec.read_frame(self.sock)):
                 return
             while True:
-                self._dispatch(codec.read_frame(self.sock))
+                data = codec.read_raw(self.sock)
+                try:
+                    msg = codec.decode(data)
+                except (ValueError, TypeError) as e:
+                    self._undecodable(data, e)
+                    continue
+                self._dispatch(msg)
         except (EOFError, OSError):
             pass
         except Exception as e:
@@ -171,6 +177,18 @@ class Connection(object):
         server.log("poser_bridge: client %s:%d connected (%s)"
                    % (self.addr + (msg[1].get(atom("client")) or "unknown client",)))
         return True
+
+    def _undecodable(self, data, error):
+        """A frame that can't become Python values costs one request, not the connection."""
+        try:
+            raw = erlterms.decode(data)[0]
+        except Exception:
+            raw = None
+        if type(raw) is tuple and len(raw) > 1 and type(raw[1]) is int:
+            self.send((A_E, raw[1], (atom("bad_request"), "cannot decode request: %s" % (error,))))
+        else:
+            self.server.log("poser_bridge: dropped undecodable frame from %s:%d: %s"
+                            % (self.addr + (error,)))
 
     def _dispatch(self, msg):
         if type(msg) is not tuple or len(msg) < 2 or not isinstance(msg[1], int):

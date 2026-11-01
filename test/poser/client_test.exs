@@ -79,6 +79,21 @@ defmodule Poser.ClientTest do
       eventually(fn -> match?({:ok, %{"handles" => 0}}, Client.stats(server: c)) end)
     end
 
+    test "invalid arguments return bad_request and the client survives", %{c: c} do
+      for {req, opts} <- [
+            {fn o -> Client.batch([{:bogus}], o) end, []},
+            {fn o -> Client.call("AppVersion", [~D[2020-01-01]], o) end, []},
+            {fn o -> Client.call("AppVersion", [self()], o) end, []},
+            {fn o -> Client.call("AppVersion", [<<255, 254>>], o) end, []},
+            {fn o -> Client.call("AppVersion", [], o) end, [kw: :not_a_keyword]},
+            {fn o -> Client.call("AppVersion", [], o) end, [timeout: "soon"]}
+          ] do
+        assert {:error, %Error{kind: :bad_request}} = req.([server: c] ++ opts)
+      end
+
+      assert Client.call("AppVersion", [], server: c) == {:ok, "fake-14"}
+    end
+
     test "release frees handles", %{c: c} do
       {:ok, scene} = Client.call("Scene", [], server: c)
       assert {:ok, %{"handles" => 1}} = Client.stats(server: c)

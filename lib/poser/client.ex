@@ -135,28 +135,29 @@ defmodule Poser.Client do
     do: {:reply, {:error, %Error{kind: :disconnected}}, state}
 
   def handle_call({:request, req, timeout}, from, state) do
-    case stale_handle(req, state.epoch) do
-      %Handle{} = h ->
-        {:reply, {:error, stale_error(h)}, state}
+    with :ok <- valid_timeout(timeout),
+         nil <- stale_handle(req, state.epoch),
+         {id, state} = next_id(state),
+         {:ok, frame} <- build_frame(req, id) do
+      state = disown(state, req)
+      timeout = timeout || state.opts[:call_timeout]
 
-      nil ->
-        state = disown(state, req)
-        {id, state} = next_id(state)
-        timeout = timeout || state.opts[:call_timeout]
+      timer =
+        if timeout == :infinity,
+          do: nil,
+          else: Process.send_after(self(), {:request_timeout, id}, timeout)
 
-        timer =
-          if timeout == :infinity,
-            do: nil,
-            else: Process.send_after(self(), {:request_timeout, id}, timeout)
+      entry = %{
+        from: from,
+        timer: timer,
+        kind: kind(req),
+        t0: System.monotonic_time(:microsecond)
+      }
 
-        entry = %{
-          from: from,
-          timer: timer,
-          kind: kind(req),
-          t0: System.monotonic_time(:microsecond)
-        }
-
-        send_request(%{state | pending: Map.put(state.pending, id, entry)}, frame(req, id))
+      send_request(%{state | pending: Map.put(state.pending, id, entry)}, frame)
+    else
+      %Handle{} = h -> {:reply, {:error, stale_error(h)}, state}
+      {:error, %Error{} = error} -> {:reply, {:error, error}, state}
     end
   end
 
@@ -317,6 +318,19 @@ defmodule Poser.Client do
   # --- Requests ---
 
   defp next_id(state), do: {state.next_id, %{state | next_id: state.next_id + 1}}
+
+  defp valid_timeout(t) when is_nil(t) or t == :infinity or (is_integer(t) and t >= 0), do: :ok
+
+  defp valid_timeout(t),
+    do: {:error, %Error{kind: :bad_request, message: "invalid timeout #{inspect(t)}"}}
+
+  # Malformed arguments must not crash the shared client: report them to the caller.
+  defp build_frame(req, id) do
+    {:ok, frame(req, id)}
+  rescue
+    e in [ArgumentError, FunctionClauseError, Protocol.UndefinedError] ->
+      {:error, %Error{kind: :bad_request, message: Exception.message(e)}}
+  end
 
   defp kind(:ping), do: :ping
   defp kind(_), do: :request

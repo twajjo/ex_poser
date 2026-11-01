@@ -103,11 +103,16 @@ def _recv_exact(sock, n):
     return bytes(buf)
 
 
-def read_frame(sock):
+def read_raw(sock):
+    """Read one frame's bytes without decoding them."""
     (n,) = _len.unpack(_recv_exact(sock, 4))
     if n > MAX_FRAME:
         raise ValueError("frame too large: %d bytes" % n)
-    return decode(_recv_exact(sock, n))
+    return _recv_exact(sock, n)
+
+
+def read_frame(sock):
+    return decode(read_raw(sock))
 
 
 def write_frame(sock, term):
