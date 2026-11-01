@@ -20,7 +20,7 @@ Loopback in WSL, 200 samples each. `ping` is answered on the reader thread; `pin
 | 3.10.12 | 144 / 246 µs | 223 / 324 µs |
 | 3.7.9 | 156 / 269 µs | 260 / 380 µs |
 
-The real `wx.CallAfter` latency inside Poser is still to be measured.
+The real `wx.CallAfter` latency inside Poser is under "Live Poser" below.
 
 Also verified on both Python versions:
 - the hello handshake returns `%{mode: :dev, protocol: 1, poser_version, python_version}`;
@@ -40,11 +40,53 @@ Also verified on both Python versions:
 ### Introspection script
 - Run against a fake `poser` under 3.7, it found module classes, live-discovered classes and constants. It flagged `SetUpdateCallback` as a callback, and recorded a raising getter under `discovery_errors`. `scripts/summarize_api.exs` prints the summary.
 
-## Pending: needs live Poser
+## Live Poser (2026-11-01, Poser 14, embedded Python 3.7.9)
 
-- [ ] **Add-on load.** It is deployed to `…/Runtime/Python/addons/poser_bridge/`. Start Poser and check its Python output for `poser_bridge: listening on …` and `loaded, session file …`.
-- [ ] **Firewall.** Is there a prompt when Poser binds `172.22.192.1:47800`? If so, add a rule scoped to the WSL adapter (see the plan) rather than accepting the prompt's defaults.
-- [ ] **Round trip from WSL.** Run `elixir scripts/phase0_ping.exs`, record the real `ping_main` latency, check that `scene_summary` matches the open scene, and watch for `frame_changed` while scrubbing.
-- [ ] **Stalls.** Measure `ping_main` during a render and while a modal dialog is open (for example, a missing texture).
-- [ ] **Reload.** Can the add-on be reloaded without restarting Poser, or does port 47800 stay bound?
-- [ ] **Introspection.** Load a figure, run *File > Run Python Script* on `\\wsl.localhost\Ubuntu-22.04\home\twajjo\src\elixir\poserx\python\introspect_poser.py`, copy `%APPDATA%\PoserBridge\poser_api.json` to `priv/`, run `elixir scripts/summarize_api.exs`, and review the results.
+### Add-on load
+- [x] The add-on loads at startup. Poser listens on `127.0.0.1:47800` and `172.22.192.1:47800` (`Get-NetTCPConnection`), and `%APPDATA%\PoserBridge\session.json` is written with both hosts.
+
+### Firewall
+- [x] **No prompt appeared, but the connection was silently blocked.** From WSL, `connect` timed out (dropped packets, not refused). Windows doesn't classify `vEthernet (WSL)` as a known network, so the default inbound block applies.
+- Fix, run once in an admin PowerShell:
+  `New-NetFirewallRule -DisplayName "Poser bridge (WSL only)" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 47800 -InterfaceAlias "vEthernet (WSL)" -Program "D:\Program Files\Poser Software\Poser 14\Poser.exe"`
+- The rule names the adapter, not an address, because the WSL NAT address can change after a reboot. Any existing *block* rule for `Poser.exe` must be removed first, because block rules take precedence over allow rules.
+
+### Round trip from WSL
+- [x] The handshake returns `%{mode: :dev, protocol: 1, poser_version: "14", python_version: "3.7.9"}`.
+- [x] `scene_summary` matches the open scene (464 actors, 9 figures, 30 frames). The error path returns a Python `ValueError` with its traceback.
+- Latency at idle, 200 samples:
+
+| | median | p95 | max |
+|---|---|---|---|
+| `ping` (reader thread) | 339 µs | 501 µs | 764 µs |
+| `ping_main` (`wx.CallAfter`) | 445 µs | 584 µs | 739 µs |
+
+  Across runs, `ping_main` p95 ranged from 0.6 to 2 ms, with one outlier at 9.6 ms.
+
+### `frame_changed` events
+- [x] `frameChanged` fires once per committed frame change, and `Scene().Frame()` already holds the new value when it runs. Pressing *next frame* three times gave 1, 2, 3.
+- **Dragging the slider sends one event, on release** (19), not one per frame passed. A client that needs live updates during a drag has to poll.
+
+### Stalls
+`ping_main` at 20 samples (30 s timeout), by phase:
+
+| Situation | `ping` median | `ping_main` median | `ping_main` max |
+|---|---|---|---|
+| Idle | 0.34 ms | 0.45 ms | 0.74 ms |
+| Modal dialog (Render Settings) | 0.47 ms | 0.47 ms | 0.67 ms |
+| Render: texture loading | 0.35 ms | **no reply within 30 s** | — |
+| Render: indirect light precalc | 0.86 ms | 173 ms | 2.05 s |
+| Render: subsurface scattering | 0.63 ms | 116 ms | 287 ms |
+| Render: rendering | 0.89 ms | 127 ms | 388 ms |
+
+- The reader thread (`ping`) answers in about 1 ms in every phase. Use it as the liveness check, to tell "Poser is busy" apart from "the bridge is dead".
+- Modal dialogs don't block `wx.CallAfter`; wxPython's modal loop keeps processing queued calls.
+- During a render, the main thread processes queued calls between chunks of work, with delays of 0.1–0.4 s (up to about 2 s during indirect light). **Texture loading blocks the main thread completely.** Client timeouts for main-thread calls must allow for that, and it can exceed 30 s on large scenes.
+- Not tested yet: `poser.SetRenderInSeparateProcess(...)` may keep the main thread free during renders.
+
+### Reload
+- [x] **Add-ons can't be reloaded without restarting Poser.** `poserScripts/poserStartup.py` imports each folder in `addons/` once, at startup. The `poser` module has `RegisterAddon` but no unregister or reload function, and no UI option to reload was found. After running `scripts/deploy_addon.sh`, restart Poser.
+
+### Introspection
+- [x] `priv/poser_api.json` (322 KiB, `api_hash 4ebd1aa0…`) contains 64 module functions, 37 classes, 1,045 methods, 514 constants, 14 callback-related methods and 0 discovery errors. The largest classes are `ActorType` (182 methods), `SceneType` (175), `TempestOptionsType` (92) and `FigureType` (88).
+- `inspect.signature` fails on every function and method (0 of 1,109) because they're implemented in C. Every docstring includes a typed signature, e.g. `<StringType> AppVersion()`. Wrapper generation should parse signatures from the docstrings.
