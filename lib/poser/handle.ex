@@ -2,8 +2,9 @@ defmodule Poser.Handle do
   @moduledoc """
   A reference to a live Poser object held in the add-on's handle table.
 
-  `epoch` is the client connection it came from; a handle from an earlier
-  connection is stale and is rejected without being sent.
+  `epoch` identifies the client connection it came from (unique within the
+  VM); a handle from any other connection is stale and is rejected without
+  being sent.
   """
 
   @enforce_keys [:class, :id, :generation]
@@ -14,6 +15,6 @@ defmodule Poser.Handle do
           id: pos_integer(),
           generation: non_neg_integer(),
           label: String.t() | nil,
-          epoch: non_neg_integer() | nil
+          epoch: pos_integer() | nil
         }
 end

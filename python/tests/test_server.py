@@ -120,6 +120,21 @@ class ServerTest(unittest.TestCase):
             (atom("I"), (atom("result"), 2), "Value", [], {})]))
         self.assertEqual(r[2][3], atom("nan"))
 
+    def test_handle_from_another_connection_is_stale(self):
+        server = self.start()
+        a, _ = self.connect(server)
+        b, _ = self.connect(server)
+        h = self.call(a, (atom("C"), 1, "Scene", [], {}))[2]
+        scene_b = self.call(b, (atom("C"), 1, "Scene", [], {}))[2]
+        self.call(b, (atom("I"), 2, scene_b, "Actor", ["hip"], {}))
+        r = self.call(b, (atom("I"), 3, h, "Name", [], {}))
+        self.assertEqual(r[2][0], atom("stale_handle"))
+
+    def test_handle_ids_do_not_restart_at_one(self):
+        s, _ = self.connect(self.start())
+        h = self.call(s, (atom("C"), 1, "Scene", [], {}))[2]
+        self.assertNotEqual(h[2], 1)
+
     def test_stats_op(self):
         s, _ = self.connect(self.start())
         self.call(s, (atom("C"), 1, "Scene", [], {}))

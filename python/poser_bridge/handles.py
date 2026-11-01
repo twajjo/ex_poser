@@ -28,11 +28,13 @@ class BadRequest(Exception):
 
 
 class HandleTable(object):
-    def __init__(self, current_generation, cap=10000):
+    def __init__(self, current_generation, cap=10000, ids=None):
+        """`ids` is an id iterator; servers share one across connections so a
+        handle from one connection never names an object in another."""
         self.current_generation = current_generation
         self.cap = cap
         self._objs = collections.OrderedDict()
-        self._ids = itertools.count(1)
+        self._ids = ids if ids is not None else itertools.count(1)
 
     def __len__(self):
         return len(self._objs)

@@ -217,7 +217,9 @@ defmodule Poser.Client do
           state
           | conn: conn,
             info: info,
-            epoch: state.epoch + 1,
+            # Unique across every client in this VM, so a handle from another
+            # client (or an earlier run of this one) is always caught as stale.
+            epoch: :erlang.unique_integer([:positive, :monotonic]),
             backoff: state.opts[:backoff_initial],
             last_inbound: System.monotonic_time(:millisecond)
         }

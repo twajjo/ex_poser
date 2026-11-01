@@ -60,6 +60,19 @@ defmodule Poser.ClientLifecycleTest do
     assert {:ok, %Handle{}} = Client.call("Scene", [], server: c)
   end
 
+  test "a handle from another client is stale, never another object" do
+    server = start_standalone()
+    c1 = start_client(server.session)
+    c2 = start_client(server.session)
+    {:ok, scene1} = Client.call("Scene", [], server: c1)
+    {:ok, hip} = Client.invoke(scene1, "Actor", ["hip"], server: c1)
+    {:ok, scene2} = Client.call("Scene", [], server: c2)
+    {:ok, chest} = Client.invoke(scene2, "Actor", ["chest"], server: c2)
+
+    assert hip.epoch != chest.epoch
+    assert {:error, %Error{kind: :stale_handle}} = Client.invoke(hip, "Name", [], server: c2)
+  end
+
   @tag :capture_log
   test "heartbeat timeout drops a silent connection" do
     scripted = PoserTest.ScriptedServer.start!(fn _ -> :ignore end)

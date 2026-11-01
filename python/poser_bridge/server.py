@@ -7,6 +7,8 @@ main thread when run standalone.
 """
 
 import hmac
+import itertools
+import secrets
 import socket
 import threading
 
@@ -36,6 +38,9 @@ class Server(object):
         self.poser = poser
         self.policy = policy or Policy.dev()
         self.generation = 0
+        # One id sequence for every connection's table (main thread only), with a
+        # random start so ids from before a Poser restart are not reissued.
+        self.handle_ids = itertools.count(secrets.randbelow(2 ** 30) + 2)
         self.listeners, self.conns = [], []
         self.lock = threading.Lock()
 
@@ -155,7 +160,7 @@ class Connection(object):
         if theirs != PROTOCOL:
             self.send((A_E, 0, (atom("protocol_mismatch"), PROTOCOL, theirs)))
             return False
-        handles = HandleTable(server.current_generation)
+        handles = HandleTable(server.current_generation, ids=server.handle_ids)
         self.dispatcher = Dispatcher(server.poser, handles, server.policy)
         reply = dict((atom(k), v) for k, v in server.info.items())
         reply[atom("protocol")] = PROTOCOL
