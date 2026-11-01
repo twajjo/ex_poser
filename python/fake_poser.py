@@ -32,6 +32,7 @@ class ParmType(object):
 class ActorType(object):
     def __init__(self, name):
         self._name = name
+        self.visible = True
         self._parms = [ParmType("xTran", 0.0), ParmType("Weird", float("nan"))]
 
     def Name(self):

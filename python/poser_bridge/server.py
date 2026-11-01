@@ -6,13 +6,13 @@ Poser and a queue-draining fake main thread when run standalone.
 """
 
 import hmac
-import importlib
 import socket
 import threading
 import traceback
 
 from . import codec
 from .codec import atom
+from .dispatch import raw_call
 
 PROTOCOL = 1
 
@@ -165,10 +165,3 @@ class Connection(object):
         except Exception as e:
             self.server.log("poser_bridge: cannot encode reply: %r" % (e,))
 
-
-def raw_call(module, function, args):
-    """Dev mode only: call module.function(*args) (dotted function names allowed)."""
-    target = importlib.import_module(module)
-    for part in function.split("."):
-        target = getattr(target, part)
-    return target(*args)
