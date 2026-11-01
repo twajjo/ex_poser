@@ -1,11 +1,11 @@
 """Run the bridge server outside Poser, with a fake `poser` module.
 
-Tests the transport, codec and threading model without Poser:
+Tests the transport, codec, dispatcher and threading model without Poser:
 
     python3 python/standalone_server.py --session /tmp/session.json
 
-Run it with Poser's own python.exe to check Python 3.7 compatibility and the
-WSL -> Windows network path (add --wsl to also bind the WSL adapter).
+--port 0 picks a free port (written to the session file). The Elixir tests
+start it with --exit-on-stdin-eof so it dies with the test run.
 """
 
 import argparse
@@ -14,45 +14,13 @@ import queue
 import secrets
 import sys
 import threading
-import types
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from poser_bridge import net  # noqa: E402  (imported before the fake poser exists)
+import fake_poser  # noqa: E402
+from poser_bridge import net  # noqa: E402
+from poser_bridge.policy import Policy  # noqa: E402
 from poser_bridge.server import PROTOCOL, Server  # noqa: E402
-
-
-class _Named(object):
-    def __init__(self, name):
-        self._name = name
-
-    def Name(self):
-        return self._name
-
-
-class _FakeScene(object):
-    def __init__(self):
-        self.frame = 0
-
-    def Frame(self):
-        return self.frame
-
-    def NumFrames(self):
-        return 30
-
-    def Figures(self):
-        return [_Named("FakeFigure")]
-
-    def Actors(self):
-        return [_Named("hip"), _Named("chest"), _Named("head")]
-
-
-def _install_fake_poser():
-    scene = _FakeScene()
-    fake = types.ModuleType("poser")
-    fake.Scene = lambda: scene
-    sys.modules["poser"] = fake
-    return scene
 
 
 def main():
@@ -63,7 +31,19 @@ def main():
     p.add_argument("--session", help="session file path (default: %%APPDATA%%)")
     p.add_argument("--events", type=float, default=1.0,
                    help="seconds between fake frame_changed events (0 = off)")
+    p.add_argument("--mode", choices=["dev", "strict"], default="dev")
+    p.add_argument("--api", default=os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                 "..", "priv", "poser_api.json"),
+                   help="API dump used as the strict-mode allowlist")
+    p.add_argument("--exit-on-stdin-eof", action="store_true",
+                   help="exit when stdin closes (for test harnesses)")
     opts = p.parse_args()
+
+    if opts.exit_on_stdin_eof:
+        def watch_stdin():
+            sys.stdin.read()
+            os._exit(0)
+        threading.Thread(target=watch_stdin, daemon=True).start()
 
     hosts = opts.host or ["127.0.0.1"]
     if opts.wsl:
@@ -72,13 +52,16 @@ def main():
             sys.exit("no WSL adapter found")
         hosts.append(ip)
 
-    scene = _install_fake_poser()
+    fake = fake_poser.install()
+    policy = Policy.load(opts.mode, opts.api)
     work = queue.Queue()
     info = {"poser_version": "standalone", "python_version": sys.version.split()[0]}
     log = lambda msg: print(msg, flush=True)  # noqa: E731
-    server = Server(hosts, opts.port, secrets.token_hex(16), work.put, info, log)
+    server = Server(hosts, opts.port, secrets.token_hex(16), work.put, info, log,
+                    poser=fake, policy=policy)
+    fake.on_new_scene = lambda: work.put(server.new_generation)
     server.start()
-    path = net.write_session({"port": opts.port, "token": server.token,
+    path = net.write_session({"port": server.port, "token": server.token,
                               "protocol": PROTOCOL, "hosts": hosts}, opts.session)
     print("session file %s" % path, flush=True)
 
@@ -88,8 +71,9 @@ def main():
         t.start()
 
     def tick():
-        scene.frame = (scene.frame + 1) % scene.NumFrames()
-        server.send_event("frame_changed", scene.frame)
+        scene = fake.Scene()
+        scene.SetFrame((scene.Frame() + 1) % scene.NumFrames())
+        server.send_event("frame_changed", scene.Frame())
         schedule_tick()
 
     if opts.events > 0:

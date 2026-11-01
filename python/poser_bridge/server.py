@@ -1,36 +1,41 @@
 """Socket server for the bridge. Never imports poser or wx.
 
 Threading: accept and reader threads only touch sockets. Anything that may
-call the Poser API is handed to `submit(fn)`, which is wx.CallAfter inside
-Poser and a queue-draining fake main thread when run standalone.
+call the Poser API, or touch a connection's handle table, is handed to
+`submit(fn)`, which is wx.CallAfter inside Poser and a queue-draining fake
+main thread when run standalone.
 """
 
 import hmac
 import socket
 import threading
-import traceback
 
 from . import codec
 from .codec import atom
-from .dispatch import raw_call
+from .dispatch import Dispatcher
+from .handles import HandleTable
+from .policy import Policy
 
 PROTOCOL = 1
 
 A_HELLO = atom("hello")
 A_PING = atom("ping")
 A_PING_MAIN = atom("ping_main")
-A_X = atom("X")
 A_R = atom("r")
 A_E = atom("e")
 A_M = atom("M")
 A_PYTHON = atom("python")
+MAIN_THREAD_OPS = frozenset(atom(t) for t in "CIGBRSX")
 
 
 class Server(object):
-    def __init__(self, hosts, port, token, submit, info=None, log=print):
+    def __init__(self, hosts, port, token, submit, info=None, log=print, poser=None, policy=None):
         self.hosts, self.port, self.token = hosts, port, token
         self.submit, self.log = submit, log
         self.info = dict(info or {})
+        self.poser = poser
+        self.policy = policy or Policy.dev()
+        self.generation = 0
         self.listeners, self.conns = [], []
         self.lock = threading.Lock()
 
@@ -41,7 +46,13 @@ class Server(object):
                 srv.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
             else:
                 srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            srv.bind((host, self.port))
+            try:
+                srv.bind((host, self.port))
+            except OSError:
+                srv.close()
+                raise
+            if self.port == 0:  # ephemeral: every further host binds the same port
+                self.port = srv.getsockname()[1]
             srv.listen(4)
             self.listeners.append(srv)
             threading.Thread(target=self._accept, args=(srv,), daemon=True,
@@ -53,10 +64,29 @@ class Server(object):
             socks = self.listeners + [c.sock for c in self.conns]
             self.listeners, self.conns = [], []
         for s in socks:
+            # shutdown first: on Linux, close() alone leaves a thread blocked in
+            # accept()/recv() holding the socket, so the port stays bound.
+            try:
+                s.shutdown(socket.SHUT_RDWR)
+            except OSError:
+                pass
             try:
                 s.close()
             except OSError:
                 pass
+
+    def current_generation(self):
+        return self.generation
+
+    def new_generation(self):
+        """Main thread only: the scene was replaced, so every handle is stale."""
+        self.generation += 1
+        with self.lock:
+            conns = list(self.conns)
+        for c in conns:
+            if c.dispatcher is not None:
+                c.dispatcher.handles.clear()
+        self.send_event("generation_changed", self.generation)
 
     def send_event(self, name, payload):
         with self.lock:
@@ -88,13 +118,13 @@ class Connection(object):
         self.server, self.sock, self.addr = server, sock, addr
         self.wlock = threading.Lock()
         self.authed = False
+        self.dispatcher = None
 
     def run(self):
         log = self.server.log
         try:
             if not self._handshake(codec.read_frame(self.sock)):
                 return
-            log("poser_bridge: client %s:%d connected" % self.addr)
             while True:
                 self._dispatch(codec.read_frame(self.sock))
         except (EOFError, OSError):
@@ -111,25 +141,30 @@ class Connection(object):
             log("poser_bridge: client %s:%d disconnected" % self.addr)
 
     def _handshake(self, msg):
+        server = self.server
         if not (type(msg) is tuple and len(msg) == 2 and msg[0] == A_HELLO
                 and isinstance(msg[1], dict)):
-            self.server.log("poser_bridge: rejected %s:%d (no hello)" % self.addr)
+            server.log("poser_bridge: rejected %s:%d (no hello)" % self.addr)
             return False
         token = msg[1].get(atom("token"))
         if not (isinstance(token, str)
-                and hmac.compare_digest(token.encode("utf-8"),
-                                        self.server.token.encode("utf-8"))):
-            self.server.log("poser_bridge: rejected %s:%d (bad token)" % self.addr)
+                and hmac.compare_digest(token.encode("utf-8"), server.token.encode("utf-8"))):
+            server.log("poser_bridge: rejected %s:%d (bad token)" % self.addr)
             return False
         theirs = msg[1].get(atom("protocol"))
         if theirs != PROTOCOL:
             self.send((A_E, 0, (atom("protocol_mismatch"), PROTOCOL, theirs)))
             return False
-        reply = dict((atom(k), v) for k, v in self.server.info.items())
+        handles = HandleTable(server.current_generation)
+        self.dispatcher = Dispatcher(server.poser, handles, server.policy)
+        reply = dict((atom(k), v) for k, v in server.info.items())
         reply[atom("protocol")] = PROTOCOL
-        reply[atom("mode")] = atom("dev")
+        reply[atom("mode")] = atom(server.policy.mode)
+        reply[atom("api_hash")] = server.policy.api_hash
         self.authed = True
         self.send((A_R, 0, reply))
+        server.log("poser_bridge: client %s:%d connected (%s)"
+                   % (self.addr + (msg[1].get(atom("client")) or "unknown client",)))
         return True
 
     def _dispatch(self, msg):
@@ -140,21 +175,21 @@ class Connection(object):
             self.send((A_R, mid, atom("pong")))
         elif tag == A_PING_MAIN:
             self.server.submit(lambda: self.send((A_R, mid, atom("pong"))))
-        elif tag == A_X and len(msg) == 5:
-            _, _, module, function, args = msg
-            self.server.submit(lambda: self._call(mid, raw_call, module, function, args))
+        elif tag in MAIN_THREAD_OPS:
+            self.server.submit(lambda: self.reply(self.dispatcher.run(msg)))
         else:
             self.send((A_E, mid, (atom("bad_request"), repr(msg))))
 
-    def _call(self, mid, fn, *args):
-        # main thread: must never raise back into Poser's event loop
+    def reply(self, term):
+        """Send a reply; if it can't be encoded, send an error so the caller isn't left waiting."""
         try:
-            value = fn(*args)
+            with self.wlock:
+                codec.write_frame(self.sock, term)
+        except OSError:
+            pass  # reader thread notices the dead socket and cleans up
         except Exception as e:
-            tb = traceback.format_exception(type(e), e, e.__traceback__)
-            self.send((A_E, mid, (A_PYTHON, type(e).__name__, str(e), tb)))
-        else:
-            self.send((A_R, mid, value))
+            self.server.log("poser_bridge: cannot encode reply: %r" % (e,))
+            self.send((A_E, term[1], (A_PYTHON, "EncodeError", str(e), [])))
 
     def send(self, term):
         try:
@@ -163,5 +198,4 @@ class Connection(object):
         except OSError:
             pass  # reader thread notices the dead socket and cleans up
         except Exception as e:
-            self.server.log("poser_bridge: cannot encode reply: %r" % (e,))
-
+            self.server.log("poser_bridge: cannot encode frame: %r" % (e,))

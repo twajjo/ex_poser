@@ -31,7 +31,7 @@ class Policy(object):
         try:
             with open(api_path, encoding="utf-8") as f:
                 api = json.load(f)
-        except OSError:
+        except (OSError, ValueError):  # missing, unreadable or corrupt
             if mode == "strict":
                 raise
             return cls("dev")

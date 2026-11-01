@@ -68,6 +68,15 @@ class PolicyTest(unittest.TestCase):
         p = Policy.load("dev", MINI + ".missing")
         self.assertEqual((p.mode, p.api_hash), ("dev", None))
 
+    def test_dev_load_with_corrupt_file_is_ok(self):
+        import tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+            f.write("{not json")
+        self.addCleanup(os.remove, f.name)
+        self.assertEqual(Policy.load("dev", f.name).mode, "dev")
+        with self.assertRaises(ValueError):
+            Policy.load("strict", f.name)
+
     def test_api_hash_loaded(self):
         self.assertEqual(self.strict.api_hash, "mini")
         self.assertEqual(Policy.load("dev", MINI).api_hash, "mini")

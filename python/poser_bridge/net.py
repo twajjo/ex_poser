@@ -46,3 +46,14 @@ def write_session(data, path=None):
         json.dump(data, f, indent=2)
     os.replace(tmp, path)
     return path
+
+
+def read_config(path=None):
+    """Optional settings from <session dir>/config.json, e.g. {"mode": "strict"}."""
+    path = path or os.path.join(session_dir(), "config.json")
+    try:
+        with open(path) as f:
+            data = json.load(f)
+    except OSError:
+        return {}
+    return data if isinstance(data, dict) else {}
