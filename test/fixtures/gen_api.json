@@ -1,0 +1,370 @@
+{
+  "meta": {
+    "api_hash": "fixture",
+    "poser_version": "fake-14",
+    "python_version": "3.7.9",
+    "discovery_errors": []
+  },
+  "functions": [
+    {
+      "name": "Scene",
+      "doc": "Get the current scene.\n<SceneType> Scene()",
+      "callback": false,
+      "signature": null,
+      "signature_source": null
+    },
+    {
+      "name": "AppVersion",
+      "doc": "Query the version of the Poser application.\n<StringType> AppVersion()",
+      "callback": false,
+      "signature": null,
+      "signature_source": null
+    },
+    {
+      "name": "Sleep",
+      "doc": "Sleep on the main thread.\n<NoneType> Sleep(<FloatType> seconds)",
+      "callback": false,
+      "signature": null,
+      "signature_source": null
+    },
+    {
+      "name": "SleepThenScene",
+      "doc": "Sleep, then return the scene.\n<SceneType> SleepThenScene(<FloatType> seconds)",
+      "callback": false,
+      "signature": null,
+      "signature_source": null
+    },
+    {
+      "name": "NewScene",
+      "doc": "Replace the scene.\n<NoneType> NewScene()",
+      "callback": false,
+      "signature": null,
+      "signature_source": null
+    },
+    {
+      "name": "CloseDocument",
+      "doc": "Close the document.\n<NoneType> CloseDocument({<IntType> discardChanges = 0})",
+      "callback": false,
+      "signature": null,
+      "signature_source": null
+    }
+  ],
+  "classes": {
+    "SceneObjectType": {
+      "bases": [],
+      "doc": null,
+      "attributes": [],
+      "errors": [],
+      "methods": [
+        {
+          "name": "Name",
+          "doc": "Get the name.\n<StringType> Name()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "InternalName",
+          "doc": "Get the internal name.\n<StringType> InternalName()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        }
+      ]
+    },
+    "SceneType": {
+      "bases": [],
+      "doc": null,
+      "attributes": [],
+      "errors": [],
+      "methods": [
+        {
+          "name": "Frame",
+          "doc": "Get the current frame.\n<IntType> Frame()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "SetFrame",
+          "doc": "Set the current frame.\n<NoneType> SetFrame(<IntType> n)",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "NumFrames",
+          "doc": "Get the number of frames.\n<IntType> NumFrames()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "Actor",
+          "doc": "Find an actor by name.\n<ActorType> Actor(<StringType> name)",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "Actors",
+          "doc": "Get all actors.\n<ActorType List> Actors()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "Figures",
+          "doc": "Get all figures.\n<FigureType List> Figures()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "Figure",
+          "doc": "Find a figure by name.\n<FigureType> Figure(<StringType> name)",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        }
+      ]
+    },
+    "FigureType": {
+      "bases": [
+        "SceneObjectType"
+      ],
+      "doc": null,
+      "attributes": [],
+      "errors": [],
+      "methods": [
+        {
+          "name": "Actors",
+          "doc": "Get the figure's actors.\n<ActorType List> Actors()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "Name",
+          "doc": "Get the name.\n<StringType> Name()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "InternalName",
+          "doc": "Get the internal name.\n<StringType> InternalName()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        }
+      ]
+    },
+    "ActorType": {
+      "bases": [
+        "SceneObjectType"
+      ],
+      "doc": null,
+      "attributes": [],
+      "errors": [],
+      "methods": [
+        {
+          "name": "Name",
+          "doc": "Get the name.\n<StringType> Name()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "InternalName",
+          "doc": "Get the internal name.\n<StringType> InternalName()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "Parameter",
+          "doc": "Get a parameter by name. Docs may say \"\"\"quoted\"\"\" or #{interpolated}.\n<ParmType> Parameter(<StringType> parmName)",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "Parameters",
+          "doc": "Get all parameters.\n<ParmType List> Parameters()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "Geometry",
+          "doc": "Get the geometry.\n<GeomType> Geometry()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "BrokenGetter",
+          "doc": "A getter that always raises.\n<IntType> BrokenGetter()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "Odd",
+          "doc": "An unparseable docstring.\n<IntType> Odd(<IntType size)",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "SetUpdateCallback",
+          "doc": "Set a callback.\n<NoneType> SetUpdateCallback(<FunctionType> callback, {<object> cbArgs})",
+          "callback": true,
+          "signature": null,
+          "signature_source": null
+        }
+      ]
+    },
+    "ParmType": {
+      "bases": [
+        "SceneObjectType"
+      ],
+      "doc": null,
+      "attributes": [],
+      "errors": [],
+      "methods": [
+        {
+          "name": "Name",
+          "doc": "Get the name.\n<StringType> Name()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "InternalName",
+          "doc": "Get the internal name.\n<StringType> InternalName()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "Value",
+          "doc": "Get the value.\n<FloatType> Value()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "SetValue",
+          "doc": "Set the value.\n<NoneType> SetValue(<FloatType> value)",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        }
+      ]
+    },
+    "GeomType": {
+      "bases": [],
+      "doc": null,
+      "attributes": [],
+      "errors": [],
+      "methods": [
+        {
+          "name": "NumVertices",
+          "doc": "Get the number of vertices.\n<IntType> NumVertices()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "numVertices",
+          "doc": "Lowercase alias.\n<IntType> numVertices()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "VertexPositions",
+          "doc": "Get vertex positions.\n<FloatType nx3 Numeric.Array> VertexPositions()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "SetVertexPositions",
+          "doc": "Set vertex positions.\n<NoneType> SetVertexPositions(<FloatType nx3 Numeric.Array> positions)",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "Vertices",
+          "doc": "Get all vertices.\n<VertexType List> Vertices()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "Node",
+          "doc": "Get a node by index; clashes with Kernel.node.\n<IntType> Node(<IntType> index)",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        }
+      ]
+    },
+    "VertexType": {
+      "bases": [],
+      "doc": null,
+      "attributes": [],
+      "errors": [],
+      "methods": [
+        {
+          "name": "X",
+          "doc": "Get x.\n<FloatType> X()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        }
+      ]
+    },
+    "ImageType": {
+      "bases": [],
+      "doc": "An image.\nTo create an ImageType instance you must pass in 1 argument, the full path: <ImageType> poser.ImageType(<StringType> fullImagePath)",
+      "attributes": [],
+      "errors": [],
+      "methods": [
+        {
+          "name": "Path",
+          "doc": "Get the path.\n<StringType> Path()",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        }
+      ]
+    },
+    "error": {
+      "bases": [
+        "Exception",
+        "BaseException"
+      ],
+      "doc": null,
+      "attributes": [],
+      "errors": [],
+      "methods": [
+        {
+          "name": "with_traceback",
+          "doc": "Exception.with_traceback(tb) --\n    set self.__traceback__ to tb and return self.",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        }
+      ]
+    }
+  },
+  "constants": {
+    "kParmCodeXTRAN": 1
+  },
+  "other_module_attributes": []
+}

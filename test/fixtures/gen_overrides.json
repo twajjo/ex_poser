@@ -1,0 +1,8 @@
+{
+  "signatures": {},
+  "skip": {},
+  "smoke_skip": {},
+  "constant_groups": [
+    "ParmCode"
+  ]
+}

@@ -29,9 +29,35 @@ class ParmType(object):
         self._value = v
 
 
+class VertexType(object):
+    def __init__(self, x):
+        self._x = x
+
+    def X(self):
+        return self._x
+
+
+class ImageType(object):
+    def __init__(self, path):
+        self._path = path
+
+    def Path(self):
+        return self._path
+
+
 class GeomType(object):
     def __init__(self):
         self._positions = None
+        self._vertices = [VertexType(float(i)) for i in range(5)]
+
+    def Vertices(self):
+        return list(self._vertices)
+
+    def Node(self, index):
+        return index
+
+    def numVertices(self):
+        return self.NumVertices()
 
     def NumVertices(self):
         return 0 if self._positions is None else len(self._positions)
@@ -67,6 +93,15 @@ class ActorType(object):
 
     def Geometry(self):
         return self._geom
+
+    def BrokenGetter(self):
+        raise RuntimeError("broken getter")
+
+    def Odd(self, *args):
+        return len(args)
+
+    def SetUpdateCallback(self, callback, args=None):
+        self._callback = callback
 
 
 class FigureType(object):
@@ -153,6 +188,7 @@ def install():
     mod.error = error
     mod.SceneType, mod.FigureType, mod.ActorType, mod.ParmType, mod.GeomType = (
         SceneType, FigureType, ActorType, ParmType, GeomType)
+    mod.VertexType, mod.ImageType = VertexType, ImageType
     mod.kParmCodeXTRAN = 1
     sys.modules["poser"] = mod
     return mod
