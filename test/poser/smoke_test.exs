@@ -20,6 +20,7 @@ defmodule Poser.SmokeTest do
     assert g["SceneType.Frame"]["module"] == "PoserTest.GenApi.SceneType"
     assert g["SceneType.Frame"]["function"] == "frame"
     assert g["ActorType.BrokenGetter"]["outcomes"]["python"] == %{"RuntimeError" => 3}
+    assert g["ActorType.BrokenGetter"]["python_example"] =~ "RuntimeError: broken getter"
     assert g["ActorType.Name"]["outcomes"]["ok"] == 3
     assert report["summary"]["python"] == 3
     assert report["summary"]["bad_request"] == 0
@@ -44,6 +45,13 @@ defmodule Poser.SmokeTest do
 
   test "smoke_skip getters are not called", %{c: c, manifest: m} do
     refute Map.has_key?(Smoke.run(m, server: c)["getters"], "SceneType.NumFrames")
+  end
+
+  test "smoke_no_follow getters are called, results not explored", %{c: c, manifest: m} do
+    report = Smoke.run(m, server: c)
+    assert report["getters"]["SceneType.Figures"]["outcomes"]["ok"] == 1
+    refute Map.has_key?(report["explored"], "FigureType")
+    assert {:ok, %{"handles" => 0}} = Client.stats(server: c)
   end
 
   test "heavy getters are skipped unless asked for", %{c: c, manifest: m} do

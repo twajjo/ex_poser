@@ -52,7 +52,11 @@
   },
   "smoke_skip": {
     "poser.CredManager": "credentials: the walk must not read or record them",
-    "CredManagerType.FacebookAccessToken": "credential: would be written to the smoke report"
+    "CredManagerType.FacebookAccessToken": "credential: would be written to the smoke report",
+    "ParmType.NumMorphTargetDeltas": "crashes Poser 14 when called on a parm that isn't a morph target (live check, 2026-11-02)"
+  },
+  "smoke_no_follow": {
+    "ActorType.Gimbal": "returns gimbal pseudo-parms that Poser rejects as invalid parameter objects; exploring them starves ParmType of real parms"
   },
   "constant_groups": [
     "NodeTypeCodeCycles",

@@ -94,15 +94,28 @@ defmodule Poser.Smoke do
 
       entry =
         case result do
-          {:ok, v} -> Map.put_new(entry, "sample", inspect(v, limit: 5, printable_limit: 80))
-          _ -> entry
+          {:ok, v} ->
+            Map.put_new(entry, "sample", inspect(v, limit: 5, printable_limit: 80))
+
+          {:error, %Error{kind: :python, class: class, message: msg}} ->
+            Map.put_new(entry, "python_example", String.slice("#{class}: #{msg}", 0, 200))
+
+          _ ->
+            entry
         end
 
       st = put_entry(st, key, entry)
 
-      case result do
-        {:ok, v} -> keep_or_release(st, Codec.handles_in(v))
-        _ -> st
+      case {result, g["follow"]} do
+        {{:ok, v}, false} ->
+          release(Codec.handles_in(v), st)
+          st
+
+        {{:ok, v}, _} ->
+          keep_or_release(st, Codec.handles_in(v))
+
+        _ ->
+          st
       end
     end
   end

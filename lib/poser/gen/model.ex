@@ -174,7 +174,10 @@ defmodule Poser.Gen.Model do
             })
 
           {:ok,
-           fun |> Map.put(:spec, spec(fun, ctx)) |> Map.put(:getter?, getter?(fun, key, ctx))}
+           fun
+           |> Map.put(:spec, spec(fun, ctx))
+           |> Map.put(:getter?, getter?(fun, key, ctx))
+           |> Map.put(:follow?, not Map.has_key?(ctx.overrides["smoke_no_follow"] || %{}, key))}
         end
     end
   end
@@ -395,7 +398,8 @@ defmodule Poser.Gen.Model do
       %{
         "function" => Atom.to_string(f.name),
         "py_name" => f.py_name,
-        "returns" => type_text(f.returns)
+        "returns" => type_text(f.returns),
+        "follow" => Map.get(f, :follow?, true)
       }
     end
   end

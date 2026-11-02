@@ -98,6 +98,12 @@ defmodule Poser.Gen.ModelTest do
     assert fun(model, "SceneType", :frame).getter?
   end
 
+  test "smoke_no_follow marks a getter's results as not explored", %{model: model} do
+    getters = model.manifest["classes"]["SceneType"]["getters"]
+    assert %{"follow" => false} = Enum.find(getters, &(&1["py_name"] == "Figures"))
+    assert %{"follow" => true} = Enum.find(getters, &(&1["py_name"] == "Actors"))
+  end
+
   test "the manifest counts every entry", %{model: model} do
     s = model.manifest["summary"]
     assert s["generated"] + s["skipped"] == 43

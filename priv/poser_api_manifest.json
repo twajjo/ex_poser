@@ -7,421 +7,505 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "alignment_rotation_xyz",
           "py_name": "AlignmentRotationXYZ",
           "returns": "(FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "all_custom_data",
           "py_name": "AllCustomData",
           "returns": "object"
         },
         {
+          "follow": true,
           "function": "alt_geom_file_name",
           "py_name": "AltGeomFileName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "ambient_occlusion",
           "py_name": "AmbientOcclusion",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "ambient_occlusion_bias",
           "py_name": "AmbientOcclusionBias",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "ambient_occlusion_distance",
           "py_name": "AmbientOcclusionDistance",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "ambient_occlusion_strength",
           "py_name": "AmbientOcclusionStrength",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "animatable_origin",
           "py_name": "AnimatableOrigin",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "atmosphere_strength",
           "py_name": "AtmosphereStrength",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "backface_cull",
           "py_name": "BackfaceCull",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "base",
           "py_name": "Base",
           "returns": "ActorType"
         },
         {
+          "follow": true,
           "function": "bends",
           "py_name": "Bends",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "casts_shadows",
           "py_name": "CastsShadows",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "children",
           "py_name": "Children",
           "returns": "ActorType List"
         },
         {
+          "follow": true,
           "function": "crease_angle",
           "py_name": "CreaseAngle",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "displacement_bounds",
           "py_name": "DisplacementBounds",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "display_origin",
           "py_name": "DisplayOrigin",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "display_style",
           "py_name": "DisplayStyle",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "geom_file_name",
           "py_name": "GeomFileName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "geometry",
           "py_name": "Geometry",
           "returns": "GeomType"
         },
         {
+          "follow": true,
           "function": "get_id_type",
           "py_name": "GetIdType",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "get_light_intensity",
           "py_name": "GetLightIntensity",
           "returns": "FloatType"
         },
         {
+          "follow": false,
           "function": "gimbal",
           "py_name": "Gimbal",
           "returns": "((IntType, IntType, IntType), (ParmType, ParmType, ParmType))"
         },
         {
+          "follow": true,
           "function": "internal_name",
           "py_name": "InternalName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "is_base",
           "py_name": "IsBase",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_body_part",
           "py_name": "IsBodyPart",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_camera",
           "py_name": "IsCamera",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_control_prop",
           "py_name": "IsControlProp",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_deformer",
           "py_name": "IsDeformer",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_figure",
           "py_name": "IsFigure",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_hair_prop",
           "py_name": "IsHairProp",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_light",
           "py_name": "IsLight",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_locked",
           "py_name": "IsLocked",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_measurement",
           "py_name": "IsMeasurement",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_parm",
           "py_name": "IsParm",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_prop",
           "py_name": "IsProp",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_prop_instance",
           "py_name": "IsPropInstance",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_zone",
           "py_name": "IsZone",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "its_figure",
           "py_name": "ItsFigure",
           "returns": "FigureType"
         },
         {
+          "follow": true,
           "function": "light_atten_type",
           "py_name": "LightAttenType",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "light_on",
           "py_name": "LightOn",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "light_preview",
           "py_name": "LightPreview",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "light_type",
           "py_name": "LightType",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "local_displacement",
           "py_name": "LocalDisplacement",
           "returns": "(FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "local_matrix",
           "py_name": "LocalMatrix",
           "returns": "FloatType 4x4 Tuple"
         },
         {
+          "follow": true,
           "function": "local_quaternion",
           "py_name": "LocalQuaternion",
           "returns": "(FloatType, FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "magnet_affected_objects",
           "py_name": "MagnetAffectedObjects",
           "returns": "ActorType list"
         },
         {
+          "follow": true,
           "function": "magnet_uses_weight_map",
           "py_name": "MagnetUsesWeightMap",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "materials",
           "py_name": "Materials",
           "returns": "MaterialType List"
         },
         {
+          "follow": true,
           "function": "measurement_value",
           "py_name": "MeasurementValue",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "name",
           "py_name": "Name",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "next_key_frame",
           "py_name": "NextKeyFrame",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_hair_groups",
           "py_name": "NumHairGroups",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "numb_subdiv_levels",
           "py_name": "NumbSubdivLevels",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "numb_subdiv_render_levels",
           "py_name": "NumbSubdivRenderLevels",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "on_off",
           "py_name": "OnOff",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "orientation",
           "py_name": "Orientation",
           "returns": "(FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "origin",
           "py_name": "Origin",
           "returns": "(FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "parameters",
           "py_name": "Parameters",
           "returns": "ParmType List"
         },
         {
+          "follow": true,
           "function": "parent",
           "py_name": "Parent",
           "returns": "ActorType"
         },
         {
+          "follow": true,
           "function": "prev_key_frame",
           "py_name": "PrevKeyFrame",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "ray_trace_shadows",
           "py_name": "RayTraceShadows",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "scale_matrix",
           "py_name": "ScaleMatrix",
           "returns": "FloatType 4x4 Tuple"
         },
         {
+          "follow": true,
           "function": "shading_rate",
           "py_name": "ShadingRate",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "shadow",
           "py_name": "Shadow",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "shadow_bias_max",
           "py_name": "ShadowBiasMax",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "shadow_bias_min",
           "py_name": "ShadowBiasMin",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "shadow_blur_radius",
           "py_name": "ShadowBlurRadius",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "shadow_raytrace_softness",
           "py_name": "ShadowRaytraceSoftness",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "shadow_samples",
           "py_name": "ShadowSamples",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "smooth_polys",
           "py_name": "SmoothPolys",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "static",
           "py_name": "Static",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "subdiv_geometry",
           "py_name": "SubdivGeometry",
           "returns": "GeomType"
         },
         {
+          "follow": true,
           "function": "subdivide_with_figure",
           "py_name": "SubdivideWithFigure",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "value_parameters",
           "py_name": "ValueParameters",
           "returns": "ParmType List"
         },
         {
+          "follow": true,
           "function": "visible",
           "py_name": "Visible",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "visible_in_camera",
           "py_name": "VisibleInCamera",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "visible_in_idl",
           "py_name": "VisibleInIDL",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "visible_in_reflections",
           "py_name": "VisibleInReflections",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "visible_in_render",
           "py_name": "VisibleInRender",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "world_displacement",
           "py_name": "WorldDisplacement",
           "returns": "(FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "world_matrix",
           "py_name": "WorldMatrix",
           "returns": "FloatType 4x4 Tuple"
         },
         {
+          "follow": true,
           "function": "world_quaternion",
           "py_name": "WorldQuaternion",
           "returns": "(FloatType, FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "zones",
           "py_name": "Zones",
           "returns": "ActorType List"
@@ -435,21 +519,25 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "attributes",
           "py_name": "Attributes",
           "returns": "TupleType list"
         },
         {
+          "follow": true,
           "function": "name",
           "py_name": "Name",
           "returns": "String"
         },
         {
+          "follow": true,
           "function": "object_range",
           "py_name": "ObjectRange",
           "returns": "(IntType, IntType)"
         },
         {
+          "follow": true,
           "function": "parameters",
           "py_name": "Parameters",
           "returns": "ParmType list"
@@ -463,21 +551,25 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "current_cloth_actor",
           "py_name": "CurrentClothActor",
           "returns": "ActorType"
         },
         {
+          "follow": true,
           "function": "draping_frames",
           "py_name": "DrapingFrames",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "name",
           "py_name": "Name",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "steps_per_frame",
           "py_name": "StepsPerFrame",
           "returns": "IntType"
@@ -491,6 +583,7 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "wants_password_saved",
           "py_name": "WantsPasswordSaved",
           "returns": "IntType"
@@ -511,6 +604,7 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "path",
           "py_name": "Path",
           "returns": "StringType"
@@ -524,6 +618,7 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "path",
           "py_name": "Path",
           "returns": "StringType"
@@ -537,6 +632,7 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "text",
           "py_name": "Text",
           "returns": "StringType"
@@ -550,196 +646,235 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "actors",
           "py_name": "Actors",
           "returns": "ActorType List"
         },
         {
+          "follow": true,
           "function": "all_custom_data",
           "py_name": "AllCustomData",
           "returns": "object"
         },
         {
+          "follow": true,
           "function": "conform_target",
           "py_name": "ConformTarget",
           "returns": "FigureType"
         },
         {
+          "follow": true,
           "function": "display_style",
           "py_name": "DisplayStyle",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "follow_origins_when_conforming",
           "py_name": "FollowOriginsWhenConforming",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "geom_file_name",
           "py_name": "GeomFileName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "get_id_type",
           "py_name": "GetIdType",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "ik_names",
           "py_name": "IkNames",
           "returns": "StringType list"
         },
         {
+          "follow": true,
           "function": "include_morphs_when_conforming",
           "py_name": "IncludeMorphsWhenConforming",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "include_scales_when_conforming",
           "py_name": "IncludeScalesWhenConforming",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "include_translations_when_conforming",
           "py_name": "IncludeTranslationsWhenConforming",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "internal_name",
           "py_name": "InternalName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "is_base",
           "py_name": "IsBase",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_body_part",
           "py_name": "IsBodyPart",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_camera",
           "py_name": "IsCamera",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_control_prop",
           "py_name": "IsControlProp",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_deformer",
           "py_name": "IsDeformer",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_figure",
           "py_name": "IsFigure",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_hair_prop",
           "py_name": "IsHairProp",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_light",
           "py_name": "IsLight",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_locked",
           "py_name": "IsLocked",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_measurement",
           "py_name": "IsMeasurement",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_parm",
           "py_name": "IsParm",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_prop",
           "py_name": "IsProp",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_prop_instance",
           "py_name": "IsPropInstance",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_zone",
           "py_name": "IsZone",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "match_endpoints_when_conforming",
           "py_name": "MatchEndpointsWhenConforming",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "materials",
           "py_name": "Materials",
           "returns": "MaterialType List"
         },
         {
+          "follow": true,
           "function": "name",
           "py_name": "Name",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "num_ik_chains",
           "py_name": "NumIkChains",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "numb_subdiv_levels",
           "py_name": "NumbSubdivLevels",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "numb_subdiv_render_levels",
           "py_name": "NumbSubdivRenderLevels",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "parent_actor",
           "py_name": "ParentActor",
           "returns": "ActorType"
         },
         {
+          "follow": true,
           "function": "root_actor",
           "py_name": "RootActor",
           "returns": "ActorType"
         },
         {
+          "follow": true,
           "function": "skin_type",
           "py_name": "SkinType",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "startup_script",
           "py_name": "StartupScript",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "subdiv_geometry",
           "py_name": "SubdivGeometry",
           "returns": "GeomType"
         },
         {
+          "follow": true,
           "function": "unimesh_info",
           "py_name": "UnimeshInfo",
           "returns": "(GeomType, actor-list, per-actor-vertex-info-list)"
         },
         {
+          "follow": true,
           "function": "visible",
           "py_name": "Visible",
           "returns": "IntType"
@@ -753,96 +888,115 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "groups",
           "py_name": "Groups",
           "returns": "StringType list"
         },
         {
+          "follow": true,
           "function": "materials",
           "py_name": "Materials",
           "returns": "MaterialType List"
         },
         {
+          "follow": true,
           "function": "normals",
           "py_name": "Normals",
           "returns": "VertexType List"
         },
         {
+          "follow": true,
           "function": "num_materials",
           "py_name": "NumMaterials",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_normals",
           "py_name": "NumNormals",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_polygons",
           "py_name": "NumPolygons",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_sets",
           "py_name": "NumSets",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_tex_polygons",
           "py_name": "NumTexPolygons",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_tex_sets",
           "py_name": "NumTexSets",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_tex_vertices",
           "py_name": "NumTexVertices",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_vertices",
           "py_name": "NumVertices",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "polygons",
           "py_name": "Polygons",
           "returns": "PolygonType List"
         },
         {
+          "follow": true,
           "function": "sets",
           "py_name": "Sets",
           "returns": "IntType List"
         },
         {
+          "follow": true,
           "function": "tex_polygons",
           "py_name": "TexPolygons",
           "returns": "TexPolygonType List"
         },
         {
+          "follow": true,
           "function": "tex_sets",
           "py_name": "TexSets",
           "returns": "IntType List"
         },
         {
+          "follow": true,
           "function": "tex_vertices",
           "py_name": "TexVertices",
           "returns": "TexVertexType List"
         },
         {
+          "follow": true,
           "function": "vertices",
           "py_name": "Vertices",
           "returns": "VertexType List"
         },
         {
+          "follow": true,
           "function": "world_normals",
           "py_name": "WorldNormals",
           "returns": "VertexType List"
         },
         {
+          "follow": true,
           "function": "world_vertices",
           "py_name": "WorldVertices",
           "returns": "VertexType List"
@@ -856,126 +1010,151 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "air_damping",
           "py_name": "AirDamping",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "bend_resistance",
           "py_name": "BendResistance",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "clumpiness",
           "py_name": "Clumpiness",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "collisions_on",
           "py_name": "CollisionsOn",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "density",
           "py_name": "Density",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "gravity",
           "py_name": "Gravity",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "hair_prop",
           "py_name": "HairProp",
           "returns": "ActorType"
         },
         {
+          "follow": true,
           "function": "kink_delay",
           "py_name": "KinkDelay",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "kink_scale",
           "py_name": "KinkScale",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "kink_strength",
           "py_name": "KinkStrength",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "length_max",
           "py_name": "LengthMax",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "length_min",
           "py_name": "LengthMin",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "name",
           "py_name": "Name",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "numb_pop_hairs",
           "py_name": "NumbPopHairs",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "numb_verts_per_hair",
           "py_name": "NumbVertsPerHair",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "position_force",
           "py_name": "PositionForce",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "pull_back",
           "py_name": "PullBack",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "pull_down",
           "py_name": "PullDown",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "pull_left",
           "py_name": "PullLeft",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "root_stiffness",
           "py_name": "RootStiffness",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "root_stiffness_falloff",
           "py_name": "RootStiffnessFalloff",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "root_width",
           "py_name": "RootWidth",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "spring_damping",
           "py_name": "SpringDamping",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "spring_strength",
           "py_name": "SpringStrength",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "tip_width",
           "py_name": "TipWidth",
           "returns": "FloatType"
@@ -996,21 +1175,25 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "get_alpha",
           "py_name": "GetAlpha",
           "returns": "PointerType"
         },
         {
+          "follow": true,
           "function": "get_data",
           "py_name": "GetData",
           "returns": "PointerType"
         },
         {
+          "follow": true,
           "function": "get_height",
           "py_name": "GetHeight",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "get_width",
           "py_name": "GetWidth",
           "returns": "IntType"
@@ -1024,21 +1207,25 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "ext_name",
           "py_name": "ExtName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "name",
           "py_name": "Name",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "shader_tree",
           "py_name": "ShaderTree",
           "returns": "ShaderTreeType"
         },
         {
+          "follow": true,
           "function": "shader_tree_hash",
           "py_name": "ShaderTreeHash",
           "returns": "StringType"
@@ -1059,121 +1246,145 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "ambient_color",
           "py_name": "AmbientColor",
           "returns": "(FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "ambient_map_file_name",
           "py_name": "AmbientMapFileName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "bump_map_file_name",
           "py_name": "BumpMapFileName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "bump_strength",
           "py_name": "BumpStrength",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "diffuse_color",
           "py_name": "DiffuseColor",
           "returns": "(FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "ext_name",
           "py_name": "ExtName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "layers",
           "py_name": "Layers",
           "returns": "ListType"
         },
         {
+          "follow": true,
           "function": "name",
           "py_name": "Name",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "ns",
           "py_name": "Ns",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "num_layers",
           "py_name": "NumLayers",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "reflection_color",
           "py_name": "ReflectionColor",
           "returns": "(FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "reflection_map_file_name",
           "py_name": "ReflectionMapFileName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "reflection_strength",
           "py_name": "ReflectionStrength",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "selected",
           "py_name": "Selected",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "shader_tree",
           "py_name": "ShaderTree",
           "returns": "ShaderTreeType"
         },
         {
+          "follow": true,
           "function": "shader_tree_hash",
           "py_name": "ShaderTreeHash",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "specular_color",
           "py_name": "SpecularColor",
           "returns": "(FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "specular_map_file_name",
           "py_name": "SpecularMapFileName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "texture_color",
           "py_name": "TextureColor",
           "returns": "(FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "texture_map_file_name",
           "py_name": "TextureMapFileName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "transparency_expo",
           "py_name": "TransparencyExpo",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "transparency_map_file_name",
           "py_name": "TransparencyMapFileName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "transparency_max",
           "py_name": "TransparencyMax",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "transparency_min",
           "py_name": "TransparencyMin",
           "returns": "FloatType"
@@ -1187,6 +1398,7 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "name",
           "py_name": "Name",
           "returns": "StringType"
@@ -1207,66 +1419,79 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "antialias",
           "py_name": "Antialias",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "frame_options",
           "py_name": "FrameOptions",
           "returns": "(IntType, IntType)"
         },
         {
+          "follow": true,
           "function": "get_auto_delete_frames",
           "py_name": "GetAutoDeleteFrames",
           "returns": "BoolType"
         },
         {
+          "follow": true,
           "function": "get_auto_make_movie",
           "py_name": "GetAutoMakeMovie",
           "returns": "BoolType"
         },
         {
+          "follow": true,
           "function": "get_auto_open_folder",
           "py_name": "GetAutoOpenFolder",
           "returns": "BoolType"
         },
         {
+          "follow": true,
           "function": "get_auto_play_movie",
           "py_name": "GetAutoPlayMovie",
           "returns": "BoolType"
         },
         {
+          "follow": true,
           "function": "motion_blur",
           "py_name": "MotionBlur",
           "returns": "(IntType, FloatType)"
         },
         {
+          "follow": true,
           "function": "movie_format",
           "py_name": "MovieFormat",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "movie_renderer",
           "py_name": "MovieRenderer",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "output_end_frame",
           "py_name": "OutputEndFrame",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "output_formats",
           "py_name": "OutputFormats",
           "returns": "ListType"
         },
         {
+          "follow": true,
           "function": "output_res",
           "py_name": "OutputRes",
           "returns": "(IntType, IntType)"
         },
         {
+          "follow": true,
           "function": "output_start_frame",
           "py_name": "OutputStartFrame",
           "returns": "IntType"
@@ -1280,6 +1505,7 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "get_id",
           "py_name": "GetId",
           "returns": "IntType"
@@ -1293,191 +1519,223 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "actor",
           "py_name": "Actor",
           "returns": "ActorType"
         },
         {
+          "follow": true,
           "function": "constant_at_frame",
           "py_name": "ConstantAtFrame",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "force_limits",
           "py_name": "ForceLimits",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "get_id_type",
           "py_name": "GetIdType",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "hidden",
           "py_name": "Hidden",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "init_value",
           "py_name": "InitValue",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "internal_name",
           "py_name": "InternalName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "is_base",
           "py_name": "IsBase",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_body_part",
           "py_name": "IsBodyPart",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_camera",
           "py_name": "IsCamera",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_control_prop",
           "py_name": "IsControlProp",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_deformer",
           "py_name": "IsDeformer",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_figure",
           "py_name": "IsFigure",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_hair_prop",
           "py_name": "IsHairProp",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_light",
           "py_name": "IsLight",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_measurement",
           "py_name": "IsMeasurement",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_morph_target",
           "py_name": "IsMorphTarget",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_parm",
           "py_name": "IsParm",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_prop",
           "py_name": "IsProp",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_prop_instance",
           "py_name": "IsPropInstance",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_value_parameter",
           "py_name": "IsValueParameter",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_zone",
           "py_name": "IsZone",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "linear_at_frame",
           "py_name": "LinearAtFrame",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "max_value",
           "py_name": "MaxValue",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "min_value",
           "py_name": "MinValue",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "name",
           "py_name": "Name",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "next_key_frame",
           "py_name": "NextKeyFrame",
           "returns": "IntType"
         },
         {
-          "function": "num_morph_target_deltas",
-          "py_name": "NumMorphTargetDeltas",
-          "returns": "IntType"
-        },
-        {
+          "follow": true,
           "function": "num_value_operations",
           "py_name": "NumValueOperations",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "prev_key_frame",
           "py_name": "PrevKeyFrame",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "sensitivity",
           "py_name": "Sensitivity",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "spline_at_frame",
           "py_name": "SplineAtFrame",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "spline_break_at_frame",
           "py_name": "SplineBreakAtFrame",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "type_code",
           "py_name": "TypeCode",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "unaffected_value",
           "py_name": "UnaffectedValue",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "value",
           "py_name": "Value",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "value_operations",
           "py_name": "ValueOperations",
           "returns": "ValueOperationType List"
         },
         {
+          "follow": true,
           "function": "wants_conform",
           "py_name": "WantsConform",
           "returns": "IntType"
@@ -1491,26 +1749,31 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "groups",
           "py_name": "Groups",
           "returns": "StringType list"
         },
         {
+          "follow": true,
           "function": "material_index",
           "py_name": "MaterialIndex",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "material_name",
           "py_name": "MaterialName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "num_vertices",
           "py_name": "NumVertices",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "vertices",
           "py_name": "Vertices",
           "returns": "VertexType List"
@@ -1527,81 +1790,97 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "get_id_type",
           "py_name": "GetIdType",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "internal_name",
           "py_name": "InternalName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "is_base",
           "py_name": "IsBase",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_body_part",
           "py_name": "IsBodyPart",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_camera",
           "py_name": "IsCamera",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_control_prop",
           "py_name": "IsControlProp",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_deformer",
           "py_name": "IsDeformer",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_figure",
           "py_name": "IsFigure",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_hair_prop",
           "py_name": "IsHairProp",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_light",
           "py_name": "IsLight",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_measurement",
           "py_name": "IsMeasurement",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_parm",
           "py_name": "IsParm",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_prop",
           "py_name": "IsProp",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_prop_instance",
           "py_name": "IsPropInstance",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "is_zone",
           "py_name": "IsZone",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "name",
           "py_name": "Name",
           "returns": "StringType"
@@ -1615,291 +1894,349 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "actors",
           "py_name": "Actors",
           "returns": "ActorType List"
         },
         {
+          "follow": true,
           "function": "anim_sets",
           "py_name": "AnimSets",
           "returns": "AnimSetType list"
         },
         {
+          "follow": true,
           "function": "atmosphere_shader_tree",
           "py_name": "AtmosphereShaderTree",
           "returns": "ShaderTreeType"
         },
         {
+          "follow": true,
           "function": "background_color",
           "py_name": "BackgroundColor",
           "returns": "(FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "background_image",
           "py_name": "BackgroundImage",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "background_movie",
           "py_name": "BackgroundMovie",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "background_shader_tree",
           "py_name": "BackgroundShaderTree",
           "returns": "ShaderTreeType"
         },
         {
+          "follow": true,
           "function": "cameras",
           "py_name": "Cameras",
           "returns": "ActorType List"
         },
         {
+          "follow": true,
           "function": "changed",
           "py_name": "Changed",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "current_actor",
           "py_name": "CurrentActor",
           "returns": "ActorType"
         },
         {
+          "follow": true,
           "function": "current_camera",
           "py_name": "CurrentCamera",
           "returns": "ActorType"
         },
         {
+          "follow": true,
           "function": "current_figure",
           "py_name": "CurrentFigure",
           "returns": "FigureType"
         },
         {
+          "follow": true,
           "function": "current_fire_fly_options",
           "py_name": "CurrentFireFlyOptions",
           "returns": "TempestOptionsType"
         },
         {
+          "follow": true,
           "function": "current_light",
           "py_name": "CurrentLight",
           "returns": "ActorType"
         },
         {
+          "follow": true,
           "function": "current_material",
           "py_name": "CurrentMaterial",
           "returns": "MaterialType"
         },
         {
+          "follow": true,
           "function": "current_material_layer",
           "py_name": "CurrentMaterialLayer",
           "returns": "MaterialLayerType"
         },
         {
+          "follow": true,
           "function": "current_render_engine",
           "py_name": "CurrentRenderEngine",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "current_super_fly_options",
           "py_name": "CurrentSuperFlyOptions",
           "returns": "SuperFlyOptionsType"
         },
         {
+          "follow": true,
           "function": "display_style",
           "py_name": "DisplayStyle",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "document_path",
           "py_name": "DocumentPath",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "figures",
           "py_name": "Figures",
           "returns": "FigureType list"
         },
         {
+          "follow": true,
           "function": "foreground_color",
           "py_name": "ForegroundColor",
           "returns": "(FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "frame",
           "py_name": "Frame",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "frames_per_second",
           "py_name": "FramesPerSecond",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "ground_color",
           "py_name": "GroundColor",
           "returns": "(FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "im_exporter",
           "py_name": "ImExporter",
           "returns": "ImExporterType"
         },
         {
+          "follow": true,
           "function": "lights",
           "py_name": "Lights",
           "returns": "ActorType List"
         },
         {
+          "follow": true,
           "function": "material_node_manager",
           "py_name": "MaterialNodeManager",
           "returns": "NodeMangerType"
         },
         {
+          "follow": true,
           "function": "measurements",
           "py_name": "Measurements",
           "returns": "ActorType List"
         },
         {
+          "follow": true,
           "function": "morph_files",
           "py_name": "MorphFiles",
           "returns": "StringType list"
         },
         {
+          "follow": true,
           "function": "movie_maker",
           "py_name": "MovieMaker",
           "returns": "MovieMakerType"
         },
         {
+          "follow": true,
           "function": "next_key_frame",
           "py_name": "NextKeyFrame",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "next_key_frame_all",
           "py_name": "NextKeyFrameAll",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_body_parts",
           "py_name": "NumBodyParts",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_bump_maps",
           "py_name": "NumBumpMaps",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_cameras",
           "py_name": "NumCameras",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_cloth_simulators",
           "py_name": "NumClothSimulators",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_figures",
           "py_name": "NumFigures",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_frames",
           "py_name": "NumFrames",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_geometries",
           "py_name": "NumGeometries",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_image_maps",
           "py_name": "NumImageMaps",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_lights",
           "py_name": "NumLights",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_props",
           "py_name": "NumProps",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "output_range",
           "py_name": "OutputRange",
           "returns": "(IntType, IntType)"
         },
         {
+          "follow": true,
           "function": "output_res",
           "py_name": "OutputRes",
           "returns": "(IntType, IntType)"
         },
         {
+          "follow": true,
           "function": "prev_key_frame",
           "py_name": "PrevKeyFrame",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "prev_key_frame_all",
           "py_name": "PrevKeyFrameAll",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "resolution",
           "py_name": "Resolution",
           "returns": "(FloatType)"
         },
         {
+          "follow": true,
           "function": "resolution_scale",
           "py_name": "ResolutionScale",
           "returns": "(IntType)"
         },
         {
+          "follow": true,
           "function": "scene_b_box",
           "py_name": "SceneBBox",
           "returns": "BoundingBoxTuppel"
         },
         {
+          "follow": true,
           "function": "shadow_color",
           "py_name": "ShadowColor",
           "returns": "(FloatType, FloatType, FloatType)"
         },
         {
+          "follow": true,
           "function": "sound",
           "py_name": "Sound",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "sound_range",
           "py_name": "SoundRange",
           "returns": "(IntType, IntType)"
         },
         {
+          "follow": true,
           "function": "startup_script",
           "py_name": "StartupScript",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "use_limits",
           "py_name": "UseLimits",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "wacro_lights",
           "py_name": "WacroLights",
           "returns": "ActorType list"
         },
         {
+          "follow": true,
           "function": "wacro_material_layers",
           "py_name": "WacroMaterialLayers",
           "returns": "MaterialLayerType list"
         },
         {
+          "follow": true,
           "function": "wacro_materials",
           "py_name": "WacroMaterials",
           "returns": "MaterialType list"
@@ -1913,26 +2250,31 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "contained_nodes",
           "py_name": "ContainedNodes",
           "returns": "ListType"
         },
         {
+          "follow": true,
           "function": "exposed_inputs",
           "py_name": "ExposedInputs",
           "returns": "ListType"
         },
         {
+          "follow": true,
           "function": "exposed_inputs_location",
           "py_name": "ExposedInputsLocation",
           "returns": "(IntType, IntType)"
         },
         {
+          "follow": true,
           "function": "exposed_outputs",
           "py_name": "ExposedOutputs",
           "returns": "ListType"
         },
         {
+          "follow": true,
           "function": "exposed_outputs_location",
           "py_name": "ExposedOutputsLocation",
           "returns": "(IntType, IntType)"
@@ -1946,56 +2288,67 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "animated",
           "py_name": "Animated",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "can_be_animated",
           "py_name": "CanBeAnimated",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "in_node",
           "py_name": "InNode",
           "returns": "ShaderNodeType"
         },
         {
+          "follow": true,
           "function": "in_output",
           "py_name": "InOutput",
           "returns": "ShaderNodeOutputType"
         },
         {
+          "follow": true,
           "function": "internal_name",
           "py_name": "InternalName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "its_node",
           "py_name": "ItsNode",
           "returns": "ShaderNodeType"
         },
         {
+          "follow": true,
           "function": "name",
           "py_name": "Name",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "parameters",
           "py_name": "Parameters",
           "returns": "(ParmType, ParmType, ParmType)"
         },
         {
+          "follow": true,
           "function": "texture",
           "py_name": "Texture",
           "returns": "TextureType"
         },
         {
+          "follow": true,
           "function": "type",
           "py_name": "Type",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "value",
           "py_name": "Value",
           "returns": "FloatType | (FloatType, FloatType, FloatType) | StringType"
@@ -2009,16 +2362,19 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "internal_name",
           "py_name": "InternalName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "its_node",
           "py_name": "ItsNode",
           "returns": "ShaderNodeType"
         },
         {
+          "follow": true,
           "function": "name",
           "py_name": "Name",
           "returns": "StringType"
@@ -2032,71 +2388,85 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "compound_data",
           "py_name": "CompoundData",
           "returns": "ShaderNodeCompoundDataType"
         },
         {
+          "follow": true,
           "function": "inputs",
           "py_name": "Inputs",
           "returns": "ShaderNodeInputType list"
         },
         {
+          "follow": true,
           "function": "inputs_collapsed",
           "py_name": "InputsCollapsed",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "internal_name",
           "py_name": "InternalName",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "is_root",
           "py_name": "IsRoot",
           "returns": "BoolType"
         },
         {
+          "follow": true,
           "function": "location",
           "py_name": "Location",
           "returns": "(IntType, IntType)"
         },
         {
+          "follow": true,
           "function": "name",
           "py_name": "Name",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "num_inputs",
           "py_name": "NumInputs",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "num_outputs",
           "py_name": "NumOutputs",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "outputs",
           "py_name": "Outputs",
           "returns": "ShaderNodeOutputType list"
         },
         {
+          "follow": true,
           "function": "preview_collapsed",
           "py_name": "PreviewCollapsed",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "preview_visible",
           "py_name": "PreviewVisible",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "selected_output",
           "py_name": "SelectedOutput",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "type",
           "py_name": "Type",
           "returns": "StringType"
@@ -2110,11 +2480,13 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "nodes",
           "py_name": "Nodes",
           "returns": "ListType"
         },
         {
+          "follow": true,
           "function": "num_nodes",
           "py_name": "NumNodes",
           "returns": "IntType"
@@ -2128,146 +2500,175 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "ao_samples",
           "py_name": "AOSamples",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "bucket_size",
           "py_name": "BucketSize",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "clamp_direct_samples",
           "py_name": "ClampDirectSamples",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "clamp_indirect_samples",
           "py_name": "ClampIndirectSamples",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "depth_of_field",
           "py_name": "DepthOfField",
           "returns": "BoolType"
         },
         {
+          "follow": true,
           "function": "device",
           "py_name": "Device",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "devices",
           "py_name": "Devices",
           "returns": "ListType"
         },
         {
+          "follow": true,
           "function": "diffuse_bounces",
           "py_name": "DiffuseBounces",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "diffuse_samples",
           "py_name": "DiffuseSamples",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "filter_glossy",
           "py_name": "FilterGlossy",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "glossy_bounces",
           "py_name": "GlossyBounces",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "glossy_samples",
           "py_name": "GlossySamples",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "max_bounces",
           "py_name": "MaxBounces",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "max_transparent_bounces",
           "py_name": "MaxTransparentBounces",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "mesh_light_samples",
           "py_name": "MeshLightSamples",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "min_bounces",
           "py_name": "MinBounces",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "min_transparent_bounces",
           "py_name": "MinTransparentBounces",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "motion_blur",
           "py_name": "MotionBlur",
           "returns": "BoolType"
         },
         {
+          "follow": true,
           "function": "pixel_samples",
           "py_name": "PixelSamples",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "progressive_refinement",
           "py_name": "ProgressiveRefinement",
           "returns": "BoolType"
         },
         {
+          "follow": true,
           "function": "reflective_caustics",
           "py_name": "ReflectiveCaustics",
           "returns": "BoolType"
         },
         {
+          "follow": true,
           "function": "refractive_caustics",
           "py_name": "RefractiveCaustics",
           "returns": "BoolType"
         },
         {
+          "follow": true,
           "function": "sample_all_lights_direct",
           "py_name": "SampleAllLightsDirect",
           "returns": "BoolType"
         },
         {
+          "follow": true,
           "function": "sample_all_lights_indirect",
           "py_name": "SampleAllLightsIndirect",
           "returns": "BoolType"
         },
         {
+          "follow": true,
           "function": "subsurface_samples",
           "py_name": "SubsurfaceSamples",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "transmission_bounces",
           "py_name": "TransmissionBounces",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "transmission_samples",
           "py_name": "TransmissionSamples",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "volume_bounces",
           "py_name": "VolumeBounces",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "volume_samples",
           "py_name": "VolumeSamples",
           "returns": "IntType"
@@ -2281,216 +2682,259 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "auto_value",
           "py_name": "AutoValue",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "bucket_size",
           "py_name": "BucketSize",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "depth_of_field",
           "py_name": "DepthOfField",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "displacement",
           "py_name": "Displacement",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "displacement_bounds",
           "py_name": "DisplacementBounds",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "draw_toon_outline",
           "py_name": "DrawToonOutline",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "filter_size",
           "py_name": "FilterSize",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "filter_type",
           "py_name": "FilterType",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "gamma",
           "py_name": "Gamma",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "gi_intensity",
           "py_name": "GIIntensity",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "gi_max_error",
           "py_name": "GIMaxError",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "gi_num_bounces",
           "py_name": "GINumBounces",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "gi_num_samples",
           "py_name": "GINumSamples",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "gi_only_render",
           "py_name": "GIOnlyRender",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "gi_pass_scale",
           "py_name": "GIPassScale",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "hdri_output",
           "py_name": "HDRIOutput",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "hider",
           "py_name": "Hider",
           "returns": "StringType"
         },
         {
+          "follow": true,
           "function": "manual",
           "py_name": "Manual",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "max_error",
           "py_name": "MaxError",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "max_ray_depth",
           "py_name": "MaxRayDepth",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "max_sample_size",
           "py_name": "MaxSampleSize",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "max_texture_res",
           "py_name": "MaxTextureRes",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "min_shading_rate",
           "py_name": "MinShadingRate",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "motion_blur",
           "py_name": "MotionBlur",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "pixel_samples",
           "py_name": "PixelSamples",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "ray_accelerator",
           "py_name": "RayAccelerator",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "ray_tracing",
           "py_name": "RayTracing",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "shadow_only_render",
           "py_name": "ShadowOnlyRender",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "shadows",
           "py_name": "Shadows",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "smooth_polys",
           "py_name": "SmoothPolys",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "texture_cache_compression",
           "py_name": "TextureCacheCompression",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "texture_cache_size",
           "py_name": "TextureCacheSize",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "texture_filtering",
           "py_name": "TextureFiltering",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "tone_exposure",
           "py_name": "ToneExposure",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "tone_gain",
           "py_name": "ToneGain",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "tone_mapper",
           "py_name": "ToneMapper",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "toon_outline_style",
           "py_name": "ToonOutlineStyle",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "use_gamma",
           "py_name": "UseGamma",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "use_gi",
           "py_name": "UseGI",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "use_irradiance_cache",
           "py_name": "UseIrradianceCache",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "use_occlusion_culling",
           "py_name": "UseOcclusionCulling",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "use_sss",
           "py_name": "UseSSS",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "use_texture_cache",
           "py_name": "UseTextureCache",
           "returns": "IntType"
@@ -2504,11 +2948,13 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "num_tex_vertices",
           "py_name": "NumTexVertices",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "tex_vertices",
           "py_name": "TexVertices",
           "returns": "TexVertexType List"
@@ -2522,11 +2968,13 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "u",
           "py_name": "U",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "v",
           "py_name": "V",
           "returns": "FloatType"
@@ -2540,11 +2988,13 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "gamma",
           "py_name": "Gamma",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "use_scene_gamma",
           "py_name": "UseSceneGamma",
           "returns": "IntType"
@@ -2558,31 +3008,37 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "delta",
           "py_name": "Delta",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "num_keys",
           "py_name": "NumKeys",
           "returns": "IntType"
         },
         {
+          "follow": true,
           "function": "parameter",
           "py_name": "Parameter",
           "returns": "ParmType"
         },
         {
+          "follow": true,
           "function": "source_parameter",
           "py_name": "SourceParameter",
           "returns": "ParmType"
         },
         {
+          "follow": true,
           "function": "strength",
           "py_name": "Strength",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "type",
           "py_name": "Type",
           "returns": "IntType"
@@ -2596,16 +3052,19 @@
       ],
       "getters": [
         {
+          "follow": true,
           "function": "x",
           "py_name": "X",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "y",
           "py_name": "Y",
           "returns": "FloatType"
         },
         {
+          "follow": true,
           "function": "z",
           "py_name": "Z",
           "returns": "FloatType"
@@ -8206,7 +8665,7 @@
     "ParmType.NumMorphTargetDeltas": {
       "arity": 2,
       "function": "num_morph_target_deltas",
-      "getter": true,
+      "getter": false,
       "module": "Poser.Api.ParmType",
       "returns": "IntType",
       "source": "docstring",
@@ -13658,111 +14117,133 @@
   },
   "module_getters": [
     {
+      "follow": true,
       "function": "app_location",
       "py_name": "AppLocation",
       "returns": "StringType"
     },
     {
+      "follow": true,
       "function": "app_version",
       "py_name": "AppVersion",
       "returns": "StringType"
     },
     {
+      "follow": true,
       "function": "bitness",
       "py_name": "Bitness",
       "returns": "StringType"
     },
     {
+      "follow": true,
       "function": "command_names",
       "py_name": "CommandNames",
       "returns": "List of StringType"
     },
     {
+      "follow": true,
       "function": "content_root_location",
       "py_name": "ContentRootLocation",
       "returns": "StringType"
     },
     {
+      "follow": true,
       "function": "current_command",
       "py_name": "CurrentCommand",
       "returns": "IntType"
     },
     {
+      "follow": true,
       "function": "current_room",
       "py_name": "CurrentRoom",
       "returns": "IntType"
     },
     {
+      "follow": true,
       "function": "flavor",
       "py_name": "Flavor",
       "returns": "StringType"
     },
     {
+      "follow": true,
       "function": "is_game_dev",
       "py_name": "IsGameDev",
       "returns": "IntType"
     },
     {
+      "follow": true,
       "function": "is_pro",
       "py_name": "IsPro",
       "returns": "IntType"
     },
     {
+      "follow": true,
       "function": "language",
       "py_name": "Language",
       "returns": "IntType"
     },
     {
+      "follow": true,
       "function": "libraries",
       "py_name": "Libraries",
       "returns": "StringType"
     },
     {
+      "follow": true,
       "function": "num_render_threads",
       "py_name": "NumRenderThreads",
       "returns": "IntType"
     },
     {
+      "follow": true,
       "function": "palettes",
       "py_name": "Palettes",
       "returns": "list Palettes"
     },
     {
+      "follow": true,
       "function": "prefs_location",
       "py_name": "PrefsLocation",
       "returns": "StringType"
     },
     {
+      "follow": true,
       "function": "preview_render_engine_type",
       "py_name": "PreviewRenderEngineType",
       "returns": "IntType"
     },
     {
+      "follow": true,
       "function": "rooms",
       "py_name": "Rooms",
       "returns": "list IntType"
     },
     {
+      "follow": true,
       "function": "scene",
       "py_name": "Scene",
       "returns": "SceneType"
     },
     {
+      "follow": true,
       "function": "script_location",
       "py_name": "ScriptLocation",
       "returns": "StringType"
     },
     {
+      "follow": true,
       "function": "temp_location",
       "py_name": "TempLocation",
       "returns": "String"
     },
     {
+      "follow": true,
       "function": "version",
       "py_name": "Version",
       "returns": "StringType"
     },
     {
+      "follow": true,
       "function": "write_binary_morphs",
       "py_name": "WriteBinaryMorphs",
       "returns": "IntType"
@@ -13780,7 +14261,7 @@
     ],
     "docstring": 1054,
     "generated": 1098,
-    "getters": 487,
+    "getters": 486,
     "override": 44,
     "skipped": 11,
     "total": 1109,
