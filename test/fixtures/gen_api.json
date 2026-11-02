@@ -47,6 +47,13 @@
       "callback": false,
       "signature": null,
       "signature_source": null
+    },
+    {
+      "name": "FirstLink",
+      "doc": "The first link of a chain.\n<LinkType> FirstLink()",
+      "callback": false,
+      "signature": null,
+      "signature_source": null
     }
   ],
   "classes": {
@@ -311,6 +318,20 @@
           "callback": false,
           "signature": null,
           "signature_source": null
+        },
+        {
+          "name": "Mixed",
+          "doc": "Required after optional.\n<NoneType> Mixed(<IntType> a {, <IntType> b} <IntType> c)",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        },
+        {
+          "name": "ExportWith",
+          "doc": "Optional callback.\n<NoneType> ExportWith(<StringType> path, {<DictType> options, <FunctionType> cb, <object> cbArgs})",
+          "callback": true,
+          "signature": null,
+          "signature_source": null
         }
       ]
     },
@@ -356,6 +377,21 @@
         {
           "name": "with_traceback",
           "doc": "Exception.with_traceback(tb) --\n    set self.__traceback__ to tb and return self.",
+          "callback": false,
+          "signature": null,
+          "signature_source": null
+        }
+      ]
+    },
+    "LinkType": {
+      "bases": [],
+      "doc": null,
+      "attributes": [],
+      "errors": [],
+      "methods": [
+        {
+          "name": "Next",
+          "doc": "The next link; arrives one at a time.\n<LinkType> Next()",
           "callback": false,
           "signature": null,
           "signature_source": null

@@ -134,6 +134,8 @@ defmodule Poser.Smoke do
   end
 
   # Enqueue handles whose class still has room; release the rest now.
+  # `queued` counts every handle ever enqueued for a class (explored ones
+  # included), so it alone bounds the class at per_class.
   defp keep_or_release(st, handles) do
     {st, drop} =
       Enum.reduce(handles, {st, []}, fn %Handle{class: class} = h, {st, drop} ->
@@ -141,7 +143,7 @@ defmodule Poser.Smoke do
           not Map.has_key?(st.manifest["classes"], class) ->
             {%{st | unknown_classes: MapSet.put(st.unknown_classes, class)}, [h | drop]}
 
-          Map.get(st.explored, class, 0) + Map.get(st.queued, class, 0) < st.per_class ->
+          Map.get(st.queued, class, 0) < st.per_class ->
             {%{
                st
                | queue: :queue.in(h, st.queue),

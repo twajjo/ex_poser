@@ -40,6 +40,8 @@ defmodule Poser.NDArrayTest do
       NDArray.to_nx(%NDArray{dtype: ">f4", shape: {1}, data: <<0::32>>})
     end
 
-    assert_raise ArgumentError, ~r/\{:f, 16\}/, fn -> NDArray.from_nx(Nx.tensor([1.0], type: :f16)) end
+    assert_raise ArgumentError, ~r/\{:f, 16\}/, fn ->
+      NDArray.from_nx(Nx.tensor([1.0], type: :f16))
+    end
   end
 end

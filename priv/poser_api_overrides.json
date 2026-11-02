@@ -50,7 +50,10 @@
     "ClothSimulatorType.CalculateDyamics": "misspelt alias of CalculateDynamics, kept by Poser for backwards compatibility",
     "error.with_traceback": "exception class, not a Poser object"
   },
-  "smoke_skip": {},
+  "smoke_skip": {
+    "poser.CredManager": "credentials: the walk must not read or record them",
+    "CredManagerType.FacebookAccessToken": "credential: would be written to the smoke report"
+  },
   "constant_groups": [
     "NodeTypeCodeCycles",
     "PreviewRenderEngineTypeCode",

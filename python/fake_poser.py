@@ -22,11 +22,24 @@ class ParmType(object):
     def Name(self):
         return self._name
 
+    def InternalName(self):
+        return self._name.lower()
+
     def Value(self):
         return self._value
 
     def SetValue(self, v):
         self._value = v
+
+
+class LinkType(object):
+    """A chain whose links arrive one at a time (smoke-walk test)."""
+
+    def __init__(self, n):
+        self._n = n
+
+    def Next(self):
+        return LinkType(self._n + 1)
 
 
 class VertexType(object):
@@ -178,17 +191,21 @@ def install():
         x.append(x)
         return x
 
+    def FirstLink():
+        return LinkType(0)
+
     def NewScene():
         state["scene"] = SceneType()
         mod.on_new_scene()
 
     mod.Scene, mod.AppVersion, mod.Sleep = Scene, AppVersion, Sleep
     mod.SleepThenScene, mod.Cyclic, mod.NewScene = SleepThenScene, Cyclic, NewScene
+    mod.FirstLink = FirstLink
     mod.on_new_scene = lambda: None
     mod.error = error
     mod.SceneType, mod.FigureType, mod.ActorType, mod.ParmType, mod.GeomType = (
         SceneType, FigureType, ActorType, ParmType, GeomType)
-    mod.VertexType, mod.ImageType = VertexType, ImageType
+    mod.VertexType, mod.ImageType, mod.LinkType = VertexType, ImageType, LinkType
     mod.kParmCodeXTRAN = 1
     sys.modules["poser"] = mod
     return mod

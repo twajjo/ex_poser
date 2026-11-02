@@ -21,9 +21,7 @@ defmodule Poser.SmokeTest do
     assert g["SceneType.Frame"]["function"] == "frame"
     assert g["ActorType.BrokenGetter"]["outcomes"]["python"] == %{"RuntimeError" => 3}
     assert g["ActorType.Name"]["outcomes"]["ok"] == 3
-    # plus 3 AttributeErrors: the fake ParmType lacks the InternalName the fixture declares
-    assert report["summary"]["python"] == 6
-    assert report["getters"]["ParmType.InternalName"]["outcomes"]["python"] == %{"AttributeError" => 3}
+    assert report["summary"]["python"] == 3
     assert report["summary"]["bad_request"] == 0
   end
 
@@ -37,6 +35,15 @@ defmodule Poser.SmokeTest do
     assert Enum.all?(report["explored"], fn {_class, n} -> n <= 1 end)
     assert report["explored"]["ActorType"] == 1
     assert report["getters"]["ActorType.Name"]["calls"] == 1
+  end
+
+  test "per_class is reached when objects of a class arrive one at a time", %{c: c, manifest: m} do
+    assert Smoke.run(m, server: c)["explored"]["LinkType"] == 3
+    assert Smoke.run(m, server: c, per_class: 5)["explored"]["LinkType"] == 5
+  end
+
+  test "smoke_skip getters are not called", %{c: c, manifest: m} do
+    refute Map.has_key?(Smoke.run(m, server: c)["getters"], "SceneType.NumFrames")
   end
 
   test "heavy getters are skipped unless asked for", %{c: c, manifest: m} do

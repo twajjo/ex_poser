@@ -80,11 +80,29 @@ defmodule Poser.Gen.ModelTest do
     assert model.manifest["entries"]["ActorType.Odd"]["source"] == "variadic"
   end
 
+  test "a required parameter after an optional one falls back to variadic", %{model: model} do
+    f = fun(model, "GeomType", :mixed)
+    assert f.source == :variadic
+    assert f.note =~ "required parameter after an optional one"
+  end
+
+  test "an optional callback parameter is dropped with what follows it", %{model: model} do
+    f = fun(model, "GeomType", :export_with)
+    assert [%{var: :path}] = f.required
+    assert f.optional == [options: :none]
+    assert model.manifest["entries"]["GeomType.ExportWith"]["note"] =~ "callback parameters dropped"
+  end
+
+  test "smoke_skip keeps a function out of the getters", %{model: model} do
+    refute fun(model, "SceneType", :num_frames).getter?
+    assert fun(model, "SceneType", :frame).getter?
+  end
+
   test "the manifest counts every entry", %{model: model} do
     s = model.manifest["summary"]
-    assert s["generated"] + s["skipped"] == 39
+    assert s["generated"] + s["skipped"] == 43
     assert s["skipped"] == 3
-    assert s["variadic"] == 1
+    assert s["variadic"] == 2
 
     assert model.manifest["entries"]["ActorType.Parameter"]["module"] ==
              "PoserTest.GenApi.ActorType"

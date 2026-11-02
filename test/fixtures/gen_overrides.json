@@ -1,7 +1,9 @@
 {
   "signatures": {},
   "skip": {},
-  "smoke_skip": {},
+  "smoke_skip": {
+    "SceneType.NumFrames": "test: skipped by override"
+  },
   "constant_groups": [
     "ParmCode",
     "NodeTypeCode",

@@ -491,11 +491,6 @@
       ],
       "getters": [
         {
-          "function": "facebook_access_token",
-          "py_name": "FacebookAccessToken",
-          "returns": "StringType"
-        },
-        {
           "function": "wants_password_saved",
           "py_name": "WantsPasswordSaved",
           "returns": "IntType"
@@ -4799,7 +4794,7 @@
     "CredManagerType.FacebookAccessToken": {
       "arity": 2,
       "function": "facebook_access_token",
-      "getter": true,
+      "getter": false,
       "module": "Poser.Api.CredManagerType",
       "returns": "StringType",
       "source": "docstring",
@@ -13099,7 +13094,7 @@
     "poser.CredManager": {
       "arity": 1,
       "function": "cred_manager",
-      "getter": true,
+      "getter": false,
       "module": "Poser.Api",
       "returns": "CredManagerType",
       "source": "docstring",
@@ -13688,11 +13683,6 @@
       "returns": "StringType"
     },
     {
-      "function": "cred_manager",
-      "py_name": "CredManager",
-      "returns": "CredManagerType"
-    },
-    {
       "function": "current_command",
       "py_name": "CurrentCommand",
       "returns": "IntType"
@@ -13790,7 +13780,7 @@
     ],
     "docstring": 1054,
     "generated": 1098,
-    "getters": 489,
+    "getters": 487,
     "override": 44,
     "skipped": 11,
     "total": 1109,
