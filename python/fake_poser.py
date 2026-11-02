@@ -29,11 +29,26 @@ class ParmType(object):
         self._value = v
 
 
+class GeomType(object):
+    def __init__(self):
+        self._positions = None
+
+    def NumVertices(self):
+        return 0 if self._positions is None else len(self._positions)
+
+    def VertexPositions(self):
+        return self._positions
+
+    def SetVertexPositions(self, positions):
+        self._positions = positions
+
+
 class ActorType(object):
     def __init__(self, name):
         self._name = name
         self.visible = True
         self._parms = [ParmType("xTran", 0.0), ParmType("Weird", float("nan"))]
+        self._geom = GeomType()
 
     def Name(self):
         return self._name
@@ -49,6 +64,9 @@ class ActorType(object):
 
     def Parameters(self):
         return list(self._parms)
+
+    def Geometry(self):
+        return self._geom
 
 
 class FigureType(object):
@@ -133,8 +151,8 @@ def install():
     mod.SleepThenScene, mod.Cyclic, mod.NewScene = SleepThenScene, Cyclic, NewScene
     mod.on_new_scene = lambda: None
     mod.error = error
-    mod.SceneType, mod.FigureType, mod.ActorType, mod.ParmType = (
-        SceneType, FigureType, ActorType, ParmType)
+    mod.SceneType, mod.FigureType, mod.ActorType, mod.ParmType, mod.GeomType = (
+        SceneType, FigureType, ActorType, ParmType, GeomType)
     mod.kParmCodeXTRAN = 1
     sys.modules["poser"] = mod
     return mod

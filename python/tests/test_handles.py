@@ -99,3 +99,56 @@ class HandleTableTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+try:
+    import numpy as np
+except ImportError:  # the add-on and these tests also run without numpy
+    np = None
+
+import poser_bridge.handles as handles_mod
+
+
+@unittest.skipUnless(np, "numpy not installed")
+class NumpyTest(unittest.TestCase):
+    def setUp(self):
+        self.poser = fake_poser.install()
+        self.table = HandleTable(lambda: 0)
+
+    def test_ndarray_round_trip(self):
+        a = np.arange(6, dtype="<f4").reshape(2, 3)
+        w = self.table.wrap(a)
+        self.assertEqual(w, (NDARRAY, "<f4", (2, 3), a.tobytes()))
+        b = self.table.resolve(w)
+        self.assertEqual(b.dtype, a.dtype)
+        self.assertEqual(b.shape, (2, 3))
+        self.assertTrue((a == b).all())
+        b[0, 0] = 9  # a writable copy, not a view of the frame bytes
+        self.assertEqual(b[0, 0], 9)
+
+    def test_numpy_scalars_become_plain(self):
+        for v, want, t in [(np.int64(3), 3, int), (np.float32(0.5), 0.5, float),
+                           (np.bool_(True), True, bool)]:
+            got = self.table.wrap(v)
+            self.assertEqual(got, want)
+            self.assertIs(type(got), t)
+
+    def test_object_array_becomes_list(self):
+        actors = self.poser.Scene().Actors()[:2]
+        got = self.table.wrap(np.array(actors, dtype=object))
+        self.assertEqual(type(got), list)
+        self.assertEqual([h[0] for h in got], [POSER_OBJ, POSER_OBJ])
+
+    def test_bool_array_is_ndarray(self):
+        self.assertEqual(self.table.wrap(np.array([True, False]))[1], "|b1")
+
+
+class NoNumpyTest(unittest.TestCase):
+    def test_resolve_ndarray_without_numpy_is_bad_request(self):
+        saved = handles_mod.numpy
+        handles_mod.numpy = None
+        try:
+            with self.assertRaises(BadRequest):
+                HandleTable(lambda: 0).resolve((NDARRAY, "<f4", (1,), b"\0\0\0\0"))
+        finally:
+            handles_mod.numpy = saved

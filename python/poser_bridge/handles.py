@@ -9,6 +9,11 @@ import numbers
 
 from .erlterms import Atom
 
+try:
+    import numpy
+except ImportError:  # Poser bundles numpy; the standalone tests may not have it
+    numpy = None
+
 POSER_OBJ = Atom(b"poser_obj")
 NDARRAY = Atom(b"ndarray")
 RESULT = Atom(b"result")
@@ -42,6 +47,8 @@ class HandleTable(object):
     def wrap(self, value, depth=0):
         if depth > MAX_DEPTH:
             raise ValueError("value nested too deeply")
+        if numpy is not None and isinstance(value, numpy.generic):
+            return value.item()  # np.int64 etc. are Numbers but erlterms can't encode them
         if isinstance(value, _PLAIN) or isinstance(value, numbers.Number):
             return value
         t = type(value)
@@ -50,6 +57,8 @@ class HandleTable(object):
         if t is dict:
             return dict((k, self.wrap(x, depth + 1)) for k, x in value.items())
         if t.__name__ == "ndarray" and all(hasattr(value, a) for a in ("dtype", "shape", "tobytes")):
+            if getattr(value.dtype, "kind", None) == "O":  # bytes would be pointers
+                return self.wrap(value.tolist(), depth + 1)
             return (NDARRAY, value.dtype.str, tuple(value.shape), value.tobytes())
         return self._store(value)
 
@@ -58,6 +67,8 @@ class HandleTable(object):
         if t is tuple:
             if len(term) == 5 and term[0] == POSER_OBJ:
                 return self._get(term[2], term[3])
+            if len(term) == 4 and term[0] == NDARRAY:
+                return _ndarray(term)
             if len(term) == 2 and term[0] == RESULT:
                 n = term[1]
                 if refs is None or type(n) is not int or not 0 <= n < len(refs):
@@ -93,6 +104,19 @@ class HandleTable(object):
             raise StaleHandle(hid, generation)
         self._objs.move_to_end(hid)
         return self._objs[hid]
+
+
+def _ndarray(term):
+    _, dtype, shape, data = term
+    if numpy is None:
+        raise BadRequest("numpy is not available to receive an ndarray")
+    if not (isinstance(dtype, str) and isinstance(shape, (tuple, list))
+            and all(type(n) is int for n in shape) and isinstance(data, bytes)):
+        raise BadRequest("malformed ndarray %r" % ((dtype, shape),))
+    try:
+        return numpy.frombuffer(data, dtype=dtype).reshape(tuple(shape)).copy()
+    except (TypeError, ValueError) as e:
+        raise BadRequest("bad ndarray: %s" % (e,))
 
 
 def _label(obj):

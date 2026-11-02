@@ -5,6 +5,7 @@ strict: only what priv/poser_api.json lists; raw X calls refused.
 """
 
 import json
+import re
 
 
 class NotAllowed(Exception):
@@ -39,8 +40,10 @@ class Policy(object):
         if mode == "dev":
             return cls("dev", api_hash)
         classes = api["classes"]
+        constructors = [c for c, v in classes.items()
+                        if re.search(r"\bposer\.%s\(" % re.escape(c), v.get("doc") or "")]
         return cls("strict", api_hash,
-                   frozenset(f["name"] for f in api["functions"]),
+                   frozenset([f["name"] for f in api["functions"]] + constructors),
                    dict((c, _collect(classes, c, "methods")) for c in classes),
                    dict((c, _collect(classes, c, "attributes")) for c in classes))
 

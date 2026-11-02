@@ -37,6 +37,13 @@ class PolicyTest(unittest.TestCase):
             self.strict.check_call("Sleep")
         self.assertEqual((cm.exception.kind, cm.exception.name), ("call", "Sleep"))
 
+    def test_strict_allows_documented_constructor(self):
+        self.strict.check_call("ImageType")
+        with self.assertRaises(NotAllowed):
+            self.strict.check_call("Unlisted")
+        with self.assertRaises(NotAllowed):
+            self.strict.check_call("ParmType")  # a class without a documented constructor
+
     def test_strict_rejects_unlisted_method(self):
         self.strict.check_method(self.scene, "Frame")
         with self.assertRaises(NotAllowed) as cm:

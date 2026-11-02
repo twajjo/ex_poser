@@ -128,3 +128,28 @@ class DispatchTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+try:
+    import numpy as np
+except ImportError:
+    np = None
+
+
+@unittest.skipUnless(np, "numpy not installed")
+class DispatchNumpyTest(unittest.TestCase):
+    def setUp(self):
+        self.poser = fake_poser.install()
+        self.d = Dispatcher(self.poser, HandleTable(lambda: 0), Policy.dev())
+
+    def test_dispatch_numpy_arg(self):
+        r = self.d.run((C, 1, "Scene", [], {}))
+        scene = r[2]
+        actor = self.d.run((I, 2, scene, "Actor", ["hip"], {}))[2]
+        geom = self.d.run((I, 3, actor, "Geometry", [], {}))[2]
+        a = np.arange(6, dtype="<f8").reshape(2, 3)
+        sent = (atom("ndarray"), "<f8", (2, 3), a.tobytes())
+        r = self.d.run((I, 4, geom, "SetVertexPositions", [sent], {}))
+        self.assertEqual(r[0], A_R, r)
+        r = self.d.run((I, 5, geom, "VertexPositions", [], {}))
+        self.assertEqual(r[2], sent)
