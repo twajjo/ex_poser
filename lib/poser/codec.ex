@@ -75,11 +75,16 @@ defmodule Poser.Codec do
 
   @doc """
   Converts an outbound value. Raises `ArgumentError` for values Python cannot
-  receive: pids, refs, funs, ports, structs other than `%Poser.Handle{}`, and
+  receive: pids, refs, funs, ports, structs other than `%Poser.Handle{}` and
+  `%Poser.NDArray{}`, and
   binaries that are not valid UTF-8 (send raw bytes as `{:bytes, bin}`).
   """
   @spec to_wire(term()) :: term()
   def to_wire(%Handle{} = h), do: {:poser_obj, h.class, h.id, h.generation, h.label}
+
+  def to_wire(%NDArray{dtype: dtype, shape: shape, data: data})
+      when is_binary(dtype) and is_tuple(shape) and is_binary(data),
+      do: {:ndarray, dtype, shape, data}
 
   def to_wire(%_{} = v),
     do: raise(ArgumentError, "cannot send #{inspect(v)} to Poser (structs are not supported)")
