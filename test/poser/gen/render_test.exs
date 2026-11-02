@@ -43,7 +43,9 @@ defmodule Poser.Gen.RenderTest do
              src =~ ~S(\"""quoted\""" or #{interpolated})
 
     assert PoserTest.GenFixture.diagnostics() == []
-    {:docs_v1, _, _, _, _, _, docs} = Code.fetch_docs(PoserTest.GenFixture.beam(PoserTest.GenApi.ActorType))
+
+    {:docs_v1, _, _, _, _, _, docs} =
+      Code.fetch_docs(PoserTest.GenFixture.beam(PoserTest.GenApi.ActorType))
 
     {_, _, _, %{"en" => doc}, _} =
       Enum.find(docs, &match?({{:function, :parameter, 3}, _, _, _, _}, &1))

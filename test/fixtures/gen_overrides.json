@@ -3,6 +3,9 @@
   "skip": {},
   "smoke_skip": {},
   "constant_groups": [
-    "ParmCode"
+    "ParmCode",
+    "NodeTypeCode",
+    "NodeTypeCodeCycles",
+    "TIFF_"
   ]
 }

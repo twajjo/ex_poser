@@ -69,6 +69,7 @@ defmodule Poser.Gen.Model do
       functions: functions,
       modules: modules,
       constants: ctx.constants,
+      const: const_model(ctx.constants, overrides["constant_groups"] || [], namespace),
       meta: dump["meta"] || %{},
       manifest: manifest(dump, namespace, functions, modules, entries)
     }
@@ -289,6 +290,53 @@ defmodule Poser.Gen.Model do
   defp accepts(classes, class) do
     descendants = for {c, _} <- classes, class in ancestors(classes, c), do: c
     Enum.sort([class | descendants])
+  end
+
+  # --- constants ---
+
+  # kParmCodeXSCALE with group ParmCode -> parm_code(:xscale); the longest
+  # matching group prefix wins, and ungrouped constants are fetch/1 only.
+  defp const_model(constants, groups, namespace) do
+    module =
+      namespace |> Module.split() |> Enum.drop(-1) |> Kernel.++(["Const"]) |> Module.concat()
+
+    groups = Enum.sort_by(groups, &{-String.length(&1), &1})
+
+    grouped =
+      for {"k" <> rest = py_name, value} <- constants,
+          group = Enum.find(groups, &String.starts_with?(rest, &1)),
+          key = rest |> String.replace_prefix(group, "") |> snake() |> String.trim("_"),
+          key != "" do
+        {group, key, py_name, value}
+      end
+
+    group_list =
+      grouped
+      |> Enum.group_by(&elem(&1, 0))
+      |> Enum.sort()
+      |> Enum.map(fn {group, items} ->
+        # Same key and same value (kSkinTypePOSER, kSkinTypePoser) is an
+        # alias and becomes one key; different values are a real conflict.
+        keys =
+          items
+          |> Enum.group_by(&elem(&1, 1))
+          |> Enum.map(fn {key, dups} ->
+            case dups |> Enum.map(&elem(&1, 3)) |> Enum.uniq() do
+              [value] ->
+                {String.to_atom(key), value,
+                 dups |> Enum.map(&elem(&1, 2)) |> Enum.sort() |> Enum.join(", ")}
+
+              _ ->
+                raise ArgumentError,
+                      "constants #{dups |> Enum.map(&elem(&1, 2)) |> Enum.sort() |> Enum.join(" and ")} " <>
+                        "both map to #{group} key :#{key} with different values"
+            end
+          end)
+
+        %{name: String.to_atom(group |> snake() |> String.trim("_")), keys: Enum.sort(keys)}
+      end)
+
+    %{module: module, groups: group_list, all: constants}
   end
 
   # --- manifest ---

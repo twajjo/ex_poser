@@ -364,7 +364,12 @@
     }
   },
   "constants": {
-    "kParmCodeXTRAN": 1
+    "kParmCodeXTRAN": "xTran",
+    "kParmCodeXSCALE": "xScale",
+    "kNodeTypeCodeCyclesMIX": "cmix",
+    "kNodeTypeCodeBLENDER": "blender",
+    "kLoner": 7,
+    "kTIFF_LZW": 5
   },
   "other_module_attributes": []
 }

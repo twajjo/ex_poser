@@ -51,5 +51,33 @@
     "error.with_traceback": "exception class, not a Poser object"
   },
   "smoke_skip": {},
-  "constant_groups": []
+  "constant_groups": [
+    "NodeTypeCodeCycles",
+    "PreviewRenderEngineTypeCode",
+    "TextureCompressorCode",
+    "RayAcceleratorCode",
+    "RenderEngineCode",
+    "PixelFilterCode",
+    "ValueOpTypeCode",
+    "NodeInputCode",
+    "NodeTypeCode",
+    "ClothParmCode",
+    "ParmCode",
+    "ExOptCode",
+    "ImOptCode",
+    "MetadataProperty",
+    "CmdCode",
+    "DisplayCode",
+    "EventCode",
+    "LightCode",
+    "OutlineCode",
+    "LanguageCode",
+    "ZoneTypeCode",
+    "MirrorType",
+    "SkinType",
+    "Gimbal",
+    "CB",
+    "TIFF_",
+    "Store"
+  ]
 }
