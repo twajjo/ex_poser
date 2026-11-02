@@ -5,9 +5,10 @@ defmodule Poser.NDArrayTest do
 
   test "an NDArray goes on the wire as an ndarray tuple and comes back" do
     a = %NDArray{dtype: "<f4", shape: {1, 2}, data: <<0::32, 0::32>>}
-    assert Codec.to_wire(a) == {:ndarray, "<f4", {1, 2}, <<0::32, 0::32>>}
-    assert Codec.from_wire(Codec.to_wire(a), 1) == a
-    assert Codec.to_wire([a]) == [{:ndarray, "<f4", {1, 2}, <<0::32, 0::32>>}]
+    # data travels as {:bytes, _}: Python's codec turns bare binaries into str
+    assert Codec.to_wire(a) == {:ndarray, "<f4", {1, 2}, {:bytes, <<0::32, 0::32>>}}
+    assert Codec.from_wire({:ndarray, "<f4", {1, 2}, <<0::32, 0::32>>}, 1) == a
+    assert Codec.to_wire([a]) == [{:ndarray, "<f4", {1, 2}, {:bytes, <<0::32, 0::32>>}}]
   end
 
   test "from_nx and to_nx round trip" do

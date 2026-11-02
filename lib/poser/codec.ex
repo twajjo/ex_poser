@@ -84,7 +84,7 @@ defmodule Poser.Codec do
 
   def to_wire(%NDArray{dtype: dtype, shape: shape, data: data})
       when is_binary(dtype) and is_tuple(shape) and is_binary(data),
-      do: {:ndarray, dtype, shape, data}
+      do: {:ndarray, dtype, shape, {:bytes, data}}
 
   def to_wire(%_{} = v),
     do: raise(ArgumentError, "cannot send #{inspect(v)} to Poser (structs are not supported)")

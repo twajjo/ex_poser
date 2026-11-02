@@ -54,6 +54,7 @@ defmodule Poser.Gen.Model do
           mod =
             Map.merge(mod, %{
               accepts: accepts(classes, class),
+              class_doc: spec["doc"],
               constructor: constructor(class, spec["doc"], ctx)
             })
 
