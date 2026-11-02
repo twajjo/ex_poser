@@ -51,4 +51,20 @@ defmodule Poser.LivePoserTest do
     assert {:ok, us} = Client.ping(server: c)
     assert us < 50_000
   end
+
+  @tag timeout: 600_000
+  test "every generated getter runs against the scene without protocol problems", %{c: c} do
+    manifest = "priv/poser_api_manifest.json" |> File.read!() |> JSON.decode!()
+    report = Poser.Smoke.run(manifest, server: c, per_class: 2)
+    s = report["summary"]
+
+    problems =
+      for {key, e} <- report["getters"],
+          Enum.any?(~w(bad_request stale_handle other), &Map.has_key?(e["outcomes"], &1)),
+          do: {key, e["outcomes"]}
+
+    assert problems == []
+    assert s["getters_ok"] >= 300, inspect(s)
+    assert {:ok, %{"handles" => 0}} = Client.stats(server: c)
+  end
 end

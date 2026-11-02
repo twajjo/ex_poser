@@ -20,7 +20,11 @@ defmodule Poser.Gen.Render do
 
   @doc "The manifest as pretty JSON with sorted keys."
   @spec manifest_json(map()) :: iodata()
-  def manifest_json(model), do: [pretty(model.manifest, ""), "\n"]
+  def manifest_json(model), do: json(model.manifest)
+
+  @doc "Any JSON-able term as pretty JSON with sorted keys."
+  @spec json(term()) :: iodata()
+  def json(term), do: [pretty(term, ""), "\n"]
 
   defp path(module), do: Macro.underscore(module) <> ".ex"
 
