@@ -38,4 +38,21 @@ defmodule Poser.ErrorTest do
   test "message omits nil parts" do
     assert Exception.message(%Error{kind: :timeout}) == "timeout"
   end
+
+  test "not_found message renders the path" do
+    e = %Error{
+      kind: :not_found,
+      details: %{
+        path: [{:figure, "figure 1"}, {:actor, "lforearm"}, {:parm, "bend"}],
+        op: nil,
+        cause: nil
+      }
+    }
+
+    assert Exception.message(e) == "not_found: figure 1/lforearm/bend"
+  end
+
+  test "ambiguous message" do
+    assert Exception.message(%Error{kind: :ambiguous, details: %{matches: []}}) == "ambiguous"
+  end
 end

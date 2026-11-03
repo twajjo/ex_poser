@@ -22,7 +22,11 @@ defmodule Poser.Gen.RealGeneratedTest do
   test "credential getters are kept out of the smoke walk" do
     m = "priv/poser_api_manifest.json" |> File.read!() |> JSON.decode!()
     refute Enum.any?(m["module_getters"], &(&1["py_name"] == "CredManager"))
-    refute Enum.any?(m["classes"]["CredManagerType"]["getters"], &(&1["py_name"] == "FacebookAccessToken"))
+
+    refute Enum.any?(
+             m["classes"]["CredManagerType"]["getters"],
+             &(&1["py_name"] == "FacebookAccessToken")
+           )
   end
 
   test "spot checks" do

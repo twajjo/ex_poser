@@ -48,7 +48,13 @@ defmodule Poser.Gen.ConstantAliasTest do
   use ExUnit.Case, async: true
 
   test "two constants with the same key and value are one key" do
-    dump = %{"meta" => %{}, "functions" => [], "classes" => %{}, "constants" => %{"kParmCodeFooBar" => 1, "kParmCodeFOO_BAR" => 1}}
+    dump = %{
+      "meta" => %{},
+      "functions" => [],
+      "classes" => %{},
+      "constants" => %{"kParmCodeFooBar" => 1, "kParmCodeFOO_BAR" => 1}
+    }
+
     overrides = Poser.Gen.Overrides.load("test/fixtures/gen_overrides.json")
     model = Poser.Gen.Model.build(dump, overrides, PoserTest.GenApi)
     assert [%{name: :parm_code, keys: [{:foo_bar, 1, _}]}] = model.const.groups

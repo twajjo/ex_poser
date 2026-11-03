@@ -90,7 +90,9 @@ defmodule Poser.Gen.ModelTest do
     f = fun(model, "GeomType", :export_with)
     assert [%{var: :path}] = f.required
     assert f.optional == [options: :none]
-    assert model.manifest["entries"]["GeomType.ExportWith"]["note"] =~ "callback parameters dropped"
+
+    assert model.manifest["entries"]["GeomType.ExportWith"]["note"] =~
+             "callback parameters dropped"
   end
 
   test "smoke_skip keeps a function out of the getters", %{model: model} do

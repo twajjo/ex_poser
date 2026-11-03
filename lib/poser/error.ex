@@ -4,7 +4,10 @@ defmodule Poser.Error do
 
   `kind` is one of `:python`, `:stale_handle`, `:not_allowed`, `:bad_request`,
   `:batch_failed`, `:timeout`, `:disconnected`, `:protocol_mismatch`,
-  `:handshake_failed`.
+  `:handshake_failed`, `:not_found`, `:ambiguous`.
+
+  `:not_found` details: `%{path: [step], op: non_neg_integer() | nil, cause: t() | nil}`.
+  `:ambiguous` details: `%{matches: [struct]}`.
   """
 
   defexception [:kind, :class, :message, :traceback, :details]
@@ -19,6 +22,8 @@ defmodule Poser.Error do
           | :disconnected
           | :protocol_mismatch
           | :handshake_failed
+          | :not_found
+          | :ambiguous
 
   @type t :: %__MODULE__{
           kind: kind(),
@@ -53,6 +58,10 @@ defmodule Poser.Error do
   def from_wire(other), do: %__MODULE__{kind: :bad_request, message: inspect(other)}
 
   @impl true
+  def message(%__MODULE__{kind: :not_found, details: %{path: path}}) do
+    "not_found: " <> Enum.map_join(path, "/", &elem(&1, 1))
+  end
+
   def message(%__MODULE__{kind: kind, class: class, message: message}) do
     [kind, class, message] |> Enum.reject(&is_nil/1) |> Enum.join(": ")
   end
