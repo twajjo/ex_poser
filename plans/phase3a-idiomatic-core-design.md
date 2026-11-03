@@ -29,6 +29,7 @@ This table is the backbone of the docs (see Documentation). It must stay accurat
 | Figure (in the GUI's figure menu, e.g. "Figure 1") | `%Poser.Figure{internal, name}` | `internal` is the key. `name` is the GUI label and can be renamed or repeated. |
 | Actor: a body part, prop, camera or light | `%Poser.Actor{figure, internal, name}` | Body parts have `figure` set. Props, cameras and lights have `figure: nil` and are found at scene level. |
 | Dial / parameter ("parm" in PoserPython) | `%Poser.Parameter{actor, internal, name}` | Looked up by internal name (`InternalParameter`), e.g. `"xRotate"`, `"Bend"`. |
+| Frame number | An integer, starting at 0 as in PoserPython | GUI frame 1 is `frame: 0`. The docs show both numbers wherever a frame appears. |
 | Keyframe on a dial | A frame number in `Parameter.keyframes/1` | Phase 6 adds a keyframe DSL; 3a reads, adds and deletes. |
 | PoserPython object (`ActorType`, `ParmType`, …) | `%Poser.Handle{}`, which you reach through `handle/1` | A handle is a live, server-side reference that goes stale on reconnect. Idiomatic structs never hold one. |
 | One Python main-thread turn | One batch chunk | Poser's UI is busy while a chunk runs, which is why chunks are capped. |
@@ -87,7 +88,8 @@ end)
 - **Shared lookups:** within a chunk, each path prefix resolves once. 500 sets on one dial share one lookup chain, and a figure's 80 actors share one scene lookup and one figure lookup.
 - **Frames:**
   - The batch reads the current frame first.
-  - `frame:` emits `SetFrame(n)` only when the frame differs from the previous op's frame.
+  - An op without `frame:` runs at the batch's original frame, never at the frame a previous op left behind.
+  - `SetFrame(n)` is emitted only when an op's frame (its `frame:` or the original) differs from the previous op's frame.
   - The original frame is restored as the last op of the last chunk, and again as a separate request if the batch failed.
   - Ops are never reordered, so the caller controls how often the frame changes.
 - **Chunks:** at most `chunk:` ops each (default 2 000, counting lookups). Each chunk does its own lookups.
@@ -103,6 +105,7 @@ end)
 
   Then everything is released, and you get structs back.
 - `Actor.values/1` returns `%{internal_name => float}` in one listing plus one read batch.
+- `Actor.get/2` and `Actor.set/3` take internal parm names only, so each is a single batch with no fallback lookup. `Actor.parameter/2` accepts either kind of name.
 - `Actor.set/3` with a map writes several dials in one batch.
 - `Parameter.value/2` returns a float. `set_value/3` takes a number, and integers are converted to floats.
 - `min_max/1` returns `{min, max}`.
