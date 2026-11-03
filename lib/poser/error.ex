@@ -6,7 +6,8 @@ defmodule Poser.Error do
   `:batch_failed`, `:timeout`, `:disconnected`, `:protocol_mismatch`,
   `:handshake_failed`, `:not_found`, `:ambiguous`.
 
-  `:not_found` details: `%{path: [step], op: non_neg_integer() | nil, cause: t() | nil}`.
+  `:not_found` details: `%{path: [step], index: non_neg_integer() | nil, cause: t() | nil}`
+  (`index` is the caller's op in a `Poser.Batch`).
   `:ambiguous` details: `%{matches: [struct]}`.
   """
 

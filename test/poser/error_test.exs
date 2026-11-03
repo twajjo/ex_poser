@@ -44,7 +44,7 @@ defmodule Poser.ErrorTest do
       kind: :not_found,
       details: %{
         path: [{:figure, "figure 1"}, {:actor, "lforearm"}, {:parm, "bend"}],
-        op: nil,
+        index: nil,
         cause: nil
       }
     }

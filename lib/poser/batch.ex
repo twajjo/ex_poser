@@ -143,9 +143,11 @@ defmodule Poser.Batch do
   most wire ops per request, lookups included (default #{@default_chunk}).
   A chunk too small for a single op raises `ArgumentError`.
 
-  On failure, later chunks don't run and earlier ones stay applied. A path
-  that doesn't resolve gives `:not_found`; any other error gains
-  `details.op`, the index of the caller's op.
+  On failure, later chunks don't run and earlier ones stay applied, and
+  handles from earlier chunks' `call/5` results are released. A path that
+  doesn't resolve gives `:not_found`; every error gains `details.index`, the
+  index of the caller's op. Other `details` keys are kept (for `:not_allowed`,
+  `details.op` stays the refused op kind, such as `:invoke`).
 
   ## Examples
 
@@ -154,6 +156,9 @@ defmodule Poser.Batch do
       |> Poser.Batch.get(bend)
       |> Poser.Batch.run()
       #=> {:ok, [:ok, 0.0]}
+
+      Poser.Batch.new() |> Poser.Batch.get(missing) |> Poser.Batch.run()
+      #=> {:error, %Poser.Error{kind: :not_found, details: %{index: 0, ...}}}
   """
   @spec run(t(), keyword()) :: {:ok, [term()]} | {:error, Error.t()}
   def run(b, opts \\ [])
@@ -165,6 +170,23 @@ defmodule Poser.Batch do
     client_opts = Keyword.take(opts, [:server, :timeout])
     run_chunks(chunks, kinds, client_opts, %{orig: nil, moved: false, acc: []})
   end
+
+  @doc """
+  Like `run/2`, but returns the results and raises `Poser.Error` on failure.
+
+  ## Examples
+
+      Poser.Batch.new()
+      |> Poser.Batch.set(bend, 30.0, frame: 5)
+      |> Poser.Batch.get(bend)
+      |> Poser.Batch.run!()
+      #=> [:ok, 0.0]
+
+      Poser.Batch.new() |> Poser.Batch.get(missing) |> Poser.Batch.run!()
+      ** (Poser.Error) not_found: figure 1/hip/nope
+  """
+  @spec run!(t(), keyword()) :: [term()]
+  def run!(b, opts \\ []), do: b |> run(opts) |> Ref.unwrap!()
 
   # --- Building ---
 
@@ -206,16 +228,20 @@ defmodule Poser.Batch do
         })
 
       {:error, %Error{kind: :batch_failed, details: %{index: i, cause: cause, partial: partial}}} ->
-        release(Codec.handles_in(partial), opts)
+        release(Codec.handles_in(partial) ++ acc_handles(st), opts)
         orig = orig(st.orig, wire, partial)
         if st.moved or moves?(Enum.take(wire, i), roles), do: restore(orig, opts)
         {:error, map_error(i, cause, partial, wire, roles)}
 
       {:error, error} ->
+        release(acc_handles(st), opts)
         if st.moved or moves?(wire, roles), do: restore(st.orig, opts)
         {:error, error}
     end
   end
+
+  # Caller results of chunks that already ran; the caller never receives them.
+  defp acc_handles(st), do: st.acc |> Enum.concat() |> Codec.handles_in()
 
   defp substitute(wire, nil), do: wire
 
@@ -278,18 +304,18 @@ defmodule Poser.Batch do
         not_found(prefix, k, cause)
 
       {:lookup, [], k} ->
-        with_op(cause, k)
+        with_index(cause, k)
 
       {_, k} ->
         case wire |> Enum.at(i) |> target() do
           {:result, j} when is_map_key(roles, j) ->
             case {roles[j], Enum.at(partial, j)} do
               {{:lookup, [_ | _] = prefix, _}, nil} -> not_found(prefix, k, cause)
-              _ -> with_op(cause, k)
+              _ -> with_index(cause, k)
             end
 
           _ ->
-            with_op(cause, k)
+            with_index(cause, k)
         end
     end
   end
@@ -298,8 +324,8 @@ defmodule Poser.Batch do
   defp target(_), do: nil
 
   defp not_found(path, k, cause),
-    do: %Error{kind: :not_found, details: %{path: path, op: k, cause: cause}}
+    do: %Error{kind: :not_found, details: %{path: path, index: k, cause: cause}}
 
-  defp with_op(%Error{details: details} = cause, k),
-    do: %{cause | details: Map.merge(details || %{}, %{op: k})}
+  defp with_index(%Error{details: details} = cause, k),
+    do: %{cause | details: Map.merge(details || %{}, %{index: k})}
 end

@@ -237,7 +237,7 @@ defmodule Poser.BatchTest do
                Batch.run(b, server: c, chunk: 7)
 
       assert details.path == Poser.Ref.path(@missing)
-      assert details.op == 1
+      assert details.index == 1
       assert %Error{kind: :python} = details.cause
       assert Exception.message(err) == "not_found: figure 1/hip/nope"
 
@@ -260,13 +260,13 @@ defmodule Poser.BatchTest do
                Poser.batch(&Batch.get(&1, parm, frame: 4), server: c)
 
       assert details.path == [{:figure, "no such figure"}]
-      assert details.op == 0
+      assert details.index == 0
       assert %Error{kind: :python, class: "error"} = details.cause
 
       actor = %Actor{figure: @fig, internal: "no such actor", name: "x"}
       parm = %Parameter{actor: actor, internal: "xtran", name: "xTran"}
 
-      assert {:error, %Error{kind: :not_found, details: %{op: 1, path: path}}} =
+      assert {:error, %Error{kind: :not_found, details: %{index: 1, path: path}}} =
                Poser.batch(fn b -> b |> Batch.get(@p) |> Batch.get(parm) end, server: c)
 
       assert path == [{:figure, "figure 1"}, {:actor, "no such actor"}]
@@ -274,15 +274,63 @@ defmodule Poser.BatchTest do
       assert_no_handles(c)
     end
 
-    test "Python error keeps class and gains op", %{c: c} do
-      assert {:error, %Error{kind: :python, class: "ValueError", details: %{op: 0}}} =
+    test "Python error keeps class and gains index", %{c: c} do
+      assert {:error, %Error{kind: :python, class: "ValueError", details: %{index: 0}}} =
                Poser.batch(&Batch.call(&1, :scene, "SetFrame", [999]), server: c)
 
-      assert {:error, %Error{kind: :python, class: "ValueError", details: %{op: 1}}} =
+      assert {:error, %Error{kind: :python, class: "ValueError", details: %{index: 1}}} =
                Poser.batch(
                  fn b -> b |> Batch.get(@p) |> Batch.call(:scene, "SetFrame", [999]) end,
                  server: c
                )
+
+      assert_no_handles(c)
+    end
+
+    test "not_allowed keeps details.op as the sub-kind and gains index", %{c: c} do
+      assert {:error, %Error{kind: :not_allowed, message: "_hidden", details: details}} =
+               Poser.batch(
+                 fn b -> b |> Batch.get(@p) |> Batch.call(:scene, "_hidden", []) end,
+                 server: c
+               )
+
+      assert details.op == :invoke
+      assert details.index == 1
+      assert_no_handles(c)
+    end
+
+    test "a failing chunk releases handles from earlier chunks' results", %{c: c} do
+      b =
+        Batch.new()
+        |> Batch.call(@fig, "ActorByInternalName", ["hip"])
+        |> Batch.set(@missing, 1.0)
+
+      assert [{c1, _}, {_c2, _}] = Batch.compile(b, chunk: 5)
+      assert List.last(c1) == {:invoke, {:result, 1}, "ActorByInternalName", ["hip"]}
+
+      assert {:error, %Error{kind: :not_found, details: %{index: 1}}} =
+               Batch.run(b, server: c, chunk: 5)
+
+      assert_no_handles(c)
+    end
+
+    test "run!/2 returns the results or raises", %{c: c} do
+      assert Batch.new() |> Batch.set(@p, 5) |> Batch.get(@p) |> Batch.run!(server: c) ==
+               [:ok, 5.0]
+
+      assert_raise Error, "not_found: figure 1/hip/nope", fn ->
+        Batch.new() |> Batch.get(@missing) |> Batch.run!(server: c)
+      end
+
+      assert_no_handles(c)
+    end
+
+    test "Poser.batch!/2 returns the results or raises", %{c: c} do
+      assert Poser.batch!(&Batch.call(&1, :scene, "NumFrames", []), server: c) == [30]
+
+      assert_raise Error, ~r/ValueError/, fn ->
+        Poser.batch!(&Batch.call(&1, :scene, "SetFrame", [999]), server: c)
+      end
 
       assert_no_handles(c)
     end
