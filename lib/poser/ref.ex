@@ -43,4 +43,68 @@ defmodule Poser.Ref do
   @spec unwrap!({:ok, v} | {:error, Exception.t()}) :: v when v: term()
   def unwrap!({:ok, value}), do: value
   def unwrap!({:error, error}), do: raise(error)
+
+  @doc false
+  # Lists `parent`'s children with `list_method` (one request), then reads
+  # `InternalName`, `Name` and each `extra` method on every child (a second).
+  # Every child handle is released, on success and on failure.
+  @spec children(ref(), String.t(), [String.t()], keyword()) ::
+          {:ok, [%{String.t() => term()}]} | {:error, Poser.Error.t()}
+  def children(parent, list_method, extra, opts) do
+    methods = ["InternalName", "Name" | extra]
+    batch = Poser.Batch.new() |> Poser.Batch.call(parent, list_method, [])
+
+    with {:ok, [handles]} <- Poser.Batch.run(batch, opts) do
+      try do
+        read_children(handles, methods, opts)
+      after
+        release(handles, opts)
+      end
+    end
+  end
+
+  defp read_children([], _methods, _opts), do: {:ok, []}
+
+  defp read_children(handles, methods, opts) do
+    ops = for h <- handles, m <- methods, do: {:invoke, h, m, []}
+
+    case Poser.Client.batch(ops, Keyword.take(opts, [:server, :timeout])) do
+      {:ok, results} ->
+        release(Poser.Codec.handles_in(results), opts)
+
+        {:ok,
+         results |> Enum.chunk_every(length(methods)) |> Enum.map(&Map.new(Enum.zip(methods, &1)))}
+
+      {:error, %Poser.Error{kind: :batch_failed, details: %{partial: partial}} = error} ->
+        release(Poser.Codec.handles_in(partial), opts)
+        {:error, error}
+
+      {:error, _} = error ->
+        error
+    end
+  end
+
+  defp release([], _opts), do: :ok
+
+  defp release(handles, opts),
+    do: Poser.Client.release(handles, Keyword.take(opts, [:server, :timeout]))
+
+  @doc false
+  # Finds the child of `parent` whose display name is `name`.
+  @spec find(ref(), String.t(), String.t(), (map() -> struct()), keyword()) ::
+          {:ok, struct()} | {:error, Poser.Error.t()}
+  def find(parent, list_method, name, build, opts) do
+    with {:ok, rows} <- children(parent, list_method, [], opts) do
+      case Enum.filter(rows, &(&1["Name"] == name)) do
+        [row] ->
+          {:ok, build.(row)}
+
+        [] ->
+          {:error, Poser.Error.not_found(path(parent) ++ [{:name, name}])}
+
+        rows ->
+          {:error, %Poser.Error{kind: :ambiguous, details: %{matches: Enum.map(rows, build)}}}
+      end
+    end
+  end
 end

@@ -323,8 +323,7 @@ defmodule Poser.Batch do
   defp target({:invoke, target, _method, _args}), do: target
   defp target(_), do: nil
 
-  defp not_found(path, k, cause),
-    do: %Error{kind: :not_found, details: %{path: path, index: k, cause: cause}}
+  defp not_found(path, k, cause), do: Error.not_found(path, k, cause)
 
   defp with_index(%Error{details: details} = cause, k),
     do: %{cause | details: Map.merge(details || %{}, %{index: k})}

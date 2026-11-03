@@ -267,7 +267,7 @@ defmodule Poser.Parameter do
 
     case Batch.run(batch, run) do
       {:ok, [nil]} ->
-        {:error, %Error{kind: :not_found, details: %{path: Ref.path(p), index: 0, cause: nil}}}
+        {:error, Error.not_found(Ref.path(p), 0)}
 
       {:ok, [%Poser.Handle{} = h]} ->
         {:ok, h}

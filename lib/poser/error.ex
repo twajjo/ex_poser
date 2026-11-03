@@ -34,6 +34,11 @@ defmodule Poser.Error do
           details: map() | nil
         }
 
+  @doc false
+  @spec not_found([tuple()], non_neg_integer() | nil, t() | nil) :: t()
+  def not_found(path, index \\ nil, cause \\ nil),
+    do: %__MODULE__{kind: :not_found, details: %{path: path, index: index, cause: cause}}
+
   @doc "Builds an error from a wire-level `{:e, id, reason}` reason term."
   @spec from_wire(term()) :: t()
   def from_wire({:python, class, message, traceback}),
