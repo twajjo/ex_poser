@@ -165,52 +165,104 @@ try do
   now = ParmType.value(parm, o)
   fact.(5, "SetValue(3) -> #{inspect(int_r)}; value read back #{inspect(now)}")
 after
+  # Every cleanup step is wrapped by `step`: it never raises, and a failure is
+  # recorded in ETS. The exit status is decided after the try, below.
+  step = fn label, fun ->
+    try do
+      case fun.() do
+        {:error, _} = e -> put.({:fail, label}, e)
+        _ -> :ok
+      end
+    rescue
+      e -> put.({:fail, label}, {:raised, Exception.message(e)})
+    catch
+      kind, v -> put.({:fail, label}, {kind, v})
+    end
+  end
+
+  # Non-raising key probe: true | false | :error
+  key_at? = fn scene, parm, f ->
+    try do
+      has_key?.(scene, parm, f)
+    rescue
+      _ -> :error
+    end
+  end
+
   scene = get.(:scene)
   parm = get.(:parm)
+  frame0 = get.(:frame0) || 0
 
   if scene && parm do
     pre = get.(:pre)
-    frame0 = get.(:frame0)
-    results =
-      for f <- frames, not pre[f] do
-        with {:ok, _} <- SceneType.set_frame(scene, f, o),
-             true <- (case has_key?.(scene, parm, f) do b -> b end) do
-          SceneType.set_frame(scene, f, o)
-          {f, ParmType.delete_key_frame(parm, [frame: f] ++ o)}
-        else
-          other -> {f, other}
+
+    for f <- frames, not pre[f] do
+      step.({:delete_key, f}, fn ->
+        case key_at?.(scene, parm, f) do
+          true -> SceneType.set_frame(scene, f, o); ParmType.delete_key_frame(parm, [frame: f] ++ o)
+          false -> :ok
+          :error -> {:error, :key_check_failed}
         end
+      end)
+    end
+
+    # SetValue at the start frame may add a key; delete it again if it was not there before.
+    step.(:restore_frame_for_value, fn -> SceneType.set_frame(scene, frame0, o) end)
+    step.(:restore_value, fn -> ParmType.set_value(parm, get.(:orig), o) end)
+
+    if not pre[frame0] do
+      step.({:delete_key, frame0}, fn ->
+        case key_at?.(scene, parm, frame0) do
+          true -> SceneType.set_frame(scene, frame0, o); ParmType.delete_key_frame(parm, [frame: frame0] ++ o)
+          false -> :ok
+          :error -> {:error, :key_check_failed}
+        end
+      end)
+    end
+
+    step.(:restore_frame, fn -> SceneType.set_frame(scene, frame0, o) end)
+
+    step.(:verify_value, fn ->
+      orig = get.(:orig)
+
+      case ParmType.value(parm, o) do
+        {:ok, v} when v == orig -> :ok
+        other -> {:error, {:value_not_restored, other, orig}}
       end
+    end)
 
-    # Restore value at the original frame; SetValue there may add a key, so delete it again.
-    SceneType.set_frame(scene, frame0, o)
-    r_val = ParmType.set_value(parm, get.(:orig), o)
-
-    r_key =
-      if not pre[frame0] and has_key?.(scene, parm, frame0) do
-        SceneType.set_frame(scene, frame0, o)
-        ParmType.delete_key_frame(parm, [frame: frame0] ++ o)
+    step.(:verify_frame, fn ->
+      case SceneType.frame(scene, o) do
+        {:ok, ^frame0} -> :ok
+        other -> {:error, {:frame_not_restored, other, frame0}}
       end
-
-    r_frame = SceneType.set_frame(scene, frame0, o)
-    final = ParmType.value(parm, o)
-    IO.puts("cleanup: key deletes=#{inspect(results)} restore value=#{inspect(r_val)} frame0 key delete=#{inspect(r_key)} restore frame=#{inspect(r_frame)}")
-    IO.puts("end frame=#{inspect(SceneType.frame(scene, o))} value=#{inspect(final)} (started #{inspect(get.(:orig))})")
-    if final != {:ok, get.(:orig)}, do: IO.puts("FAIL: value not restored")
+    end)
   else
-    if scene, do: SceneType.set_frame(scene, get.(:frame0) || 0, o)
+    if scene, do: step.(:restore_frame, fn -> SceneType.set_frame(scene, frame0, o) end)
   end
 
-  held = get.(:held)
-  IO.inspect(Client.release(held, o), label: "release")
-  stats = Client.stats(o)
-  IO.inspect(stats, label: "stats")
-  IO.inspect(Client.ping(o), label: "ping")
+  step.(:release, fn -> IO.inspect(Client.release(get.(:held) || [], o), label: "release") end)
 
-  case stats do
-    {:ok, %{"handles" => 0}} -> :ok
-    _ ->
-      IO.puts("FAIL: handles leaked")
-      System.halt(1)
-  end
+  step.(:stats, fn ->
+    stats = Client.stats(o)
+    IO.inspect(stats, label: "stats")
+
+    case stats do
+      {:ok, %{"handles" => 0}} -> :ok
+      _ -> put.(:leaked, true)
+    end
+  end)
+
+  step.(:ping, fn -> IO.inspect(Client.ping(o), label: "ping") end)
 end
+
+# Exit status is decided here, outside `after`, so output and exceptions are not cut off.
+fails = :ets.match_object(st, {{:fail, :_}, :_})
+
+if get.(:leaked) do
+  IO.puts("FAIL: handles leaked")
+end
+
+for {{:fail, label}, why} <- fails, do: IO.puts("FAIL: cleanup step #{inspect(label)}: #{inspect(why)}")
+
+if get.(:leaked) || fails != [], do: System.halt(1)
