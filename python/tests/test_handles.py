@@ -62,7 +62,7 @@ class HandleTableTest(unittest.TestCase):
 
     def test_lru_evicts_oldest(self):
         t = HandleTable(lambda: 0, cap=2)
-        a, b, c = self.poser.Scene().Actors()
+        a, b, c = self.poser.Scene().Actors()[:3]
         ha = t.wrap(a)
         t.wrap(b)
         t.wrap(c)
@@ -71,7 +71,7 @@ class HandleTableTest(unittest.TestCase):
 
     def test_lru_lookup_refreshes(self):
         t = HandleTable(lambda: 0, cap=2)
-        a, b, c = self.poser.Scene().Actors()
+        a, b, c = self.poser.Scene().Actors()[:3]
         ha, hb = t.wrap(a), t.wrap(b)
         t.resolve(ha)
         t.wrap(c)

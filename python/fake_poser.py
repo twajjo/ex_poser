@@ -16,20 +16,53 @@ class error(Exception):
 
 
 class ParmType(object):
-    def __init__(self, name, value):
-        self._name, self._value = name, value
+    """A parameter with per-frame keys. Every parm starts keyed at frame 0.
+
+    Value() at a frame without its own key reads the nearest earlier key (no
+    interpolation). SetValue creates a key at the current frame.
+    """
+
+    def __init__(self, name, value, scene_frame=lambda: 0, internal=None):
+        self._name = name
+        self._internal = name.lower() if internal is None else internal
+        self._frame = scene_frame
+        self._keys = {0: float(value)}
 
     def Name(self):
         return self._name
 
     def InternalName(self):
-        return self._name.lower()
+        return self._internal
+
+    def _key_at_or_before(self, frame):
+        return max(k for k in self._keys if k <= frame)
 
     def Value(self):
-        return self._value
+        return self._keys[self._key_at_or_before(self._frame())]
 
     def SetValue(self, v):
-        self._value = v
+        self._keys[self._frame()] = float(v)
+
+    def AddKeyFrame(self, frame=None):
+        frame = self._frame() if frame is None else frame
+        self._keys[frame] = self._keys[self._key_at_or_before(frame)]
+
+    def DeleteKeyFrame(self, frame=None):
+        self._keys.pop(self._frame() if frame is None else frame, None)
+
+    def NextKeyFrame(self):
+        later = [k for k in self._keys if k > self._frame()]
+        return min(later) if later else None
+
+    def PrevKeyFrame(self):
+        earlier = [k for k in self._keys if k < self._frame()]
+        return max(earlier) if earlier else None
+
+    def MinValue(self):
+        return -180.0
+
+    def MaxValue(self):
+        return 180.0
 
 
 class LinkType(object):
@@ -83,21 +116,35 @@ class GeomType(object):
 
 
 class ActorType(object):
-    def __init__(self, name):
+    def __init__(self, name, internal=None, scene_frame=lambda: 0, body_part=True):
         self._name = name
+        self._internal = name.lower() if internal is None else internal
+        self._body_part = body_part
         self.visible = True
-        self._parms = [ParmType("xTran", 0.0), ParmType("Weird", float("nan"))]
+        self._parms = [ParmType("xTran", 0.0, scene_frame),
+                       ParmType("Weird", float("nan"), scene_frame)]
         self._geom = GeomType()
 
     def Name(self):
         return self._name
 
     def InternalName(self):
-        return self._name.lower()
+        return self._internal
+
+    def IsBodyPart(self):
+        return 1 if self._body_part else 0
 
     def Parameter(self, name):
         for p in self._parms:
             if p.Name() == name:
+                return p
+        return None
+
+    def InternalParameter(self, name):
+        # Deliberately returns None on a miss (as Poser does), unlike the
+        # figure/actor lookups, which raise; the Elixir side handles both.
+        for p in self._parms:
+            if p.InternalName() == name:
                 return p
         return None
 
@@ -118,25 +165,37 @@ class ActorType(object):
 
 
 class FigureType(object):
-    def __init__(self, name, actors):
+    def __init__(self, name, actors, internal=None):
         self._name, self._actors = name, actors
+        self._internal = name.lower() if internal is None else internal
 
     def Name(self):
         return self._name
 
     def InternalName(self):
-        return self._name.lower()
+        return self._internal
 
     def Actors(self):
         return list(self._actors)
+
+    def ActorByInternalName(self, name):
+        for a in self._actors:
+            if a.InternalName() == name:
+                return a
+        raise error("Figure has no actor by that name")
 
 
 class SceneType(object):
     def __init__(self):
         self._frame = 0
-        actors = [ActorType("hip"), ActorType("chest"), ActorType(u"Ünïcode 頭")]
-        self._figures = [FigureType("Figure 1", actors)]
-        self._actors = actors
+        frame = self.Frame
+        actors = [ActorType("hip", scene_frame=frame), ActorType("chest", scene_frame=frame),
+                  ActorType(u"Ünïcode 頭", scene_frame=frame)]
+        head = [ActorType("head", scene_frame=frame)]
+        ball = ActorType("Ball", internal="ball", scene_frame=frame, body_part=False)
+        self._figures = [FigureType("Figure 1", actors),
+                         FigureType("Figure 1", head, internal="figure 2")]
+        self._actors = actors + head + [ball]
 
     def Frame(self):
         return self._frame
@@ -148,6 +207,21 @@ class SceneType(object):
 
     def NumFrames(self):
         return NUM_FRAMES
+
+    def FramesPerSecond(self):
+        return 30
+
+    def FigureByInternalName(self, name):
+        for f in self._figures:
+            if f.InternalName() == name:
+                return f
+        raise error("Unknown/invalid figure name")
+
+    def ActorByInternalName(self, name):
+        for a in self._actors:
+            if a.InternalName() == name:
+                return a
+        raise error("Named actor could not be found")
 
     def Figures(self):
         return list(self._figures)
