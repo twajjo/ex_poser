@@ -17,9 +17,11 @@ defmodule Poser.Error do
   | `:protocol_mismatch` | `ours`, `theirs` |
   | `:timeout`, `:bad_request`, `:handshake_failed` | none |
 
-  An error from a `Poser.Batch`, which includes every call in the idiomatic
-  API, carries `details.index`: the index of the caller's op that failed,
-  not counting the batch's own lookups.
+  An error from an op on structs (a `Poser.Batch`, or a `Poser.Parameter` or
+  `Poser.Actor` value call) carries `details.index`: the index of the caller's
+  op that failed, not counting the batch's own lookups. Lookup-by-name errors
+  (`Poser.Scene.figure/2`, `Poser.Figure.actor/3`, `Poser.Scene.actor/2`, ...)
+  have `index` nil or absent.
 
       iex> error = Poser.Error.not_found([figure: "figure 1", actor: "nope"], 0)
       iex> error.details.path

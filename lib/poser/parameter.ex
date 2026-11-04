@@ -107,8 +107,8 @@ defmodule Poser.Parameter do
   @doc group: "Values"
   @doc """
   Sets the value. Integers are sent as floats. Poser keys the value at the
-  frame it is set at, so frames after it hold the new value until the next
-  key. Options: `:frame` (default: the current frame), `:server`, `:timeout`.
+  frame it is set at. Frames between keys follow Poser's interpolation, and
+  after the last key the value holds. Options: `:frame` (default: the current frame), `:server`, `:timeout`.
 
   ## Examples
 

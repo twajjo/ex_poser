@@ -10,6 +10,7 @@ Poser's timeline back, and a batch sends many operations in one request:
 
 ```elixir
 {:ok, _} = Poser.Client.start_link()
+# The handshake runs in the background; poll until `Poser.Client.status()` is `:connected`.
 {:ok, fig} = Poser.Scene.figure("Figure 1")
 {:ok, bend} = Poser.Figure.parameter(fig, "Left Forearm", "Bend")
 

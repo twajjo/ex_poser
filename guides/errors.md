@@ -49,9 +49,11 @@ formatted lines.
 
 ## Errors in a batch
 
-An error from a batch, including every single-object call, gains
-`details.index`: the index of *your* op that failed, counting from 0. The
-batch's own lookups and frame moves are never counted. Other `details` keys
+An error from an op on structs, meaning a batch or a `Poser.Parameter` or
+`Poser.Actor` value call, gains `details.index`: the index of *your* op that
+failed, counting from 0. The batch's own lookups and frame moves are never
+counted. Lookup-by-name errors (`Scene.figure`, `Figure.actor`, `Scene.actor`,
+...) have `index` nil or absent. Other `details` keys
 are kept; for `:not_allowed`, `details.op` is the wire op kind Poser's strict
 mode refused, such as `:invoke`.
 

@@ -19,6 +19,12 @@ left as you found it.
 
 ```elixir
 {:ok, _} = Poser.Client.start_link()
+```
+
+The handshake runs in the background, so wait for it before the first call.
+
+```elixir
+true = Enum.any?(1..50, fn _ -> Poser.Client.status() == :connected or (Process.sleep(100) && false) end)
 Poser.Client.info()
 ```
 
