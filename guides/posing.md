@@ -46,6 +46,12 @@ Poser.Scene.figure("Andy")
 #=> {:error, %Poser.Error{kind: :ambiguous, details: %{matches: [...]}}}
 ```
 
+Display names aren't unique within an actor either. On a forearm, the
+internal dials `"xrot"` and `"twistx"` are both labelled "Twist", so
+`Poser.Actor.parameter(arm, "Twist")` gives `:ambiguous`; ask for `"xrot"`
+(or `"twistx"`) by internal name instead. The forearm's Bend is `"yrot"` and
+its Side-Side is `"zrot"`.
+
 In code that runs often, look a struct up once and keep it, or build it by
 internal name (below), so the display-name fallback never runs.
 

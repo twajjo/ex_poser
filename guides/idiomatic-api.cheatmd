@@ -68,7 +68,7 @@ Poser.Client.release([arm, bend])
 
 ```elixir
 # one request
-Poser.Actor.set(arm, %{"bend" => 30.0, "twist" => -10.0})
+Poser.Actor.set(arm, %{"yrot" => 30.0, "xrot" => -10.0})
 
 # across actors and frames, one request
 Poser.batch!(fn b ->
@@ -83,7 +83,7 @@ end)
 ```elixir
 # one request per call
 {:ok, bend} = Poser.Api.ActorType.parameter(arm, "Bend")
-{:ok, twist} = Poser.Api.ActorType.parameter(arm, "Twist")
+{:ok, twist} = Poser.Api.ActorType.internal_parameter(arm, "xrot")  # "Twist" labels two dials
 {:ok, nil} = Poser.Api.ParmType.set_value(bend, 30.0)
 {:ok, nil} = Poser.Api.ParmType.set_value(twist, -10.0)
 Poser.Client.release([bend, twist])

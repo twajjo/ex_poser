@@ -25,8 +25,8 @@ defmodule Poser.Actor do
   one request. Each set is keyed at the current frame; for other frames use
   `Poser.Parameter.set_value/3` or `Poser.Batch.set/4` with `frame:`.
 
-      {:ok, values} = Poser.Actor.values(arm)    # %{"bend" => 0.0, ...}
-      {:ok, :ok} = Poser.Actor.set(arm, %{"bend" => 30.0, "twist" => -10.0})
+      {:ok, values} = Poser.Actor.values(arm)    # %{"yrot" => 0.0, ...}
+      {:ok, :ok} = Poser.Actor.set(arm, %{"yrot" => 30.0, "xrot" => -10.0})
       {:ok, bend} = Poser.Actor.parameter(arm, "Bend")
 
   See [Posing](posing.md).
@@ -82,6 +82,8 @@ defmodule Poser.Actor do
   The internal name is tried first and costs one round trip. A display name
   costs two more and can match several dials, which gives `:ambiguous` with
   the candidates under `details.matches`. No match gives `:not_found`.
+  Display names repeat within an actor: on a forearm, `"xrot"` and `"twistx"`
+  are both labelled "Twist", so `"Twist"` is `:ambiguous` there.
   Options: `:server`, `:timeout`.
 
   ## Examples

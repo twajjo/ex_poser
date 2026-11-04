@@ -34,7 +34,7 @@ same request as the op. For `bend` on figure "Figure 1":
 Scene()
   .FigureByInternalName("Figure 1")
   .ActorByInternalName("lForeArm:1")
-  .InternalParameter("bend")
+  .InternalParameter("yrot")
   .SetValue(30.0)
 ```
 

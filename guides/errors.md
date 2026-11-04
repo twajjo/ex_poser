@@ -15,7 +15,7 @@ A struct's path didn't resolve: the figure, actor or dial isn't in the scene
 
 ```elixir
 nope = %Poser.Actor{figure: fig, internal: "nope", name: "nope"}
-Poser.Actor.get(nope, "bend")
+Poser.Actor.get(nope, "yrot")
 #=> {:error, %Poser.Error{kind: :not_found,
 #=>   details: %{path: [figure: "Figure 1", actor: "nope"], index: 0, cause: %Poser.Error{kind: :python, ...}}}}
 ```

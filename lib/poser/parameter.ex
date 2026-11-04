@@ -7,11 +7,11 @@ defmodule Poser.Parameter do
 
       iex> fig = %Poser.Figure{internal: "figure 1", name: "Andy"}
       iex> actor = %Poser.Actor{figure: fig, internal: "lforearm", name: "Left Forearm"}
-      iex> bend = %Poser.Parameter{actor: actor, internal: "bend", name: "Bend"}
+      iex> bend = %Poser.Parameter{actor: actor, internal: "yrot", name: "Bend"}
       iex> inspect(bend)
-      "#Poser.Parameter<figure 1/lforearm/bend>"
+      "#Poser.Parameter<figure 1/lforearm/yrot>"
       iex> Poser.Ref.path(bend)
-      [figure: "figure 1", actor: "lforearm", parm: "bend"]
+      [figure: "figure 1", actor: "lforearm", parm: "yrot"]
 
   ## Getting one
 

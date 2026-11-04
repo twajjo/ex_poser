@@ -68,13 +68,15 @@ Poser.Scene.frame()
 {:ok, forearm} = Poser.Figure.actor(fig, "Left Forearm")
 
 Poser.Actor.values(forearm)
-#=> {:ok, %{"bend" => 45.0, "side" => 0.0, "twist" => 0.0, ...}}
+#=> {:ok, %{"yrot" => 45.0, "zrot" => 0.0, "xrot" => 0.0, ...}}
 
-Poser.Actor.set(forearm, %{"bend" => 30.0, "twist" => -10.0})
+Poser.Actor.set(forearm, %{"yrot" => 30.0, "xrot" => -10.0})
 #=> {:ok, :ok}
 ```
 
-`Poser.Actor.set/3` with a map sends one request however many dials it
+The keys are internal names, not the labels the GUI shows: on a forearm,
+`"yrot"` is the dial labelled Bend, `"zrot"` is Side-Side and `"xrot"` is
+Twist. `Poser.Actor.set/3` with a map sends one request however many dials it
 writes. For different actors, frames, reads and writes in one request, see
 [Batching](batching.md).
 

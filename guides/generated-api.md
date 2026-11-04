@@ -13,7 +13,7 @@ struct and returns its handle:
 ```elixir
 {:ok, h} = Poser.Parameter.handle(bend)
 Poser.Api.ParmType.internal_name(h)
-#=> {:ok, "bend"}
+#=> {:ok, "yrot"}
 Poser.Api.ParmType.next_key_frame(h)
 #=> {:ok, 4}
 Poser.Client.release([h])
