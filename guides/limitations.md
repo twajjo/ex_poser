@@ -4,11 +4,11 @@ Poserx aims to cover the whole PoserPython API, meaning everything the
 `poser` module exposes inside Poser 14. This guide lists what it can't
 cover, or can only cover differently from Python, and what to do instead.
 
-> **Status:** written during Phase 0, before the library exists. The Elixir
-> examples use the API planned in `plans/elixir-poser-bridge-plan.md`
-> (`Poser.Client`, the generated `Poser.Api.*` modules and `Poser.Events`).
-> Poser method names follow the manual and research notes; confirm them
-> against `priv/poser_api.json` and update this guide as the library ships.
+> **Status:** sections 1, 2, 5, 6, 7 and 8 describe the library as it is.
+> Callbacks (section 3) and add-on hooks (section 4) are planned for Phase 4;
+> the examples there show the planned API. Section 9 lists the limits of the
+> idiomatic modules (`Poser.Scene`, `Poser.Figure`, `Poser.Actor`,
+> `Poser.Parameter`, `Poser.Batch`).
 
 ## 1. "Complete" means "found by introspection"
 
@@ -76,14 +76,19 @@ Poser.Client.call("poser.DialogFileChooser", [...])   # don't do this
 
 ## 3. Callbacks become events
 
+> **Planned for Phase 4.** Methods that take a Python callback, such as
+> `SetUpdateCallback`, have no generated function yet (`mix poser.gen` skips
+> them as "callback: Phase 4"), and `Poser.Events` has no callback topics.
+> This section describes the planned design.
+
 Some PoserPython methods take a Python function and call it later, for
 example an update or event callback on a parameter or the scene. A Python
-function can't be passed across the bridge, so poserx registers a Python stub
-that sends the callback's arguments to Elixir as an event.
+function can't be passed across the bridge, so poserx will register a Python
+stub that sends the callback's arguments to Elixir as an event.
 
 ```elixir
 # Python:  parm.SetUpdateCallback(my_fn)
-# Elixir:  subscribe, then receive messages
+# Elixir (planned):  subscribe, then receive messages
 {:ok, ref} = Poser.Api.ParmType.set_update_callback(parm)
 receive do
   {:poser_callback, ^ref, args} -> IO.inspect(args, label: "parameter updated")
@@ -99,8 +104,9 @@ end
 - Events arrive **later than the change**, after Poser returns to idle and
   after a network hop. Use them to react, not to step in mid-change.
 
-`SceneObserver` notifications such as `frameChanged` and `objectsAdded`
-arrive the same way, as `Poser.Events` topics:
+Poser's frame changes already arrive as a `Poser.Events` topic, and the
+planned `SceneObserver` notifications (such as `objectsAdded`) will arrive
+the same way:
 
 ```elixir
 Poser.Events.subscribe(:frame_changed)
@@ -118,7 +124,7 @@ or loading, so Elixir can't answer them live.
 
 | Hook | Status |
 |---|---|
-| `SceneObserver` callbacks | Supported, as events (section 3) |
+| `SceneObserver` callbacks | Planned for Phase 4, as events (section 3) |
 | `SceneDataSaver.saveData` / `loadData` | Not supported yet. A possible design: the bridge stores a map Elixir set earlier and hands it to Poser on save. |
 | `PrefsSaver` | Not supported. Keep Elixir-side configuration in your application. |
 
@@ -138,10 +144,11 @@ for i <- 0..(n - 1) do
 end
 
 # Better: send many operations as one batch frame (one main-thread turn)
-Poser.batch(fn b ->
-  for i <- 0..(n - 1), do: Poser.Batch.invoke(b, geom, "Vertex", [i])
-end)
+{:ok, verts} = Poser.Client.batch(for i <- 0..(n - 1), do: {:invoke, geom, "Vertex", [i]})
 ```
+
+Each `Vertex` result is a handle; release them with `Poser.Client.release/2`
+when you're done.
 
 **Heavy work belongs inside Poser.** For bulk geometry or per-frame keyframe
 work, write a small Python helper in the add-on and call it once. Results can
@@ -153,7 +160,7 @@ A modal dialog (missing texture, overwrite prompt) stalls the queue until
 someone clicks it.
 
 ```elixir
-# Renders need a long or :infinity timeout; the default is 30 s
+# Renders need a long or :infinity timeout; the default is 120 000 ms
 Poser.Api.SceneType.render(scene, timeout: :infinity)
 ```
 
@@ -178,7 +185,8 @@ Poser. Elixir holds **handles** to them: `%Poser.Handle{class: "ActorType", ...}
 - **A deleted object** can leave a handle that Poser itself rejects. That
   shows up as a Python error, never as a crash.
 - **Handles are held until released.** Release them with
-  `Poser.Client.release/2`; the add-on also drops a connection's handles when
+  `Poser.Client.release/2`. Handles returned to a process are also released
+  when that process exits, and the add-on drops a connection's handles when
   it closes.
 
 ## 7. Strict mode blocks arbitrary Python
@@ -213,3 +221,36 @@ add-on and the allowlist explicitly.
 - **WSL 2 on Windows 10** reaches Poser through the WSL adapter address, not
   `localhost`, and needs a firewall rule scoped to that adapter (see the
   development setup in the plan).
+
+## 9. The idiomatic modules
+
+`Poser.Scene`, `Poser.Figure`, `Poser.Actor`, `Poser.Parameter` and
+`Poser.Batch` hold names, not handles, and send every call as a batch. That
+design has these limits.
+
+- **No rollback.** Poser has no transactions. When an op in a batch fails,
+  the ops before it stay applied, in its request and in every earlier chunk,
+  and later chunks don't run. See [Batching](batching.md).
+- **`frame:` moves the scene's timeline.** PoserPython reads and writes at
+  the current frame, so an op with `frame:` moves the whole scene there and
+  back again. Anything else watching the timeline (the GUI, a
+  `:frame_changed` subscriber) sees the moves.
+- **A timeout can leave the frame moved.** If the first chunk of a batch
+  with `frame:` ops times out or the connection drops, its reply (which holds
+  the original frame) never arrives. If Poser ran the chunk anyway, the
+  timeline stays at the last frame that chunk moved to.
+- **`Poser.Parameter.keyframes/2` costs a round trip per key.** PoserPython
+  only steps from key to key (`NextKeyFrame`), so a dial with 50 keys takes
+  about 50 requests.
+- **Display names are ambiguous.** Labels repeat across figures and within
+  an actor: on a forearm, `"xrot"` and `"twistx"` are both labelled "Twist".
+  A lookup that matches several objects gives `:ambiguous`; use the internal
+  name instead.
+- **Names match exactly.** Internal and display names are compared as
+  written, case included: `Poser.Actor.parameter(arm, "yrot")` and
+  `Poser.Actor.parameter(arm, "Bend")` find the forearm's bend dial, and
+  `"bend"` finds nothing. `Poser.Actor.get/3`, `set/3` and `values/2` take
+  and return internal names only.
+- **No `frame:` on `Poser.Actor.get/3`, `set/3` and `values/2`.** They work at
+  the current frame. For another frame, use `Poser.Parameter.value/2`,
+  `Poser.Parameter.set_value/3` or `Poser.Batch` with `frame:`.
