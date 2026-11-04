@@ -134,6 +134,35 @@ defmodule Poser.ClientTest do
     assert Client.status(server: c) == :connected
   end
 
+  describe "await_connected/1" do
+    test "returns :ok once a freshly started client has connected" do
+      server = start_standalone()
+      name = :"poser_client_#{System.unique_integer([:positive])}"
+      start_supervised!({Client, name: name, session: server.session})
+
+      assert Client.await_connected(server: name) == :ok
+      assert Client.status(server: name) == :connected
+    end
+
+    @tag :capture_log
+    test "times out while the client can't connect" do
+      name = :"poser_client_#{System.unique_integer([:positive])}"
+      start_supervised!({Client, name: name, session: "/nonexistent/session.json"})
+
+      t0 = System.monotonic_time(:millisecond)
+
+      assert {:error, %Error{kind: :timeout}} =
+               Client.await_connected(server: name, timeout: 200)
+
+      assert (System.monotonic_time(:millisecond) - t0) in 200..1_000
+    end
+
+    test "rejects bad options" do
+      assert_raise ArgumentError, fn -> Client.await_connected(timeout: :soon) end
+      assert_raise ArgumentError, fn -> Client.await_connected(wait: 10) end
+    end
+  end
+
   test "requests fail fast while a handshake is stuck" do
     scripted = PoserTest.ScriptedServer.start!(fn _ -> :ignore end, hello: :never)
     name = :"poser_client_#{System.unique_integer([:positive])}"

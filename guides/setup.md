@@ -48,12 +48,14 @@ Get-NetFirewallApplicationFilter | ? Program -like '*Poser*' | Get-NetFirewallRu
 
 ```elixir
 {:ok, _} = Poser.Client.start_link()
-true = Enum.any?(1..50, fn _ -> Poser.Client.status() == :connected or (Process.sleep(100) && false) end)
+:ok = Poser.Client.await_connected()
 {:ok, scene} = Poser.Client.call("Scene")
 {:ok, frame} = Poser.Client.invoke(scene, "Frame")
 ```
 
-The client finds the session file on its own (through `/mnt/c` in WSL); set
+`Poser.Client.await_connected/1` waits for the handshake, which runs in the
+background, so the first call doesn't fail with `:disconnected`. The client
+finds the session file on its own (through `/mnt/c` in WSL); set
 `POSERX_SESSION` to point somewhere else.
 
 ## 4. Strict mode (optional)

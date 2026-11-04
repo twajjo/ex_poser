@@ -22,9 +22,11 @@ left as you found it.
 ```
 
 The handshake runs in the background, so wait for it before the first call.
+`Poser.Client.await_connected/1` returns `:ok` once the client is connected,
+or a `:timeout` error after five seconds.
 
 ```elixir
-true = Enum.any?(1..50, fn _ -> Poser.Client.status() == :connected or (Process.sleep(100) && false) end)
+:ok = Poser.Client.await_connected()
 Poser.Client.info()
 ```
 

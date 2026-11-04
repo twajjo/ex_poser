@@ -86,11 +86,53 @@ defmodule Poser.Client do
   @spec status(keyword()) :: :connected | :disconnected
   def status(opts \\ []), do: GenServer.call(server(opts), :status)
 
+  @doc """
+  Waits until the client is connected and the handshake is done, polling
+  `status/1`. Returns `:ok`, or `{:error, %Poser.Error{kind: :timeout}}` if the
+  client is still disconnected after `:timeout` ms (default 5 000).
+
+  Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      :ok = Poser.Client.await_connected()
+      :ok = Poser.Client.await_connected(timeout: 30_000)
+  """
+  @spec await_connected(keyword()) :: :ok | {:error, Error.t()}
+  def await_connected(opts \\ []) do
+    opts = Keyword.validate!(opts, [:server, timeout: 5_000])
+
+    unless is_integer(opts[:timeout]) and opts[:timeout] >= 0 do
+      raise ArgumentError,
+            "timeout must be a non-negative integer, got #{inspect(opts[:timeout])}"
+    end
+
+    deadline = System.monotonic_time(:millisecond) + opts[:timeout]
+    poll_connected(opts, deadline)
+  end
+
   defp request(req, opts) do
     GenServer.call(server(opts), {:request, req, Keyword.get(opts, :timeout)}, :infinity)
   end
 
   defp server(opts), do: Keyword.get(opts, :server, __MODULE__)
+
+  @await_poll 50
+
+  defp poll_connected(opts, deadline) do
+    cond do
+      status(opts) == :connected ->
+        :ok
+
+      System.monotonic_time(:millisecond) >= deadline ->
+        {:error, %Error{kind: :timeout, message: "not connected after #{opts[:timeout]} ms"}}
+
+      true ->
+        Process.sleep(@await_poll)
+        poll_connected(opts, deadline)
+    end
+  end
+
   defp kw(opts), do: Keyword.get(opts, :kw, [])
 
   # --- Callbacks ---
