@@ -96,16 +96,16 @@ defmodule Poser.LivePoserTest do
           {:ok, :ok} = Parameter.set_value(parm, v, [frame: 5] ++ o)
           fun.(Map.put(saved, :v, v))
           :ok
-        rescue
-          e -> {:raised, e, __STACKTRACE__}
+        catch
+          kind, why -> {:raised, kind, why, __STACKTRACE__}
         end
 
       failures = restore_5(parm, saved, c)
 
       case body do
-        {:raised, e, st} ->
+        {:raised, kind, why, st} ->
           if failures != [], do: IO.puts("restore also failed: #{inspect(failures)}")
-          reraise e, st
+          :erlang.raise(kind, why, st)
 
         :ok ->
           assert failures == [], "restore failed: #{inspect(failures)}"
