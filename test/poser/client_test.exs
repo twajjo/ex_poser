@@ -79,6 +79,13 @@ defmodule Poser.ClientTest do
       eventually(fn -> match?({:ok, %{"handles" => 0}}, Client.stats(server: c)) end)
     end
 
+    test "late batch failure handles are released", %{c: c} do
+      ops = [{:call, "SleepThenScene", [0.5]}, {:invoke, {:result, 0}, "SetFrame", [99]}]
+      assert {:error, %Error{kind: :timeout}} = Client.batch(ops, server: c, timeout: 100)
+
+      eventually(fn -> match?({:ok, %{"handles" => 0}}, Client.stats(server: c)) end)
+    end
+
     test "invalid arguments return bad_request and the client survives", %{c: c} do
       for {req, opts} <- [
             {fn o -> Client.batch([{:bogus}], o) end, []},

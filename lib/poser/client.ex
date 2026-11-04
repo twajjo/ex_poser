@@ -509,9 +509,10 @@ defmodule Poser.Client do
 
   defp shape(_entry, result), do: result
 
-  # A reply nobody waits for any more (the caller timed out): free its handles.
-  defp release_late(state, {:ok, value}) do
-    case Codec.handles_in(value) do
+  # A reply nobody waits for any more (the caller timed out): free its handles,
+  # including those in a failed batch's partial results.
+  defp release_late(state, result) do
+    case returned_handles(result) do
       [] ->
         state
 
@@ -520,6 +521,4 @@ defmodule Poser.Client do
         state
     end
   end
-
-  defp release_late(state, _error), do: state
 end
