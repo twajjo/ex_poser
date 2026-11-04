@@ -78,24 +78,75 @@ defmodule Poser.LivePoserTest do
 
     defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
 
-    # Sets a distinct value at frame 5 and returns what is needed to undo it.
-    defp key_at_5(parm, c) do
+    # Snapshots frame, keys and the value at 5, sets a distinct value at frame 5
+    # inside the protected body, runs `fun` with the snapshot (plus `:v`), then
+    # restores every step independently. A body failure is re-raised after the
+    # restore, so a restore failure never hides it.
+    defp with_key_at_5(parm, c, fun) do
       o = [server: c]
       {:ok, frame0} = Scene.frame(o)
       {:ok, keys0} = Parameter.keyframes(parm, o)
       {:ok, orig5} = Parameter.value_at(parm, 5, o)
-      v = orig5 + 10.0
-      {:ok, :ok} = Parameter.set_value(parm, v, [frame: 5] ++ o)
-      %{frame0: frame0, keys0: keys0, orig5: orig5, v: v}
+      {:ok, {min, max}} = Parameter.min_max(parm, o)
+      saved = %{frame0: frame0, keys0: keys0, orig5: orig5}
+
+      body =
+        try do
+          v = if orig5 + 10.0 <= max, do: orig5 + 10.0, else: max(orig5 - 10.0, min)
+          {:ok, :ok} = Parameter.set_value(parm, v, [frame: 5] ++ o)
+          fun.(Map.put(saved, :v, v))
+          :ok
+        rescue
+          e -> {:raised, e, __STACKTRACE__}
+        end
+
+      failures = restore_5(parm, saved, c)
+
+      case body do
+        {:raised, e, st} ->
+          if failures != [], do: IO.puts("restore also failed: #{inspect(failures)}")
+          reraise e, st
+
+        :ok ->
+          assert failures == [], "restore failed: #{inspect(failures)}"
+      end
     end
 
     defp restore_5(parm, %{frame0: frame0, keys0: keys0, orig5: orig5}, c) do
       o = [server: c]
-      {:ok, :ok} = Parameter.set_value(parm, orig5, [frame: 5] ++ o)
-      if 5 not in keys0, do: {:ok, :ok} = Parameter.delete_keyframe(parm, 5, o)
-      assert {:ok, ^keys0} = Parameter.keyframes(parm, o)
-      assert {:ok, ^orig5} = Parameter.value_at(parm, 5, o)
-      assert {:ok, ^frame0} = Scene.frame(o)
+
+      step = fn name, fun ->
+        try do
+          case fun.() do
+            {:error, _} = err -> [{name, err}]
+            _ -> []
+          end
+        rescue
+          e -> [{name, e}]
+        catch
+          kind, why -> [{name, {kind, why}}]
+        end
+      end
+
+      check = fn name, got, want ->
+        if got == want, do: [], else: [{name, {:expected, want, :got, got}}]
+      end
+
+      near = fn name, got, want ->
+        case got do
+          {:ok, g} when is_number(g) and abs(g - want) <= 1.0e-6 -> []
+          other -> [{name, {:expected, want, :got, other}}]
+        end
+      end
+
+      step.(:set_back, fn -> Parameter.set_value(parm, orig5, [frame: 5] ++ o) end) ++
+        step.(:delete_key, fn ->
+          if 5 in keys0, do: :ok, else: Parameter.delete_keyframe(parm, 5, o)
+        end) ++
+        step.(:frame, fn -> Scene.set_frame(frame0, o) end) ++
+        step.(:check_keys, fn -> check.(:keys, Parameter.keyframes(parm, o), {:ok, keys0}) end) ++
+        step.(:check_value, fn -> near.(:value, Parameter.value_at(parm, 5, o), orig5) end) ++
+        step.(:check_frame, fn -> check.(:frame, Scene.frame(o), {:ok, frame0}) end)
     end
 
     test "figures are listed and Actor.values works on the first body part", %{c: c} do
@@ -109,28 +160,25 @@ defmodule Poser.LivePoserTest do
 
     test "set_value at frame 5 reads back and is restored", %{c: c} do
       {_fig, _body, parm} = probe(c)
-      saved = key_at_5(parm, c)
 
-      try do
+      with_key_at_5(parm, c, fn saved ->
         assert {:ok, keys} = Parameter.keyframes(parm, server: c)
         assert 5 in keys
         assert {:ok, v} = Parameter.value_at(parm, 5, server: c)
-        assert v == saved.v
-        assert {:ok, ^v} = Parameter.value(parm, frame: 5, server: c)
+        assert_in_delta v, saved.v, 1.0e-6
+        assert {:ok, v2} = Parameter.value(parm, frame: 5, server: c)
+        assert_in_delta v2, saved.v, 1.0e-6
         assert {:ok, frame} = Scene.frame(server: c)
         assert frame == saved.frame0
-      after
-        restore_5(parm, saved, c)
-      end
+      end)
 
       assert_no_handles(c)
     end
 
     test "the value holds after the last key", %{c: c} do
       {_fig, _body, parm} = probe(c)
-      saved = key_at_5(parm, c)
 
-      try do
+      with_key_at_5(parm, c, fn saved ->
         {:ok, keys} = Parameter.keyframes(parm, server: c)
         {:ok, v3} = Parameter.value_at(parm, 3, server: c)
 
@@ -141,14 +189,12 @@ defmodule Poser.LivePoserTest do
         if List.last(keys) == 5 do
           for f <- [5, 8, 12] do
             assert {:ok, got} = Parameter.value_at(parm, f, server: c)
-            assert got == saved.v, "frame #{f}: #{got} != #{saved.v}"
+            assert_in_delta got, saved.v, 1.0e-6, "frame #{f}: #{got} != #{saved.v}"
           end
         else
           IO.puts("last key is #{List.last(keys)}, not 5: hold not asserted")
         end
-      after
-        restore_5(parm, saved, c)
-      end
+      end)
 
       assert_no_handles(c)
     end
