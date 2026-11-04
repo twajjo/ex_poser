@@ -3,6 +3,8 @@ defmodule Poser.ErrorTest do
 
   alias Poser.Error
 
+  doctest Poser.Error
+
   test "python errors" do
     e = Error.from_wire({:python, "ValueError", "bad", ["tb\n"]})
     assert %Error{kind: :python, class: "ValueError", message: "bad", traceback: ["tb\n"]} = e
@@ -54,5 +56,15 @@ defmodule Poser.ErrorTest do
 
   test "ambiguous message" do
     assert Exception.message(%Error{kind: :ambiguous, details: %{matches: []}}) == "ambiguous"
+  end
+
+  test "ambiguous message names the display name and every match" do
+    matches = [
+      %Poser.Figure{internal: "figure 1", name: "Figure 1"},
+      %Poser.Figure{internal: "figure 3", name: "Figure 1"}
+    ]
+
+    assert Exception.message(%Error{kind: :ambiguous, details: %{matches: matches}}) ==
+             ~s(ambiguous: "Figure 1" matches figure 1, figure 3)
   end
 end

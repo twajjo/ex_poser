@@ -1,19 +1,33 @@
 defmodule Poser.Batch do
   @moduledoc """
-  Several operations on name-path structs, sent as few requests as possible.
+  Many reads and writes on name-path structs, sent as few requests as
+  possible. Every function in `Poser.Scene`, `Poser.Figure`, `Poser.Actor`
+  and `Poser.Parameter` is a one-op batch, so a hand-built batch behaves the
+  same way, only in fewer round trips.
 
-  Build a batch with `new/0` and the op functions, then send it with `run/2`
-  (or use `Poser.batch/2`). Each chunk resolves the structs' internal-name
-  paths in the same request as the ops, sharing lookups between ops, so no
-  handle is ever cached and nothing goes stale.
+  Build one with `new/0` and the op functions and send it with `run/2`, or
+  do both with `Poser.batch/2`. Results come back one per op, in order.
 
-  Ops with `frame:` run at that frame; every other op runs at the frame the
-  batch started at, and that frame is restored at the end, also on failure.
-  Ops are never reordered. There is no rollback: ops before a failure stay
-  applied.
+  - **Lookups.** Each struct's path is resolved inside Poser in the same
+    request as its op, and ops share lookups on a common path prefix. No
+    handle is kept, so nothing goes stale.
+  - **Frames.** Ops with `frame:` run at that frame; every other op runs at
+    the frame the batch found, and that frame is restored at the end. Ops
+    are never reordered.
+  - **Chunks.** A batch over 2000 wire ops (lookups and frame moves
+    included) is split into several requests, one Python main-thread turn
+    each.
+  - **No rollback.** Ops before a failure stay applied.
 
-      iex> Poser.Batch.new() |> Poser.Batch.size()
-      0
+      iex> fig = %Poser.Figure{internal: "figure 1", name: "Andy"}
+      iex> hip = %Poser.Actor{figure: fig, internal: "hip", name: "Hip"}
+      iex> xrot = %Poser.Parameter{actor: hip, internal: "xrot", name: "xRotate"}
+      iex> b = Enum.reduce(0..29, Poser.Batch.new(), &Poser.Batch.set(&2, xrot, &1 * 3.0, frame: &1))
+      iex> Poser.Batch.size(b)
+      30
+
+  See the [Batching](batching.md) guide, and
+  [Frames and keyframes](frames-and-keyframes.md) for `frame:`.
   """
 
   alias Poser.{Client, Codec, Error, Parameter, Ref}
@@ -42,6 +56,7 @@ defmodule Poser.Batch do
           | {:caller, non_neg_integer()}
           | {:frame, non_neg_integer()}
 
+  @doc group: "Building"
   @doc """
   An empty batch.
 
@@ -53,6 +68,7 @@ defmodule Poser.Batch do
   @spec new() :: t()
   def new, do: %__MODULE__{}
 
+  @doc group: "Building"
   @doc """
   The number of ops the caller added.
 
@@ -67,6 +83,7 @@ defmodule Poser.Batch do
   @spec size(t()) :: non_neg_integer()
   def size(%__MODULE__{size: size}), do: size
 
+  @doc group: "Building"
   @doc """
   Reads a parameter's value. Its result is the float value.
 
@@ -81,6 +98,7 @@ defmodule Poser.Batch do
     push(b, parm, "Value", [], frame_opt(opts), :value)
   end
 
+  @doc group: "Building"
   @doc """
   Sets a parameter's value. Integers are sent as floats. Its result is `:ok`.
 
@@ -96,6 +114,7 @@ defmodule Poser.Batch do
     push(b, parm, "SetValue", [value * 1.0], frame_opt(opts), :ok)
   end
 
+  @doc group: "Building"
   @doc """
   Adds a keyframe at `frame` without moving the scene's frame. Its result is `:ok`.
 
@@ -108,6 +127,7 @@ defmodule Poser.Batch do
     push(b, parm, "AddKeyFrame", [frame], nil, :ok)
   end
 
+  @doc group: "Building"
   @doc """
   Deletes the keyframe at `frame` without moving the scene's frame. Its result is `:ok`.
 
@@ -120,6 +140,7 @@ defmodule Poser.Batch do
     push(b, parm, "DeleteKeyFrame", [frame], nil, :ok)
   end
 
+  @doc group: "Building"
   @doc """
   Calls `method` on the object `ref` resolves to (`:scene` or a struct).
 
@@ -136,26 +157,41 @@ defmodule Poser.Batch do
     push(b, ref, method, args, frame_opt(opts), :value)
   end
 
+  @doc group: "Running"
   @doc """
-  Sends the batch. Returns one result per op, in order.
+  Sends the batch. Returns one result per op, in order: `:ok` for setters
+  and keyframe ops, the value for `get/3` and `call/5`.
 
   Options: `:server` and `:timeout` as in `Poser.Client`, and `:chunk`, the
-  most wire ops per request, lookups included (default #{@default_chunk}).
-  A chunk too small for a single op raises `ArgumentError`.
+  most wire ops per request, lookups and frame moves included (default
+  #{@default_chunk}). A chunk too small for a single op raises `ArgumentError`.
 
-  On failure, later chunks don't run and earlier ones stay applied, and
-  handles from earlier chunks' `call/5` results are released. A path that
-  doesn't resolve gives `:not_found`; every error gains `details.index`, the
-  index of the caller's op. Other `details` keys are kept (for `:not_allowed`,
-  `details.op` stays the refused op kind, such as `:invoke`).
+  > #### No rollback {: .warning}
+  >
+  > Poser has no transactions. On failure the ops before the failing one
+  > stay applied, in its chunk and in every earlier chunk, and later chunks
+  > don't run.
+
+  On failure the frame is moved back to where the batch found it, and every
+  handle the batch created is released, including `call/5` results from
+  earlier chunks. A path that doesn't resolve gives `:not_found` with
+  `details.path`. Every error gains `details.index`, the index of the
+  caller's op; other `details` keys are kept (for `:not_allowed`,
+  `details.op` stays the refused wire op kind, such as `:invoke`).
+
+  One case leaves the frame moved: a `:timeout` or `:disconnected` error in
+  the first chunk of a batch with `frame:` ops. That chunk reads the original
+  frame, and its reply never arrived, so there is no frame to restore; if
+  Poser ran the chunk anyway, its timeline stays at the last frame the chunk
+  moved to.
 
   ## Examples
 
       Poser.Batch.new()
-      |> Poser.Batch.set(bend, 30.0, frame: 5)
-      |> Poser.Batch.get(bend)
+      |> Poser.Batch.set(bend, 30.0, frame: 4)
+      |> Poser.Batch.get(bend, frame: 4)
       |> Poser.Batch.run()
-      #=> {:ok, [:ok, 0.0]}
+      #=> {:ok, [:ok, 30.0]}
 
       Poser.Batch.new() |> Poser.Batch.get(missing) |> Poser.Batch.run()
       #=> {:error, %Poser.Error{kind: :not_found, details: %{index: 0, ...}}}
@@ -171,16 +207,17 @@ defmodule Poser.Batch do
     run_chunks(chunks, kinds, client_opts, %{orig: nil, moved: false, acc: []})
   end
 
+  @doc group: "Running"
   @doc """
   Like `run/2`, but returns the results and raises `Poser.Error` on failure.
 
   ## Examples
 
       Poser.Batch.new()
-      |> Poser.Batch.set(bend, 30.0, frame: 5)
-      |> Poser.Batch.get(bend)
+      |> Poser.Batch.set(bend, 30.0, frame: 4)
+      |> Poser.Batch.get(bend, frame: 4)
       |> Poser.Batch.run!()
-      #=> [:ok, 0.0]
+      #=> [:ok, 30.0]
 
       Poser.Batch.new() |> Poser.Batch.get(missing) |> Poser.Batch.run!()
       ** (Poser.Error) not_found: figure 1/hip/nope

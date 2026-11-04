@@ -1,12 +1,30 @@
 defmodule Poser.Figure do
   @moduledoc """
-  A Poser figure, as listed in the GUI's figure menu (e.g. "Figure 1").
+  A figure, as listed in the GUI's figure menu (e.g. "Figure 1"), and the
+  parent of its body parts.
 
-  `internal` is the key; `name` is the GUI label and can be renamed or repeated.
-  The struct is plain data and never holds a live handle.
+  `internal` is Poser's internal name and the key; `name` is the GUI label,
+  which can be renamed or repeated. The struct is a path, not a live object:
+  it holds no handle and works across reconnects.
 
       iex> inspect(%Poser.Figure{internal: "figure 1", name: "Andy"})
       "#Poser.Figure<figure 1>"
+      iex> Poser.Ref.path(%Poser.Figure{internal: "figure 1", name: "Andy"})
+      [figure: "figure 1"]
+
+  ## Getting one
+
+  `Poser.Scene.figures/1` lists them and `Poser.Scene.figure/2` finds one by
+  internal or display name. A struct built by hand with the right `internal`
+  works too; `name` is only for display.
+
+  ## Common tasks
+
+      {:ok, parts} = Poser.Figure.actors(fig)
+      {:ok, arm} = Poser.Figure.actor(fig, "Left Forearm")
+      {:ok, bend} = Poser.Figure.parameter(fig, "Left Forearm", "Bend")
+
+  See [Posing](posing.md).
   """
 
   @enforce_keys [:internal, :name]

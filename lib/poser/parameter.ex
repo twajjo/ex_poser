@@ -1,18 +1,46 @@
 defmodule Poser.Parameter do
   @moduledoc """
-  A Poser dial (a "parm" in PoserPython) on an actor.
+  A dial on an actor: a "parm" (`ParmType`) in PoserPython.
 
-  Every function takes one trailing options list: `:server` and `:timeout`
-  (as for `Poser.Batch.run/2`) and, where a frame makes sense, `:frame`
-  (0-based). Each call is a single round trip (`keyframes/2` takes one per
-  key), leaves the scene's current frame where it was, and releases every
-  handle it creates, except the one `handle/2` returns. To combine several
-  reads and writes in one round trip, use `Poser.Batch` directly.
+  `internal` is the name `InternalParameter` takes (e.g. `"yrot"` for the dial
+  labelled "yRotate") and the key; `name` is the GUI label.
 
       iex> fig = %Poser.Figure{internal: "figure 1", name: "Andy"}
       iex> actor = %Poser.Actor{figure: fig, internal: "lforearm", name: "Left Forearm"}
-      iex> inspect(%Poser.Parameter{actor: actor, internal: "bend", name: "Bend"})
+      iex> bend = %Poser.Parameter{actor: actor, internal: "bend", name: "Bend"}
+      iex> inspect(bend)
       "#Poser.Parameter<figure 1/lforearm/bend>"
+      iex> Poser.Ref.path(bend)
+      [figure: "figure 1", actor: "lforearm", parm: "bend"]
+
+  ## Getting one
+
+  `Poser.Actor.parameters/2` and `Poser.Actor.parameter/3`, or
+  `Poser.Figure.parameter/4` from a figure in one call.
+
+  ## Time
+
+  Where PoserPython reads and writes at the scene's current frame, `value/2`
+  and `set_value/3` take `frame:` (from 0: `frame: 0` is GUI frame 1). Poser
+  moves to that frame for the request and back again. Without `frame:` they
+  work at the current frame.
+
+  Poser keys every set at the frame it happens at, and every dial has a key
+  at frame 0 (GUI frame 1) from the start.
+
+  ## Common tasks
+
+      {:ok, :ok} = Poser.Parameter.set_value(bend, 30.0, frame: 4)  # GUI frame 5
+      {:ok, 30.0} = Poser.Parameter.value_at(bend, 4)
+      {:ok, [0, 4]} = Poser.Parameter.keyframes(bend)
+      {:ok, {min, max}} = Poser.Parameter.min_max(bend)
+
+  Each call is one request, except `keyframes/2`, which takes one per key.
+  Each releases every handle it creates, except the one `handle/2` returns.
+  Options: `:server` and `:timeout` (as for `Poser.Batch.run/2`), and
+  `:frame` where a frame makes sense.
+
+  See [Posing](posing.md) and [Frames and keyframes](frames-and-keyframes.md).
   """
 
   @enforce_keys [:actor, :internal, :name]
@@ -24,7 +52,8 @@ defmodule Poser.Parameter do
 
   @doc group: "Values"
   @doc """
-  Reads the value, as a float. Options: `:frame` (default: the current frame).
+  Reads the value, as a float. Options: `:frame` (default: the current
+  frame), `:server`, `:timeout`.
 
   ## Examples
 
@@ -78,13 +107,14 @@ defmodule Poser.Parameter do
   @doc group: "Values"
   @doc """
   Sets the value. Integers are sent as floats. Poser keys the value at the
-  frame it is set at. Options: `:frame` (default: the current frame).
+  frame it is set at, so frames after it hold the new value until the next
+  key. Options: `:frame` (default: the current frame), `:server`, `:timeout`.
 
   ## Examples
 
       Poser.Parameter.set_value(bend, 30)
       #=> {:ok, :ok}
-      Poser.Parameter.set_value(bend, 45.0, frame: 12)
+      Poser.Parameter.set_value(bend, 45.0, frame: 11)   # GUI frame 12
       #=> {:ok, :ok}
   """
   @spec set_value(t(), number(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
@@ -100,7 +130,7 @@ defmodule Poser.Parameter do
   ## Examples
 
       Poser.Parameter.set_value!(bend, 30)
-      :ok
+      #=> :ok
   """
   @spec set_value!(t(), number(), keyword()) :: :ok
   def set_value!(p, number, opts \\ []), do: p |> set_value(number, opts) |> Ref.unwrap!()
@@ -138,7 +168,8 @@ defmodule Poser.Parameter do
 
   @doc group: "Keyframes"
   @doc """
-  Adds a keyframe at `frame` (0-based), keeping the value Poser has there.
+  Adds a keyframe at `frame` (from 0: `7` is GUI frame 8), keeping the value
+  the dial has there.
   The current frame does not move. Options: `:server`, `:timeout`.
 
   ## Examples
@@ -161,14 +192,15 @@ defmodule Poser.Parameter do
   ## Examples
 
       Poser.Parameter.add_keyframe!(bend, 7)
-      :ok
+      #=> :ok
   """
   @spec add_keyframe!(t(), non_neg_integer(), keyword()) :: :ok
   def add_keyframe!(p, frame, opts \\ []), do: p |> add_keyframe(frame, opts) |> Ref.unwrap!()
 
   @doc group: "Keyframes"
   @doc """
-  Deletes the keyframe at `frame` (0-based). The current frame does not move.
+  Deletes the keyframe at `frame` (from 0: `7` is GUI frame 8). The current
+  frame does not move.
   Options: `:server`, `:timeout`.
 
   ## Examples
@@ -191,7 +223,7 @@ defmodule Poser.Parameter do
   ## Examples
 
       Poser.Parameter.delete_keyframe!(bend, 7)
-      :ok
+      #=> :ok
   """
   @spec delete_keyframe!(t(), non_neg_integer(), keyword()) :: :ok
   def delete_keyframe!(p, frame, opts \\ []),
@@ -199,10 +231,12 @@ defmodule Poser.Parameter do
 
   @doc group: "Keyframes"
   @doc """
-  The frames that hold a keyframe, sorted, as 0-based integers.
+  The frames that hold a keyframe, sorted, counting from 0 (`[0, 3, 7]` is
+  GUI frames 1, 4 and 8). Every dial starts with a key at frame 0.
 
-  Poser can only walk keys one at a time, so this takes one round trip per
-  key (plus one for frame 0). Options: `:server`, `:timeout`.
+  PoserPython walks keys one at a time, so this takes one round trip per key
+  (plus one for frame 0). It is not a snapshot: keys added or deleted during
+  the walk may or may not appear. Options: `:server`, `:timeout`.
 
   ## Examples
 

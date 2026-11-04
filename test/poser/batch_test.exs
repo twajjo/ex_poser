@@ -5,6 +5,7 @@ defmodule Poser.BatchTest do
 
   alias Poser.{Actor, Batch, Client, Error, Figure, Parameter}
 
+  doctest Poser
   doctest Poser.Batch
 
   @fig %Figure{internal: "figure 1", name: "Figure 1"}

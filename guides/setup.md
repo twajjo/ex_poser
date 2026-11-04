@@ -95,41 +95,5 @@ mix test --only poser
 
 ## 6. Generated API
 
-`lib/poser/api/` holds one module per PoserPython class, `lib/poser/api.ex`
-the module-level functions and `lib/poser/const.ex` the constants. All three
-are generated from `priv/poser_api.json` and committed. Don't edit them: put
-corrections in `priv/poser_api_overrides.json` and regenerate.
-
-Regenerate:
-
-```
-mix poser.gen
-```
-
-Check that the committed files are up to date (`mix test` also does this):
-
-```
-mix poser.gen --check
-```
-
-`priv/poser_api_manifest.json` records what was generated, what was skipped
-and why. To print a summary:
-
-```
-elixir scripts/summarize_api.exs
-```
-
-When Poser is updated, its `api_hash` changes: run the introspection script
-again (see `plans/phase0-findings.md`), copy the new `poser_api.json` into
-`priv/`, regenerate and review the diff.
-
-Smoke test: with Poser running and a scene loaded, call every generated
-getter on up to 3 objects of each class. It prints a summary and writes
-`tmp/poser_smoke.json`:
-
-```
-mix poser.smoke
-```
-
-Getters that return one handle per vertex or polygon are skipped unless you
-add `--include-heavy`.
+Regenerating the `Poser.Api` modules and the smoke test are in
+[Generated API](generated-api.md#regenerating).

@@ -1,0 +1,153 @@
+# Posing with Poserx
+
+```elixir
+poserx_path = Path.expand("~/src/elixir/poserx")
+
+Mix.install([{:poserx, path: poserx_path}])
+```
+
+## Before you start
+
+This notebook drives a live Poser 14: Poser must be running with the Poser
+Bridge add-on deployed (see [Setup](setup.md)) and a scene with at least one
+figure loaded. Set `poserx_path` above to your checkout of the repo.
+
+Every cell that changes the scene puts it back by the end, so the scene is
+left as you found it.
+
+## Connect
+
+```elixir
+{:ok, _} = Poser.Client.start_link()
+Poser.Client.info()
+```
+
+## The scene
+
+Frames count from 0 here and from 1 in the GUI: `frame: 0` is GUI frame 1.
+
+```elixir
+%{
+  frame: Poser.Scene.frame!(),
+  num_frames: Poser.Scene.num_frames!(),
+  fps: Poser.Scene.fps!(),
+  figures: Poser.Scene.figures!()
+}
+```
+
+Pick a figure. The inspect output shows its internal name; `name` is the GUI
+label.
+
+```elixir
+fig = Poser.Scene.figures!() |> hd()
+{fig.internal, fig.name}
+```
+
+## Body parts and dials
+
+A listing takes two requests however long it is.
+
+```elixir
+actors = Poser.Figure.actors!(fig)
+Enum.map(actors, &{&1.internal, &1.name})
+```
+
+Pick a body part by internal or display name. Change `actor_name` to one from
+the list above.
+
+```elixir
+actor_name = "BODY:1"
+actor = Poser.Figure.actor!(fig, actor_name)
+```
+
+Every dial on it, with its value, in two requests:
+
+```elixir
+Poser.Actor.values!(actor)
+```
+
+Pick a dial. The idiomatic structs are plain data: they name the dial and
+hold nothing live.
+
+```elixir
+parm_name = "yrot"
+parm = Poser.Actor.parameter!(actor, parm_name)
+{parm, Poser.Ref.path(parm), Poser.Parameter.min_max!(parm)}
+```
+
+## Set a dial at a frame
+
+Set the dial at `frame: 4` (GUI frame 5) and read it back at a few frames.
+Poser keys the value at frame 4, and every dial already has a key at frame 0
+(GUI frame 1). The current frame doesn't move.
+
+```elixir
+before = Poser.Parameter.value!(parm, frame: 4)
+keys_before = Poser.Parameter.keyframes!(parm)
+start_frame = Poser.Scene.frame!()
+
+Poser.Parameter.set_value!(parm, 30.0, frame: 4)
+
+result = %{
+  keyframes: Poser.Parameter.keyframes!(parm),
+  at_0: Poser.Parameter.value_at!(parm, 0),
+  at_2: Poser.Parameter.value_at!(parm, 2),
+  at_4: Poser.Parameter.value_at!(parm, 4),
+  frame_unchanged?: Poser.Scene.frame!() == start_frame
+}
+
+# Put the scene back: the old value, and no key at frame 4 unless one was there.
+Poser.Parameter.set_value!(parm, before, frame: 4)
+if 4 not in keys_before, do: Poser.Parameter.delete_keyframe!(parm, 4)
+
+result
+```
+
+## A batch
+
+One request: three reads at three frames. Results come back in op order.
+
+```elixir
+Poser.batch!(fn b ->
+  b
+  |> Poser.Batch.get(parm, frame: 0)
+  |> Poser.Batch.get(parm, frame: 10)
+  |> Poser.Batch.get(parm, frame: 20)
+end)
+```
+
+Errors are values. A missing dial gives `:not_found` with the path and the
+index of the op that failed:
+
+```elixir
+missing = %Poser.Parameter{actor: actor, internal: "no_such_dial", name: "no_such_dial"}
+
+Poser.batch(fn b ->
+  b
+  |> Poser.Batch.get(parm)
+  |> Poser.Batch.get(missing)
+end)
+```
+
+## Down to Poser.Api
+
+`handle/2` returns a live handle for the generated `Poser.Api` modules. It is
+yours to release.
+
+```elixir
+h = Poser.Parameter.handle!(parm)
+
+try do
+  {:ok, internal} = Poser.Api.ParmType.internal_name(h)
+  {:ok, hidden} = Poser.Api.ParmType.hidden(h)
+  %{internal_name: internal, hidden: hidden}
+after
+  Poser.Client.release([h])
+end
+```
+
+Nothing is left behind:
+
+```elixir
+Poser.Client.stats()
+```

@@ -157,27 +157,29 @@ someone clicks it.
 Poser.Api.SceneType.render(scene, timeout: :infinity)
 ```
 
-Expect `{:error, :timeout}` when Poser is stuck behind a dialog. The call may
+Expect `{:error, %Poser.Error{kind: :timeout}}` when Poser is stuck behind a dialog. The call may
 still run once the dialog is dismissed.
 
 ## 6. Object handles
 
 Poser objects (scenes, figures, actors, parameters and so on) never leave
-Poser. Elixir holds **handles** to them, such as
-`%Poser.Api.ActorType{ref: ...}`.
+Poser. Elixir holds **handles** to them: `%Poser.Handle{class: "ActorType", ...}`.
 
 - **Handles go stale** when the scene is replaced (new scene, scene opened)
   or when the bridge reconnects. Using one returns
-  `{:error, %Poser.Error{class: :stale_handle}}`. Look the object up again:
+  `{:error, %Poser.Error{kind: :stale_handle}}`. The idiomatic structs
+  (`Poser.Figure`, `Poser.Actor`, `Poser.Parameter`) hold no handle and
+  resolve their path on every call, so they don't go stale:
 
   ```elixir
-  {:ok, actor} = Poser.Actor.by_internal_name(figure, "hip")  # re-resolves when stale
+  {:ok, actor} = Poser.Figure.actor(figure, "hip")  # works after a reconnect too
   ```
 
 - **A deleted object** can leave a handle that Poser itself rejects. That
   shows up as a Python error, never as a crash.
-- **Handles are held until released.** Release them with `Poser.release/1`
-  or `Poser.with_scope/1`; they're also freed when the owning process exits.
+- **Handles are held until released.** Release them with
+  `Poser.Client.release/2`; the add-on also drops a connection's handles when
+  it closes.
 
 ## 7. Strict mode blocks arbitrary Python
 
@@ -187,7 +189,7 @@ access) allows only names in the generated allowlist, which is the full
 `poser` API and nothing else.
 
 ```elixir
-# Dev mode: works.  Strict mode: {:error, :not_allowed}
+# Dev mode: works.  Strict mode: {:error, %Poser.Error{kind: :not_allowed}}
 Poser.Client.raw("os", "listdir", ["C:\\"])
 
 # Both modes: everything in the poser API

@@ -1,14 +1,35 @@
 defmodule Poser.Actor do
   @moduledoc """
-  A Poser actor: a body part, prop, camera or light.
+  An actor: a figure's body part, or a scene-level prop, camera or light.
 
-  Body parts have `figure` set; props, cameras and lights have `figure: nil`.
+  Body parts have `figure` set and are found through their figure. Props,
+  cameras and lights have `figure: nil` and are found through
+  `Poser.Scene`. `internal` is Poser's internal name and the key; `name` is
+  the GUI label.
 
       iex> fig = %Poser.Figure{internal: "figure 1", name: "Andy"}
       iex> inspect(%Poser.Actor{figure: fig, internal: "lforearm", name: "Left Forearm"})
       "#Poser.Actor<figure 1/lforearm>"
       iex> inspect(%Poser.Actor{figure: nil, internal: "ball", name: "Ball"})
       "#Poser.Actor<ball>"
+
+  ## Getting one
+
+  - Body parts: `Poser.Figure.actors/2` and `Poser.Figure.actor/3`.
+  - Props, cameras and lights: `Poser.Scene.actors/1` and `Poser.Scene.actor/2`.
+
+  ## Common tasks
+
+  `get/3`, `set/3` and `values/2` read and write dials by internal name
+  without a `%Poser.Parameter{}`. `set/3` with a map writes several dials in
+  one request. Each set is keyed at the current frame; for other frames use
+  `Poser.Parameter.set_value/3` or `Poser.Batch.set/4` with `frame:`.
+
+      {:ok, values} = Poser.Actor.values(arm)    # %{"bend" => 0.0, ...}
+      {:ok, :ok} = Poser.Actor.set(arm, %{"bend" => 30.0, "twist" => -10.0})
+      {:ok, bend} = Poser.Actor.parameter(arm, "Bend")
+
+  See [Posing](posing.md).
   """
 
   @enforce_keys [:internal, :name]
@@ -164,7 +185,7 @@ defmodule Poser.Actor do
   ## Examples
 
       Poser.Actor.set!(hip, "xtran", 0.25)
-      :ok
+      #=> :ok
   """
   @spec set!(t(), String.t() | %{String.t() => number()}, number() | keyword()) :: :ok
   def set!(a, name_or_map, value_or_opts \\ []),
@@ -177,7 +198,7 @@ defmodule Poser.Actor do
   ## Examples
 
       Poser.Actor.set!(hip, "xtran", 0.25, timeout: 10_000)
-      :ok
+      #=> :ok
   """
   @spec set!(t(), String.t(), number(), keyword()) :: :ok
   def set!(a, internal, value, opts), do: a |> set(internal, value, opts) |> Ref.unwrap!()

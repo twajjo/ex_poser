@@ -1,17 +1,36 @@
 defmodule Poser.Scene do
   @moduledoc """
-  The open Poser scene: its timeline, its figures and its loose actors.
+  The open Poser scene: its timeline, its figures, and its own props,
+  cameras and lights.
 
-  There is one scene per Poser session, so nothing here takes a scene value.
-  Frames start at 0. Figures hold body parts (`Poser.Figure.actors/2`); the
-  actors listed here are the scene's own props, cameras and lights.
+  Poser has one scene per session, so nothing here takes a scene value. It
+  also has one global current frame, which PoserPython reads and writes
+  dials at. Here the `frame:` option of `Poser.Parameter` and `Poser.Batch`
+  takes its place: it moves Poser to a frame for one request and moves it
+  back. `set_frame/2` is the only function that moves the timeline and
+  leaves it there.
+
+  Frames count from 0, as in PoserPython: `frame: 0` is GUI frame 1.
+
+  ## Common tasks
+
+      {:ok, figs} = Poser.Scene.figures()
+      {:ok, fig} = Poser.Scene.figure("Figure 1")   # internal or display name
+      {:ok, ball} = Poser.Scene.actor("ball")       # props, cameras, lights
+      {:ok, n} = Poser.Scene.num_frames()           # frames 0..n-1, GUI 1..n
+
+  Body parts are not scene-level actors: `actors/1` and `actor/2` never
+  return them. Find them through their figure with `Poser.Figure.actors/2`
+  and `Poser.Figure.actor/3`.
+
+  See [Posing](posing.md) and [Frames and keyframes](frames-and-keyframes.md).
   """
 
   alias Poser.{Actor, Batch, Error, Figure, Ref}
 
   @doc group: "Timeline"
   @doc """
-  The current frame, counting from 0. Options: `:server`, `:timeout`.
+  The current frame, counting from 0: `0` is GUI frame 1. Options: `:server`, `:timeout`.
 
   ## Examples
 
@@ -35,13 +54,13 @@ defmodule Poser.Scene do
 
   @doc group: "Timeline"
   @doc """
-  Moves the scene to frame `n`. The move is deliberate and stays: unlike the
-  `:frame` option of `Poser.Batch`, nothing moves it back. Options:
-  `:server`, `:timeout`.
+  Moves the scene to frame `n` (GUI frame `n + 1`), as the GUI's frame slider
+  does. The move is deliberate and stays: unlike the `:frame` option, nothing
+  moves it back. Options: `:server`, `:timeout`.
 
   ## Examples
 
-      Poser.Scene.set_frame(12)
+      Poser.Scene.set_frame(11)   # GUI frame 12
       #=> {:ok, nil}
   """
   @spec set_frame(non_neg_integer(), keyword()) :: {:ok, term()} | {:error, Error.t()}
@@ -53,7 +72,7 @@ defmodule Poser.Scene do
 
   ## Examples
 
-      Poser.Scene.set_frame!(12)
+      Poser.Scene.set_frame!(11)
       #=> nil
   """
   @spec set_frame!(non_neg_integer(), keyword()) :: term()
@@ -61,7 +80,8 @@ defmodule Poser.Scene do
 
   @doc group: "Timeline"
   @doc """
-  How many frames the timeline has. Options: `:server`, `:timeout`.
+  How many frames the timeline has. The last is `num_frames - 1` (GUI frame
+  `num_frames`). Options: `:server`, `:timeout`.
 
   ## Examples
 
