@@ -6,12 +6,12 @@ defmodule Poser.Parameter do
   labelled "yRotate") and the key; `name` is the GUI label.
 
       iex> fig = %Poser.Figure{internal: "figure 1", name: "Andy"}
-      iex> actor = %Poser.Actor{figure: fig, internal: "lforearm", name: "Left Forearm"}
+      iex> actor = %Poser.Actor{figure: fig, internal: "lForeArm:1", name: "Left Forearm"}
       iex> bend = %Poser.Parameter{actor: actor, internal: "yrot", name: "Bend"}
       iex> inspect(bend)
-      "#Poser.Parameter<figure 1/lforearm/yrot>"
+      "#Poser.Parameter<figure 1/lForeArm:1/yrot>"
       iex> Poser.Ref.path(bend)
-      [figure: "figure 1", actor: "lforearm", parm: "yrot"]
+      [figure: "figure 1", actor: "lForeArm:1", parm: "yrot"]
 
   ## Getting one
 
