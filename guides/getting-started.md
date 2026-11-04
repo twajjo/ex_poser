@@ -11,9 +11,11 @@ loaded; [Setup](setup.md) covers the add-on and the WSL firewall rule.
 
 ```elixir
 {:ok, _pid} = Poser.Client.start_link()
+true = Enum.any?(1..50, fn _ -> Poser.Client.status() == :connected or (Process.sleep(100) && false) end)
 ```
 
-The client reads the add-on's session file to find the host, port and token,
+The handshake runs in the background, so the second line waits for it (up to
+five seconds) before the first call. The client reads the add-on's session file to find the host, port and token,
 and reconnects on its own if Poser restarts. Nothing below holds anything
 that a reconnect would invalidate.
 

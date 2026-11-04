@@ -10,7 +10,8 @@ Poser's timeline back, and a batch sends many operations in one request:
 
 ```elixir
 {:ok, _} = Poser.Client.start_link()
-# The handshake runs in the background; poll until `Poser.Client.status()` is `:connected`.
+# The handshake runs in the background; wait for it before the first call.
+true = Enum.any?(1..50, fn _ -> Poser.Client.status() == :connected or (Process.sleep(100) && false) end)
 {:ok, fig} = Poser.Scene.figure("Figure 1")
 {:ok, bend} = Poser.Figure.parameter(fig, "Left Forearm", "Bend")
 

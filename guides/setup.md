@@ -48,6 +48,7 @@ Get-NetFirewallApplicationFilter | ? Program -like '*Poser*' | Get-NetFirewallRu
 
 ```elixir
 {:ok, _} = Poser.Client.start_link()
+true = Enum.any?(1..50, fn _ -> Poser.Client.status() == :connected or (Process.sleep(100) && false) end)
 {:ok, scene} = Poser.Client.call("Scene")
 {:ok, frame} = Poser.Client.invoke(scene, "Frame")
 ```
