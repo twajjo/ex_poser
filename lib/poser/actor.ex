@@ -36,6 +36,8 @@ defmodule Poser.Actor do
   """
   @spec parameters(t(), keyword()) :: {:ok, [Parameter.t()]} | {:error, Error.t()}
   def parameters(%__MODULE__{} = a, opts \\ []) do
+    opts = run_opts(opts)
+
     with {:ok, rows} <- Ref.children(a, "Parameters", [], opts),
          do: {:ok, Enum.map(rows, &build_parameter(a, &1))}
   end
@@ -72,12 +74,13 @@ defmodule Poser.Actor do
   """
   @spec parameter(t(), String.t(), keyword()) :: {:ok, Parameter.t()} | {:error, Error.t()}
   def parameter(%__MODULE__{} = a, name, opts \\ []) when is_binary(name) do
+    opts = run_opts(opts)
     guess = %Parameter{actor: a, internal: name, name: name}
 
     batch =
       Batch.new() |> Batch.call(guess, "InternalName", []) |> Batch.call(guess, "Name", [])
 
-    case Batch.run(batch, run_opts(opts)) do
+    case Batch.run(batch, opts) do
       {:ok, [internal, display]} ->
         {:ok, %Parameter{actor: a, internal: internal, name: display}}
 
@@ -213,6 +216,8 @@ defmodule Poser.Actor do
   """
   @spec values(t(), keyword()) :: {:ok, %{String.t() => value()}} | {:error, Error.t()}
   def values(%__MODULE__{} = a, opts \\ []) do
+    opts = run_opts(opts)
+
     with {:ok, rows} <- Ref.children(a, "Parameters", ["Value"], opts),
          do: {:ok, Map.new(rows, &{&1["InternalName"], &1["Value"]})}
   end
@@ -254,8 +259,15 @@ defmodule Poser.Actor do
       |> Batch.call(a, "InternalName", [])
       |> Batch.call(parent, "ActorByInternalName", [a.internal])
 
-    with {:ok, [_, %Poser.Handle{} = h]} <- Batch.run(batch, run_opts(opts)), do: {:ok, h}
+    batch |> Batch.run(run_opts(opts)) |> to_handle(a)
   end
+
+  @doc false
+  @spec to_handle({:ok, list()} | {:error, Error.t()}, t()) ::
+          {:ok, Poser.Handle.t()} | {:error, Error.t()}
+  def to_handle({:ok, [_, %Poser.Handle{} = h]}, _a), do: {:ok, h}
+  def to_handle({:ok, [_, nil]}, a), do: {:error, Error.not_found(Ref.path(a))}
+  def to_handle({:error, _} = error, _a), do: error
 
   @doc group: "Escape hatch"
   @doc """

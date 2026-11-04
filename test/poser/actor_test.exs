@@ -64,6 +64,25 @@ defmodule Poser.ActorTest do
     assert_no_handles(c)
   end
 
+  test "every function rejects unknown opts alike", %{c: c} do
+    assert_raise ArgumentError, fn -> Actor.get(@hip, "xtran", bogus: 1, server: c) end
+    assert_raise ArgumentError, fn -> Actor.parameters(@hip, bogus: 1, server: c) end
+    assert_raise ArgumentError, fn -> Actor.parameter(@hip, "xTran", chunk: 1, server: c) end
+    assert_raise ArgumentError, fn -> Actor.parameter(@hip, "nope", frame: 1, server: c) end
+    assert_raise ArgumentError, fn -> Actor.values(@hip, bogus: 1, server: c) end
+    assert_raise ArgumentError, fn -> Actor.handle(@hip, bogus: 1, server: c) end
+    assert_no_handles(c)
+  end
+
+  test "to_handle maps a nil lookup to not_found and passes errors through" do
+    assert {:error,
+            %Error{kind: :not_found, details: %{path: [figure: "figure 1", actor: "hip"]}}} =
+             Actor.to_handle({:ok, ["hip", nil]}, @hip)
+
+    err = %Error{kind: :timeout}
+    assert {:error, ^err} = Actor.to_handle({:error, err}, @hip)
+  end
+
   test "get of a missing parm is not_found", %{c: c} do
     assert {:error, %Error{kind: :not_found}} = Actor.get(@hip, "nope", server: c)
     assert_no_handles(c)
