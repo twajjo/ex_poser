@@ -18,7 +18,7 @@ defmodule Poser.FigureTest do
     assert {:ok, [%Actor{figure: @fig, internal: "hip"}, _, _] = parts} =
              Figure.actors(@fig, server: c)
 
-    assert Enum.map(parts, & &1.internal) == ["hip", "chest", "ünïcode 頭"] or length(parts) == 3
+    assert Enum.map(parts, & &1.internal) == ["hip", "chest", "ünïcode 頭"]
     assert [_, _, _] = Figure.actors!(@fig, server: c)
     assert_no_handles(c)
   end

@@ -157,22 +157,7 @@ defmodule Poser.Scene do
   def figure(name, opts \\ []) when is_binary(name) do
     opts = run_opts(opts)
     guess = %Figure{internal: name, name: name}
-
-    case Batch.new()
-         |> Batch.call(guess, "InternalName", [])
-         |> Batch.call(guess, "Name", [])
-         |> Batch.run(opts) do
-      {:ok, [internal, display]} ->
-        {:ok, %Figure{internal: internal, name: display}}
-
-      {:error, %Error{kind: :not_found, details: %{path: path}}} ->
-        if path == Ref.path(guess),
-          do: Ref.find(:scene, "Figures", name, &build_figure/1, opts),
-          else: {:error, Error.not_found(path)}
-
-      {:error, _} = error ->
-        error
-    end
+    Ref.lookup(guess, :scene, "Figures", name, &build_figure/1, opts)
   end
 
   @doc group: "Lookup"
@@ -203,7 +188,7 @@ defmodule Poser.Scene do
     opts = run_opts(opts)
 
     with {:ok, rows} <- Ref.children(:scene, "Actors", ["IsBodyPart"], opts),
-         do: {:ok, rows |> Enum.reject(&body_part?/1) |> Enum.map(&build_actor/1)}
+         do: {:ok, rows |> Enum.filter(&scene_level?/1) |> Enum.map(&build_actor/1)}
   end
 
   @doc group: "Lookup"
@@ -236,24 +221,16 @@ defmodule Poser.Scene do
     opts = run_opts(opts)
     guess = %Actor{figure: nil, internal: name, name: name}
 
-    case Batch.new()
-         |> Batch.call(guess, "InternalName", [])
-         |> Batch.call(guess, "Name", [])
-         |> Batch.call(guess, "IsBodyPart", [])
-         |> Batch.run(opts) do
-      {:ok, [internal, display, body_part]} ->
-        if body_part?(%{"IsBodyPart" => body_part}),
-          do: {:error, Error.not_found(Ref.path(guess))},
-          else: {:ok, %Actor{figure: nil, internal: internal, name: display}}
-
-      {:error, %Error{kind: :not_found, details: %{path: path}}} ->
-        if path == Ref.path(guess),
-          do: find_by_name(name, opts),
-          else: {:error, Error.not_found(path)}
-
-      {:error, _} = error ->
-        error
-    end
+    Ref.lookup(
+      guess,
+      :scene,
+      "Actors",
+      name,
+      &build_actor/1,
+      opts,
+      ["IsBodyPart"],
+      &scene_level?/1
+    )
   end
 
   @doc group: "Lookup"
@@ -268,16 +245,6 @@ defmodule Poser.Scene do
   @spec actor!(String.t(), keyword()) :: Actor.t()
   def actor!(name, opts \\ []), do: name |> actor(opts) |> Ref.unwrap!()
 
-  defp find_by_name(name, opts) do
-    with {:ok, actors} <- actors(opts) do
-      case Enum.filter(actors, &(&1.name == name)) do
-        [a] -> {:ok, a}
-        [] -> {:error, Error.not_found([{:name, name}])}
-        many -> {:error, %Error{kind: :ambiguous, details: %{matches: many}}}
-      end
-    end
-  end
-
   defp scene_call(method, args, opts) do
     with {:ok, [v]} <-
            Batch.new() |> Batch.call(:scene, method, args) |> Batch.run(run_opts(opts)),
@@ -285,7 +252,7 @@ defmodule Poser.Scene do
   end
 
   # Poser reports IsBodyPart as 0/1; the fake may send a boolean.
-  defp body_part?(%{"IsBodyPart" => v}), do: v not in [0, false, nil]
+  defp scene_level?(%{"IsBodyPart" => v}), do: v in [0, false, nil]
 
   defp build_figure(row), do: %Figure{internal: row["InternalName"], name: row["Name"]}
 

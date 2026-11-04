@@ -76,24 +76,7 @@ defmodule Poser.Actor do
   def parameter(%__MODULE__{} = a, name, opts \\ []) when is_binary(name) do
     opts = run_opts(opts)
     guess = %Parameter{actor: a, internal: name, name: name}
-
-    batch =
-      Batch.new() |> Batch.call(guess, "InternalName", []) |> Batch.call(guess, "Name", [])
-
-    case Batch.run(batch, opts) do
-      {:ok, [internal, display]} ->
-        {:ok, %Parameter{actor: a, internal: internal, name: display}}
-
-      {:error, %Error{kind: :not_found, details: %{path: path}}} ->
-        if path == Ref.path(guess) do
-          Ref.find(a, "Parameters", name, &build_parameter(a, &1), opts)
-        else
-          {:error, Error.not_found(path)}
-        end
-
-      {:error, _} = error ->
-        error
-    end
+    Ref.lookup(guess, a, "Parameters", name, &build_parameter(a, &1), opts)
   end
 
   @doc group: "Parameters"

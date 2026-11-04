@@ -90,12 +90,21 @@ defmodule Poser.Ref do
     do: Poser.Client.release(handles, Keyword.take(opts, [:server, :timeout]))
 
   @doc false
-  # Finds the child of `parent` whose display name is `name`.
-  @spec find(ref(), String.t(), String.t(), (map() -> struct()), keyword()) ::
+  # Finds the child of `parent` whose display name is `name`. `extra` methods are
+  # read into each row; rows for which `keep` is false are ignored.
+  @spec find(
+          ref(),
+          String.t(),
+          String.t(),
+          (map() -> struct()),
+          keyword(),
+          [String.t()],
+          (map() -> boolean())
+        ) ::
           {:ok, struct()} | {:error, Poser.Error.t()}
-  def find(parent, list_method, name, build, opts) do
-    with {:ok, rows} <- children(parent, list_method, [], opts) do
-      case Enum.filter(rows, &(&1["Name"] == name)) do
+  def find(parent, list_method, name, build, opts, extra \\ [], keep \\ fn _ -> true end) do
+    with {:ok, rows} <- children(parent, list_method, extra, opts) do
+      case Enum.filter(rows, &(keep.(&1) and &1["Name"] == name)) do
         [row] ->
           {:ok, build.(row)}
 
@@ -105,6 +114,45 @@ defmodule Poser.Ref do
         rows ->
           {:error, %Poser.Error{kind: :ambiguous, details: %{matches: Enum.map(rows, build)}}}
       end
+    end
+  end
+
+  @doc false
+  # Resolves `name` under `parent`: first as an internal name (one round trip, via
+  # `guess`, a ref built from `name`), then as a display name with `find/7`. A
+  # not_found for any other path means a missing ancestor, which is reported as is.
+  # `build` takes a row with "InternalName", "Name" and the `extra` methods; a hit
+  # that `keep` rejects is not_found.
+  @spec lookup(
+          ref(),
+          ref(),
+          String.t(),
+          String.t(),
+          (map() -> struct()),
+          keyword(),
+          [String.t()],
+          (map() -> boolean())
+        ) ::
+          {:ok, struct()} | {:error, Poser.Error.t()}
+  def lookup(guess, parent, list_method, name, build, opts, extra \\ [], keep \\ fn _ -> true end) do
+    methods = ["InternalName", "Name" | extra]
+    batch = Enum.reduce(methods, Poser.Batch.new(), &Poser.Batch.call(&2, guess, &1, []))
+
+    case Poser.Batch.run(batch, opts) do
+      {:ok, values} ->
+        row = Map.new(Enum.zip(methods, values))
+
+        if keep.(row),
+          do: {:ok, build.(row)},
+          else: {:error, Poser.Error.not_found(path(guess))}
+
+      {:error, %Poser.Error{kind: :not_found, details: %{path: path}}} ->
+        if path == path(guess),
+          do: find(parent, list_method, name, build, opts, extra, keep),
+          else: {:error, Poser.Error.not_found(path)}
+
+      {:error, _} = error ->
+        error
     end
   end
 end

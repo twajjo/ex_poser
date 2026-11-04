@@ -67,22 +67,7 @@ defmodule Poser.Figure do
   def actor(%__MODULE__{} = f, name, opts \\ []) when is_binary(name) do
     opts = run_opts(opts)
     guess = %Actor{figure: f, internal: name, name: name}
-
-    case Batch.new()
-         |> Batch.call(guess, "InternalName", [])
-         |> Batch.call(guess, "Name", [])
-         |> Batch.run(opts) do
-      {:ok, [internal, display]} ->
-        {:ok, %Actor{figure: f, internal: internal, name: display}}
-
-      {:error, %Error{kind: :not_found, details: %{path: path}}} ->
-        if path == Ref.path(guess),
-          do: Ref.find(f, "Actors", name, &build(f, &1), opts),
-          else: {:error, Error.not_found(path)}
-
-      {:error, _} = error ->
-        error
-    end
+    Ref.lookup(guess, f, "Actors", name, &build(f, &1), opts)
   end
 
   @doc group: "Lookup"
