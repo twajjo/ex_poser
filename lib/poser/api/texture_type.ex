@@ -11,8 +11,10 @@ defmodule Poser.Api.TextureType do
   @doc ~S"""
   Python: `TextureType.Gamma`
 
+  ```text
   Get the Gamma value - usual values 1.0 (no correction), 2.2 (standard corection)
    <FloatType> Gamma()
+  ```
   """
   @spec gamma(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def gamma(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -21,8 +23,10 @@ defmodule Poser.Api.TextureType do
   @doc ~S"""
   Python: `TextureType.SetGamma`
 
+  ```text
   Set the Gamma value - usual values 1.0 (no correction), 2.2 (standard corection), range is 0.2-5.  Also sets UseSceneGamma to false (0)
   <NoneType> SetGamma(<FloatType> gamma)
+  ```
   """
   @spec set_gamma(Poser.Handle.t(), number(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_gamma(%Poser.Handle{class: c} = handle, gamma, opts \\ []) when c in @accepts,
@@ -31,8 +35,10 @@ defmodule Poser.Api.TextureType do
   @doc ~S"""
   Python: `TextureType.SetUseSceneGamma`
 
+  ```text
   Specify which gamma correction value will be used. Use 1 for scene render settings, 0 for custom.
   <NoneType> SetUseSceneGamma(<IntType> useSceneGamma)
+  ```
   """
   @spec set_use_scene_gamma(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -43,8 +49,10 @@ defmodule Poser.Api.TextureType do
   @doc ~S"""
   Python: `TextureType.UseSceneGamma`
 
+  ```text
   Query which gamma correction value is being used. Results are 1 for scene render settings, 0 for custom.
   <IntType> UseSceneGamma()
+  ```
   """
   @spec use_scene_gamma(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}

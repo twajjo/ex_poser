@@ -11,8 +11,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.AmbientColor`
 
+  ```text
   Get the material ambient color rgb (0-1.0).
   (<FloatType> r, <FloatType> g, <FloatType> b) AmbientColor()
+  ```
   """
   @spec ambient_color(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -22,8 +24,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.AmbientMapFileName`
 
+  ```text
   Get the material ambient-map filename.
   <StringType> AmbientMapFileName()
+  ```
   """
   @spec ambient_map_file_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -33,8 +37,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.BumpMapFileName`
 
+  ```text
   Get the material bump-map filename.
   <StringType> BumpMapFileName()
+  ```
   """
   @spec bump_map_file_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -44,8 +50,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.BumpStrength`
 
+  ```text
   Get the material bump strength value.
   <FloatType> BumpStrength()
+  ```
   """
   @spec bump_strength(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def bump_strength(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -54,8 +62,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.CreateLayer`
 
+  ```text
   Create new layer.
   <NoneType> CreateLayer(<StringType> name)
+  ```
   """
   @spec create_layer(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -65,8 +75,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.DeleteLayer`
 
+  ```text
   Delete existing layer.
   <NoneType> DeleteLayer(<IntType> index)
+  ```
   """
   @spec delete_layer(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -76,8 +88,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.DiffuseColor`
 
+  ```text
   Get the material diffuse color rgb (0-1.0).
   (<FloatType> r, <FloatType> g, <FloatType> b) DiffuseColor()
+  ```
   """
   @spec diffuse_color(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -87,8 +101,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.ExtName`
 
+  ```text
   Get the external name for the material.
   <StringType> ExtName()
+  ```
   """
   @spec ext_name(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def ext_name(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -97,8 +113,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.Layer`
 
+  ```text
   Get material at index.
   <MaterialLayerType> Layer(<IntType> layerindex)
+  ```
   """
   @spec layer(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -108,8 +126,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.LayerByExtName`
 
+  ```text
   Get material with external name.
   <MaterialLayerType> LayerByExtName(<StringType> name)
+  ```
   """
   @spec layer_by_ext_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -119,8 +139,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.LayerByName`
 
+  ```text
   Get material with name.
   <MaterialLayerType> LayerByName(<StringType> name)
+  ```
   """
   @spec layer_by_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -130,8 +152,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.LayerExtName`
 
+  ```text
   Get the material's layer's shader tree's name (external).
   <StringType> LayerExtName(<IntType> layer)
+  ```
   """
   @spec layer_ext_name(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -141,8 +165,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.LayerName`
 
+  ```text
   Get the material's layer's shader tree's name (internal).
   <StringType> LayerName(<IntType> layer)
+  ```
   """
   @spec layer_name(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -152,8 +178,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.LayerShaderTree`
 
+  ```text
   Get the material's layer's shader tree.
   <ShaderTreeType> LayerShaderTree(<IntType> layer)
+  ```
   """
   @spec layer_shader_tree(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -163,8 +191,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.LayerShaderTreeHash`
 
+  ```text
   Get the material's layer's shader tree's hash.
   <StringType> LayerShaderTreeHash(<IntType> layer)
+  ```
   """
   @spec layer_shader_tree_hash(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -174,8 +204,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.Layers`
 
+  ```text
   Get a list of all layers in material.
   <ListType> Layers()
+  ```
   """
   @spec layers(Poser.Handle.t(), keyword()) :: {:ok, list()} | {:error, Poser.Error.t()}
   def layers(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -184,8 +216,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.LoadMaterialSet`
 
+  ```text
   Load a material from the library.
   <NoneType> LoadMaterialSet(<StringType> name)
+  ```
   """
   @spec load_material_set(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -195,8 +229,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.Name`
 
+  ```text
   Get the name(internal only) for the material.
   <StringType> Name()
+  ```
   """
   @spec name(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def name(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -205,8 +241,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.Ns`
 
+  ```text
   Get the material Ns value.  This is an exponent used in the calculation of the specular highlight.  A higher exponent results in a smaller highlight and vice-versa.
   <FloatType> Ns()
+  ```
   """
   @spec ns(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def ns(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -215,8 +253,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.NumLayers`
 
+  ```text
   Get the number of layers for this material.
   <IntType> NumLayers()
+  ```
   """
   @spec num_layers(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_layers(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -225,8 +265,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.ReflectionColor`
 
+  ```text
   Get the material reflection color rgb (0-1.0).
   (<FloatType> r, <FloatType> g, <FloatType> b) ReflectionColor()
+  ```
   """
   @spec reflection_color(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -236,8 +278,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.ReflectionMapFileName`
 
+  ```text
   Get the material reflection-map filename.
   <StringType> ReflectionMapFileName()
+  ```
   """
   @spec reflection_map_file_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -247,8 +291,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.ReflectionStrength`
 
+  ```text
   Get the material reflection strength value.
   <FloatType> ReflectionStrength()
+  ```
   """
   @spec reflection_strength(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -258,8 +304,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SaveMaterialSet`
 
+  ```text
   Save this material to the library.
   <NoneType> SaveMaterialSet(<StringType> name)
+  ```
   """
   @spec save_material_set(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -269,8 +317,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.Selected`
 
+  ```text
   Query whether this material is selected. Use material selection in conjunction with the Actor.SaveMaterialCollection method.
   <IntType> Selected()
+  ```
   """
   @spec selected(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def selected(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -279,8 +329,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetAmbientColor`
 
+  ```text
   Set the material ambient color.
   <NoneType> SetAmbientColor(<FloatType> r, <FloatType> g, <FloatType> b)
+  ```
   """
   @spec set_ambient_color(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -290,8 +342,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetAmbientMapFileName`
 
+  ```text
   Set the material ambient-map filename.
   <NoneType> SetAmbientMapFileName(<StringType> filePath)
+  ```
   """
   @spec set_ambient_map_file_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -302,8 +356,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetBumpMapFileName`
 
+  ```text
   Set the material bump-map filename.
   <NoneType> SetBumpMapFileName(<StringType> filePath)
+  ```
   """
   @spec set_bump_map_file_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -314,8 +370,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetBumpStrength`
 
+  ```text
   Set the material bump strength to a specific value.
   <FloatType> SetBumpStrength(<FloatType> value)
+  ```
   """
   @spec set_bump_strength(Poser.Handle.t(), number(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -325,8 +383,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetDiffuseColor`
 
+  ```text
   Set the material diffuse color.
   <NoneType> SetDiffuseColor(<FloatType> r, <FloatType> g, <FloatType> b)
+  ```
   """
   @spec set_diffuse_color(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -336,8 +396,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetNs`
 
+  ```text
   Set the material Ns to a specific value.   This is an exponent used in the calculation of the specular highlight.  A higher exponent results in a smaller highlight and vice-versa.
   <FloatType> SetNs(<FloatType> value)
+  ```
   """
   @spec set_ns(Poser.Handle.t(), number(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -347,8 +409,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetReflectionColor`
 
+  ```text
   Set the material reflection color rgb (0-1.0).
   <NoneType> SetReflectionColor(<FloatType> r, <FloatType> g, <FloatType> b)
+  ```
   """
   @spec set_reflection_color(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -358,8 +422,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetReflectionMapFileName`
 
+  ```text
   Set the material reflection-map filename.
   <NoneType> SetReflectionMapFileName(<StringType> filePath)
+  ```
   """
   @spec set_reflection_map_file_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -370,8 +436,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetReflectionStrength`
 
+  ```text
   Set the material reflection strength to a specific value.
   <FloatType> SetReflectionStrength(<FloatType> value)
+  ```
   """
   @spec set_reflection_strength(Poser.Handle.t(), number(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -382,8 +450,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetSelected`
 
+  ```text
   Selects or unselects the material for inclusion in a material collection. A value of 1 selects the matieral, a value of 0 unselects. Use material selection in conjunction with the Actor.SaveMaterialCollection.
   <NoneType> SetSelected(<IntType> selected)
+  ```
   """
   @spec set_selected(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -393,8 +463,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetSpecularColor`
 
+  ```text
   Set the material specular highlight color rgb (0-1.0).
   <NoneType> SetSpecularColor(<FloatType> r, <FloatType> g, <FloatType> b)
+  ```
   """
   @spec set_specular_color(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -404,8 +476,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetSpecularMapFileName`
 
+  ```text
   Set the material specular-map filename.
   <NoneType> SetSpecularMapFileName(<StringType> filePath)
+  ```
   """
   @spec set_specular_map_file_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -416,8 +490,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetTextureColor`
 
+  ```text
   Set the material texture color rgb (0-1.0).
   <NoneType> SetTextureColor(<FloatType> r, <FloatType> g, <FloatType> b)
+  ```
   """
   @spec set_texture_color(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -427,8 +503,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetTextureMapFileName`
 
+  ```text
   Set the material texture-map filename.
   <NoneType> SetTextureMapFileName(<StringType> filePath)
+  ```
   """
   @spec set_texture_map_file_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -439,8 +517,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetTransparencyExpo`
 
+  ```text
   Set the material tExpo to a specific value.
   <FloatType> SetTransparencyExpo(<FloatType> value)
+  ```
   """
   @spec set_transparency_expo(Poser.Handle.t(), number(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -450,8 +530,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetTransparencyMapFileName`
 
+  ```text
   Set the material transparency-map filename.
   <NoneType> SetTransparencyMapFileName(<StringType> filePath)
+  ```
   """
   @spec set_transparency_map_file_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -462,8 +544,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetTransparencyMax`
 
+  ```text
   Set the material tMax to a specific value.
   <FloatType> SetTransparencyMax(<FloatType> value)
+  ```
   """
   @spec set_transparency_max(Poser.Handle.t(), number(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -473,8 +557,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SetTransparencyMin`
 
+  ```text
   Set the material tMin to a specific value.
   <FloatType> SetTransparencyMin(<FloatType> value)
+  ```
   """
   @spec set_transparency_min(Poser.Handle.t(), number(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -484,8 +570,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.ShaderTree`
 
+  ```text
   Get the material's shader tree.
   <ShaderTreeType> ShaderTree()
+  ```
   """
   @spec shader_tree(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -495,8 +583,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.ShaderTreeHash`
 
+  ```text
   Get the material's shader tree's hash.
   <StringType> ShaderTreeHash()
+  ```
   """
   @spec shader_tree_hash(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -506,8 +596,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SpecularColor`
 
+  ```text
   Get the material specular highlight color rgb (0-1.0).
   (<FloatType> r, <FloatType> g, <FloatType> b) SpecularColor()
+  ```
   """
   @spec specular_color(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -517,8 +609,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.SpecularMapFileName`
 
+  ```text
   Get the material specular-map filename.
   <StringType> SpecularMapFileName()
+  ```
   """
   @spec specular_map_file_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -528,8 +622,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.TextureColor`
 
+  ```text
   Get the material texture color rgb (0-1.0).
   (<FloatType> r, <FloatType> g, <FloatType> b) TextureColor()
+  ```
   """
   @spec texture_color(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -539,8 +635,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.TextureMapFileName`
 
+  ```text
   Get the material texture-map filename.
   <StringType> TextureMapFileName()
+  ```
   """
   @spec texture_map_file_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -550,8 +648,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.TransparencyExpo`
 
+  ```text
   Get the material tExpo value.
   <FloatType> TransparencyExpo()
+  ```
   """
   @spec transparency_expo(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -561,8 +661,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.TransparencyMapFileName`
 
+  ```text
   Get the material transparency-map filename.
   <StringType> TransparencyMapFileName()
+  ```
   """
   @spec transparency_map_file_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -572,8 +674,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.TransparencyMax`
 
+  ```text
   Get the tMax value for the material.
   <FloatType> TransparencyMax()
+  ```
   """
   @spec transparency_max(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -583,8 +687,10 @@ defmodule Poser.Api.MaterialType do
   @doc ~S"""
   Python: `MaterialType.TransparencyMin`
 
+  ```text
   Get the tMin value for the material.
   <FloatType> TransparencyMin()
+  ```
   """
   @spec transparency_min(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}

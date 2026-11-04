@@ -11,8 +11,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.AOSamples`
 
+  ```text
   Get number of AO samples.
   <IntType> AOSamples()
+  ```
   """
   @spec ao_samples(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def ao_samples(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -21,8 +23,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.BucketSize`
 
+  ```text
   Get tile size.
   <IntType> BucketSize()
+  ```
   """
   @spec bucket_size(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def bucket_size(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -31,8 +35,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.ClampDirectSamples`
 
+  ```text
   Get ClampDirectSamples.
   <FloatType> ClampDirectSamples()
+  ```
   """
   @spec clamp_direct_samples(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -42,8 +48,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.ClampIndirectSamples`
 
+  ```text
   Get ClampIndirectSamples.
   <FloatType> ClampIndirectSamples()
+  ```
   """
   @spec clamp_indirect_samples(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -53,8 +61,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.DepthOfField`
 
+  ```text
   Get DepthOfField.
   <BoolType> DepthOfField()
+  ```
   """
   @spec depth_of_field(Poser.Handle.t(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -64,8 +74,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.Device`
 
+  ```text
   Gets Device for rendering (CPU, CUDA).
   <StringType> Device()
+  ```
   """
   @spec device(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def device(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -74,8 +86,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.Devices`
 
+  ```text
   Gets All Devices for rendering (CPU, CUDA).
   <ListType> Devices()
+  ```
   """
   @spec devices(Poser.Handle.t(), keyword()) :: {:ok, list()} | {:error, Poser.Error.t()}
   def devices(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -84,8 +98,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.DiffuseBounces`
 
+  ```text
   Get number of Diffuse bounces.
   <IntType> DiffuseBounces()
+  ```
   """
   @spec diffuse_bounces(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -95,8 +111,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.DiffuseSamples`
 
+  ```text
   Get number of Diffuse samples.
   <IntType> DiffuseSamples()
+  ```
   """
   @spec diffuse_samples(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -106,8 +124,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.FilterGlossy`
 
+  ```text
   Get FilterGlossy.
   <FloatType> FilterGlossy()
+  ```
   """
   @spec filter_glossy(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def filter_glossy(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -116,8 +136,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.GlossyBounces`
 
+  ```text
   Get number of Glossy bounces.
   <IntType> GlossyBounces()
+  ```
   """
   @spec glossy_bounces(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -127,8 +149,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.GlossySamples`
 
+  ```text
   Get number of Glossy samples.
   <IntType> GlossySamples()
+  ```
   """
   @spec glossy_samples(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -138,8 +162,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.MaxBounces`
 
+  ```text
   Get Max number of bounces.
   <IntType> MaxBounces()
+  ```
   """
   @spec max_bounces(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def max_bounces(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -148,8 +174,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.MaxTransparentBounces`
 
+  ```text
   Get Max number of Transparent bounces.
   <IntType> MaxTransparentBounces()
+  ```
   """
   @spec max_transparent_bounces(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -159,8 +187,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.MeshLightSamples`
 
+  ```text
   Get number of Mesh Light samples.
   <IntType> MeshLightSamples()
+  ```
   """
   @spec mesh_light_samples(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -170,8 +200,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.MinBounces`
 
+  ```text
   Get Min number of bounces.
   <IntType> MinBounces()
+  ```
   """
   @spec min_bounces(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def min_bounces(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -180,8 +212,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.MinTransparentBounces`
 
+  ```text
   Get Min number of Transparent bounces.
   <IntType> MinTransparentBounces()
+  ```
   """
   @spec min_transparent_bounces(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -191,8 +225,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.MotionBlur`
 
+  ```text
   Get MotionBlur.
   <BoolType> MotionBlur()
+  ```
   """
   @spec motion_blur(Poser.Handle.t(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -202,8 +238,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.PixelSamples`
 
+  ```text
   Get number of AA samples.
   <IntType> PixelSamples()
+  ```
   """
   @spec pixel_samples(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def pixel_samples(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -212,8 +250,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.ProgressiveRefinement`
 
+  ```text
   Get ProgressiveRefinement.
   <BoolType> ProgressiveRefinement()
+  ```
   """
   @spec progressive_refinement(Poser.Handle.t(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -223,8 +263,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.ReflectiveCaustics`
 
+  ```text
   Get ReflectiveCaustics.
   <BoolType> ReflectiveCaustics()
+  ```
   """
   @spec reflective_caustics(Poser.Handle.t(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -234,8 +276,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.RefractiveCaustics`
 
+  ```text
   Get RefractiveCaustics.
   <BoolType> RefractiveCaustics()
+  ```
   """
   @spec refractive_caustics(Poser.Handle.t(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -245,8 +289,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SampleAllLightsDirect`
 
+  ```text
   Get SampleAllLightsDirect.
   <BoolType> SampleAllLightsDirect()
+  ```
   """
   @spec sample_all_lights_direct(Poser.Handle.t(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -256,8 +302,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SampleAllLightsIndirect`
 
+  ```text
   Get SampleAllLightsIndirect.
   <BoolType> SampleAllLightsIndirect()
+  ```
   """
   @spec sample_all_lights_indirect(Poser.Handle.t(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -267,8 +315,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetAOSamples`
 
+  ```text
   Set number of AO samples.
   <NoneType> SetAOSamples(<IntType> samples)
+  ```
   """
   @spec set_ao_samples(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -278,8 +328,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetBucketSize`
 
+  ```text
   Set tile size.
   <NoneType> SetBucketSize(<IntType> value)
+  ```
   """
   @spec set_bucket_size(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -289,8 +341,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetClampDirectSamples`
 
+  ```text
   Set ClampDirectSamples.
   <NoneType> SetClampDirectSamples(<FloatType> value)
+  ```
   """
   @spec set_clamp_direct_samples(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -301,8 +355,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetClampIndirectSamples`
 
+  ```text
   Set ClampIndirectSamples.
   <NoneType> SetClampIndirectSamples(<FloatType> value)
+  ```
   """
   @spec set_clamp_indirect_samples(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -313,8 +369,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetDepthOfField`
 
+  ```text
   Set DepthOfField.
   <NoneType> SetDepthOfField(<BoolType> value)
+  ```
   """
   @spec set_depth_of_field(Poser.Handle.t(), boolean(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -324,8 +382,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetDevice`
 
+  ```text
   Sets Device for rendering (CPU, CUDA).
   <NoneType> SetDevice(<StringType> device)
+  ```
   """
   @spec set_device(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -335,8 +395,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetDiffuseBounces`
 
+  ```text
   Set number of Diffuse bounces.
   <NoneType> SetDiffuseBounces(<IntType> bounces)
+  ```
   """
   @spec set_diffuse_bounces(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -346,8 +408,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetDiffuseSamples`
 
+  ```text
   Set number of Diffuse samples.
   <NoneType> SetDiffuseSamples(<IntType> samples)
+  ```
   """
   @spec set_diffuse_samples(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -357,8 +421,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetFilterGlossy`
 
+  ```text
   Set FilterGlossy.
   <NoneType> SetFilterGlossy(<FloatType> value)
+  ```
   """
   @spec set_filter_glossy(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -368,8 +434,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetGlossyBounces`
 
+  ```text
   Set number of Glossy bounces.
   <NoneType> SetGlossyBounces(<IntType> bounces)
+  ```
   """
   @spec set_glossy_bounces(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -379,8 +447,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetGlossySamples`
 
+  ```text
   Set number of Glossy samples.
   <NoneType> SetGlossySamples(<IntType> samples)
+  ```
   """
   @spec set_glossy_samples(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -390,8 +460,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetMaxBounces`
 
+  ```text
   Set Max number of bounces.
   <NoneType> SetMaxBounces(<IntType> bounces)
+  ```
   """
   @spec set_max_bounces(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -401,8 +473,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetMaxTransparentBounces`
 
+  ```text
   Set Max number of Transparent bounces.
   <NoneType> SetMaxTransparentBounces(<IntType> bounces)
+  ```
   """
   @spec set_max_transparent_bounces(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -413,8 +487,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetMeshLightSamples`
 
+  ```text
   Set number of Mesh Light samples.
   <NoneType> SetMeshLightSamples(<IntType> samples)
+  ```
   """
   @spec set_mesh_light_samples(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -425,8 +501,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetMinBounces`
 
+  ```text
   Set Min number of bounces.
   <NoneType> SetMinBounces(<IntType> bounces)
+  ```
   """
   @spec set_min_bounces(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -436,8 +514,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetMinTransparentBounces`
 
+  ```text
   Set Min number of Transparent bounces.
   <NoneType> SetMinTransparentBounces(<IntType> bounces)
+  ```
   """
   @spec set_min_transparent_bounces(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -448,8 +528,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetMotionBlur`
 
+  ```text
   Set MotionBlur.
   <NoneType> SetMotionBlur(<BoolType> value)
+  ```
   """
   @spec set_motion_blur(Poser.Handle.t(), boolean(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -459,8 +541,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetPixelSamples`
 
+  ```text
   Set number of AA samples.
   <NoneType> SetPixelSamples(<IntType> samples)
+  ```
   """
   @spec set_pixel_samples(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -470,8 +554,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetProgressiveRefinement`
 
+  ```text
   Set ProgressiveRefinement.
   <NoneType> SetProgressiveRefinement(<BoolType> value)
+  ```
   """
   @spec set_progressive_refinement(Poser.Handle.t(), boolean(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -482,8 +568,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetReflectiveCaustics`
 
+  ```text
   Set ReflectiveCaustics.
   <NoneType> SetReflectiveCaustics(<BoolType> value)
+  ```
   """
   @spec set_reflective_caustics(Poser.Handle.t(), boolean(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -494,8 +582,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetRefractiveCaustics`
 
+  ```text
   Set RefractiveCaustics.
   <NoneType> SetRefractiveCaustics(<BoolType> value)
+  ```
   """
   @spec set_refractive_caustics(Poser.Handle.t(), boolean(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -506,8 +596,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetSampleAllLightsDirect`
 
+  ```text
   Set SampleAllLightsDirect.
   <NoneType> SetSampleAllLightsDirect(<BoolType> value)
+  ```
   """
   @spec set_sample_all_lights_direct(Poser.Handle.t(), boolean(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -518,8 +610,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetSampleAllLightsIndirect`
 
+  ```text
   Set SampleAllLightsIndirect.
   <NoneType> SetSampleAllLightsIndirect(<BoolType> value)
+  ```
   """
   @spec set_sample_all_lights_indirect(Poser.Handle.t(), boolean(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -530,8 +624,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetSubsurfaceSamples`
 
+  ```text
   Set number of Subsurface samples.
   <NoneType> SetSubsurfaceSamples(<IntType> samples)
+  ```
   """
   @spec set_subsurface_samples(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -542,8 +638,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetTransmissionBounces`
 
+  ```text
   Set number of Transmission bounces.
   <NoneType> SetTransmissionBounces(<IntType> bounces)
+  ```
   """
   @spec set_transmission_bounces(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -554,8 +652,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetTransmissionSamples`
 
+  ```text
   Set number of Transmission samples.
   <NoneType> SetTransmissionSamples(<IntType> samples)
+  ```
   """
   @spec set_transmission_samples(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -566,8 +666,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetVolumeBounces`
 
+  ```text
   Set number of Volume bounces.
   <NoneType> SetVolumeBounces(<IntType> bounces)
+  ```
   """
   @spec set_volume_bounces(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -577,8 +679,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SetVolumeSamples`
 
+  ```text
   Set number of Volume samples.
   <NoneType> SetVolumeSamples(<IntType> samples)
+  ```
   """
   @spec set_volume_samples(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -588,8 +692,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.SubsurfaceSamples`
 
+  ```text
   Get number of Subsurface samples.
   <IntType> SubsurfaceSamples()
+  ```
   """
   @spec subsurface_samples(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -599,8 +705,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.TransmissionBounces`
 
+  ```text
   Get number of Transmission bounces.
   <IntType> TransmissionBounces()
+  ```
   """
   @spec transmission_bounces(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -610,8 +718,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.TransmissionSamples`
 
+  ```text
   Get number of Transmission samples.
   <IntType> TransmissionSamples()
+  ```
   """
   @spec transmission_samples(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -621,8 +731,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.VolumeBounces`
 
+  ```text
   Get number of Volume bounces.
   <IntType> VolumeBounces()
+  ```
   """
   @spec volume_bounces(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -632,8 +744,10 @@ defmodule Poser.Api.SuperFlyOptionsType do
   @doc ~S"""
   Python: `SuperFlyOptionsType.VolumeSamples`
 
+  ```text
   Get number of Volume samples.
   <IntType> VolumeSamples()
+  ```
   """
   @spec volume_samples(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}

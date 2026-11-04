@@ -11,8 +11,10 @@ defmodule Poser.Api.TexPolygonType do
   @doc ~S"""
   Python: `TexPolygonType.NumTexVertices`
 
+  ```text
   Get the number of texture vertices in the polygon.
   <IntType> NumTexVertices()
+  ```
   """
   @spec num_tex_vertices(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -22,8 +24,10 @@ defmodule Poser.Api.TexPolygonType do
   @doc ~S"""
   Python: `TexPolygonType.Start`
 
+  ```text
   Get the starting set index of the polygon. Using this value to index into the set list, one can get the index of the associated texture vertex.
   <IntType> Start()
+  ```
   """
   @spec start(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def start(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -32,8 +36,10 @@ defmodule Poser.Api.TexPolygonType do
   @doc ~S"""
   Python: `TexPolygonType.TexVertices`
 
+  ```text
   Get a list of texture vertex objects for the polygon.
   <TexVertexType List> TexVertices()
+  ```
   """
   @spec tex_vertices(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}

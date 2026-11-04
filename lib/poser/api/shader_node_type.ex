@@ -11,8 +11,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.CompoundData`
 
+  ```text
   Get a data object providing access to compound-node-specific methods.  If this is not a compound node, the return value will be None.
   <ShaderNodeCompoundDataType> CompoundData()
+  ```
   """
   @spec compound_data(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -22,8 +24,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.ConnectToInput`
 
+  ```text
   Connect the output of this node to the given input.
   <NoneType> ConnectToInput(<ShaderNodeInputType> Input)
+  ```
   """
   @spec connect_to_input(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -33,8 +37,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.Delete`
 
+  ```text
   Delete this node. You must not use this ShaderNode object after deleting it.
   <NoneType> Delete()
+  ```
   """
   @spec delete(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def delete(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -43,8 +49,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.Input`
 
+  ```text
   Get an input by its index.
   <ShaderNodeInputType> Input(<IntType> Index)
+  ```
   """
   @spec input(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -54,8 +62,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.InputByInternalName`
 
+  ```text
   Get an input by its internal Name.
   <ShaderNodeInputType> InputByInternalName(<StringType> inputName)
+  ```
   """
   @spec input_by_internal_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -66,8 +76,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.Inputs`
 
+  ```text
   Get a list of the inputs.
   <ShaderNodeInputType list> Inputs()
+  ```
   """
   @spec inputs(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -77,8 +89,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.InputsCollapsed`
 
+  ```text
   Query whether the node's inputs are collapsed in the UI.
   <IntType> InputsCollapsed()
+  ```
   """
   @spec inputs_collapsed(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -88,8 +102,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.InternalName`
 
+  ```text
   Get the internal name of the node.
   <StringType> InternalName()
+  ```
   """
   @spec internal_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -99,8 +115,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.IsRoot`
 
+  ```text
   Get is this node root type node.
   <BoolType> IsRoot()
+  ```
   """
   @spec is_root(Poser.Handle.t(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -110,8 +128,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.Location`
 
+  ```text
   Get the UI position of this node in pixels.
   (<IntType> x, <IntType> y) Location()
+  ```
   """
   @spec location(Poser.Handle.t(), keyword()) ::
           {:ok, {integer(), integer()}} | {:error, Poser.Error.t()}
@@ -121,8 +141,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.Name`
 
+  ```text
   Get the (external) name of the node.
   <StringType> Name()
+  ```
   """
   @spec name(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def name(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -131,8 +153,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.NumInputs`
 
+  ```text
   Get the number of inputs of this ShaderNode.
   <IntType> NumInputs()
+  ```
   """
   @spec num_inputs(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_inputs(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -141,8 +165,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.NumOutputs`
 
+  ```text
   Get the number of outputs of this ShaderNode.
   <IntType> NumOutputs()
+  ```
   """
   @spec num_outputs(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_outputs(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -151,8 +177,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.Output`
 
+  ```text
   Get an output by its index.
   <ShaderNodeOutputType> Output(<IntType> Index)
+  ```
   """
   @spec output(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -162,8 +190,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.OutputByInternalName`
 
+  ```text
   Get an output by its internal Name.
   <ShaderNodeOutputType> OutputByInternalName(<StringType> outputName)
+  ```
   """
   @spec output_by_internal_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -174,8 +204,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.Outputs`
 
+  ```text
   Get a list of the inputs.
   <ShaderNodeOutputType list> Outputs()
+  ```
   """
   @spec outputs(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -185,9 +217,11 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.PreviewCollapsed`
 
+  ```text
   DEPRECATED: This function returns the visible state, so it has been deprecated for PreviewVisible().
   Query whether the node's preview is collapsed in the UI.
   <IntType> PreviewCollapsed()
+  ```
   """
   @spec preview_collapsed(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -197,8 +231,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.PreviewVisible`
 
+  ```text
   Query whether the node's preview is visible (not collapsed) in the UI.
   <IntType> PreviewVisible()
+  ```
   """
   @spec preview_visible(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -208,8 +244,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.SelectedOutput`
 
+  ```text
   Get which output is the selected one.  This determines which preview is shown in the node preview pane.
   <IntType> SelectedOutput()
+  ```
   """
   @spec selected_output(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -219,8 +257,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.SetInputsCollapsed`
 
+  ```text
   Set if the node's inputs are collapsed in the UI.
   <NoneType> SetInputsCollapsed(<IntType> Collapsed)
+  ```
   """
   @spec set_inputs_collapsed(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -231,8 +271,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.SetLocation`
 
+  ```text
   Set the UI position of this node in pixels.
   <NoneType> SetLocation(<IntType> x, <IntType> y)
+  ```
   """
   @spec set_location(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -242,8 +284,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.SetName`
 
+  ```text
   Set the (external) name of the node.
   <NoneType> SetName(<StringType> Name)
+  ```
   """
   @spec set_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -253,9 +297,11 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.SetPreviewCollapsed`
 
+  ```text
   DEPRECATED: This function sets the visible state, so it has been deprecated for SetPreviewVisible().
   Set if the node's preview is collapsed in the UI.
   <NoneType> SetPreviewCollapsed(<IntType> Collapsed)
+  ```
   """
   @spec set_preview_collapsed(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -266,8 +312,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.SetPreviewVisible`
 
+  ```text
   Set if the node's preview is visible (not collapsed) in the UI.
   <NoneType> SetPreviewVisible(<IntType> visible)
+  ```
   """
   @spec set_preview_visible(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -277,8 +325,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.SetSelectedOutput`
 
+  ```text
   Set which output is the selected one.  This determines which preview is shown in the node preview pane.
   <NoneType> SetSelectedOutput(<IntType> outputIndex)
+  ```
   """
   @spec set_selected_output(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -289,8 +339,10 @@ defmodule Poser.Api.ShaderNodeType do
   @doc ~S"""
   Python: `ShaderNodeType.Type`
 
+  ```text
   Get the type of this node.
   <StringType> Type()
+  ```
   """
   @spec type(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def type(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,

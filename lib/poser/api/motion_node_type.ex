@@ -11,8 +11,10 @@ defmodule Poser.Api.MotionNodeType do
   @doc ~S"""
   Python: `MotionNodeType.Name`
 
+  ```text
   Get the name for the motion node.
   <StringType> Name()
+  ```
   """
   @spec name(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def name(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -21,8 +23,10 @@ defmodule Poser.Api.MotionNodeType do
   @doc ~S"""
   Python: `MotionNodeType.SetName`
 
+  ```text
   Set the name for the node.
   <NoneType> SetName(<StringType>)
+  ```
   """
   @spec set_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -32,8 +36,10 @@ defmodule Poser.Api.MotionNodeType do
   @doc ~S"""
   Python: `MotionNodeType.SetParent`
 
+  ```text
   Set the parent node for this node.
   <NoneType> SetParent(<MotionNodeType>)
+  ```
   """
   @spec set_parent(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -43,8 +49,10 @@ defmodule Poser.Api.MotionNodeType do
   @doc ~S"""
   Python: `MotionNodeType.SetPointAtMeActor`
 
+  ```text
   Set the actor that points at this node.
   <NoneType> SetPointAtMeActor(<ActorType>)
+  ```
   """
   @spec set_point_at_me_actor(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -54,8 +62,10 @@ defmodule Poser.Api.MotionNodeType do
   @doc ~S"""
   Python: `MotionNodeType.SetReferenceActor`
 
+  ```text
   Set the reference actor for the node.
   <NoneType> SetReferenceActor(<ActorType>)
+  ```
   """
   @spec set_reference_actor(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -65,8 +75,10 @@ defmodule Poser.Api.MotionNodeType do
   @doc ~S"""
   Python: `MotionNodeType.SetTargetActor`
 
+  ```text
   Set the target actor for the node.
   <NoneType> SetTargetActor(<ActorType>)
+  ```
   """
   @spec set_target_actor(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -76,8 +88,10 @@ defmodule Poser.Api.MotionNodeType do
   @doc ~S"""
   Python: `MotionNodeType.SetWorldTransformFromAxes`
 
+  ```text
   Sets a world transformation.
   <NoneType> SetWorldTransformFromAxes((<FloatType>, <FloatType>, <FloatType>), (<FloatType>, <FloatType>, <FloatType>), (<FloatType>, <FloatType>, <FloatType>), (<FloatType>, <FloatType>, <FloatType>))
+  ```
   """
   @spec set_world_transform_from_axes(
           Poser.Handle.t(),

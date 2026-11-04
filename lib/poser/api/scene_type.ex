@@ -11,8 +11,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.Actor`
 
+  ```text
   Find a scene actor by its external name.  This is the name seen in Poser GUI pulldown menus (such as "Left Forearm")
   <ActorType> Actor(<StringType> actorName)
+  ```
   """
   @spec actor(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -22,8 +24,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.ActorByInternalName`
 
+  ```text
   Find a scene actor by its internal name.  The argument string is the unique identifier for the object kept internally by Poser.
   <ActorType> ActorByInternalName(<StringType> internalName)
+  ```
   """
   @spec actor_by_internal_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -34,8 +38,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.Actors`
 
+  ```text
   Get a list of the all actor objects in the scene.  Actors are items that populate the scene such as props, cameras, lights, or deformers.  They can also be body-parts of a figure, although body-part actors will not be returned in this list.  To get a list of actors belonging to a figure, use the Actors() method for a figure object.
   <ActorType List> Actors()
+  ```
   """
   @spec actors(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -45,8 +51,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.AnimSet`
 
+  ```text
   Return a specific animation set by specifying its name.
   <AnimSetType> AnimSet(<StringType> animSetName)
+  ```
   """
   @spec anim_set(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -56,8 +64,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.AnimSets`
 
+  ```text
   Return a list of all animation sets for the scene.
   <AnimSetType list> AnimSets()
+  ```
   """
   @spec anim_sets(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -67,8 +77,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.AntialiasNow`
 
+  ```text
   Draw the current display antialiased.
   <NoneType> AntialiasNow()
+  ```
   """
   @spec antialias_now(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def antialias_now(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -77,8 +89,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.AtmosphereShaderTree`
 
+  ```text
   Returns the ShaderTree for the atmosphere.
   <ShaderTreeType> AtmosphereShaderTree()
+  ```
   """
   @spec atmosphere_shader_tree(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -88,8 +102,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.BackgroundColor`
 
+  ```text
   Return the RGB color (with r,g,b in range 0.0..1.0) used for background display.
   (<FloatType> R, <FloatType> G, <FloatType> B) BackgroundColor()
+  ```
   """
   @spec background_color(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -99,8 +115,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.BackgroundImage`
 
+  ```text
   Get the name of the background image being used.
   <StringType> BackgroundImage()
+  ```
   """
   @spec background_image(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -110,8 +128,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.BackgroundMovie`
 
+  ```text
   Get the name of the background movie being used.
   <StringType> BackgroundMovie()
+  ```
   """
   @spec background_movie(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -121,8 +141,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.BackgroundShaderTree`
 
+  ```text
   Returns the ShaderTree for the scene's background.
   <ShaderTreeType> BackgroundShaderTree()
+  ```
   """
   @spec background_shader_tree(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -132,8 +154,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.Cameras`
 
+  ```text
   Return a list of scene cameras.  Note that cameras are a specific kind of actor.
   <ActorType List> Cameras()
+  ```
   """
   @spec cameras(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -143,8 +167,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.Changed`
 
+  ```text
   Get whether the document has been changed since it was last saved.
   <IntType> Changed()
+  ```
   """
   @spec changed(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def changed(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -153,8 +179,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.ClearEventCallback`
 
+  ```text
   DEPRECATED: See UnregisterEventCallback(). Clear the per event callback
   <NoneType> ClearEventCallback()
+  ```
   """
   @spec clear_event_callback(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -164,8 +192,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.ClearSound`
 
+  ```text
   Specify that no sound file is to be associated with this doc.  Note that sound files are platform-specific (WAV files for Windows and AIFF files for Mac).
   <StringType> ClearSound()
+  ```
   """
   @spec clear_sound(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def clear_sound(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -174,8 +204,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.ClearStartupScript`
 
+  ```text
   Specify that no python script is to be associated with this doc and executed on startup when it is re-opened.
   <NoneType> ClearStartupScript()
+  ```
   """
   @spec clear_startup_script(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -185,9 +217,11 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.ClearWorldspaceCallback`
 
+  ```text
   Clear the per update callback to process scene elements after 
   the entire scene has been processed to world space.
   <NoneType> ClearWorldspaceCallback()
+  ```
   """
   @spec clear_worldspace_callback(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -197,8 +231,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.ClothSimulator`
 
+  ```text
   Returns the ClothSimulator with the specified index.
   <ClothSimulatorType> ClothSimulator(<IntType> Index)
+  ```
   """
   @spec cloth_simulator(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -208,8 +244,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.ClothSimulatorByName`
 
+  ```text
   Find a ClothSimulator object by its name.
   <ClothSimulatorType> ClothSimulatorByName(<StringType> name)
+  ```
   """
   @spec cloth_simulator_by_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -219,8 +257,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CopyToClipboard`
 
+  ```text
   Copy the current display to the clipboard.
   <NoneType> CopyToClipboard()
+  ```
   """
   @spec copy_to_clipboard(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def copy_to_clipboard(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -229,8 +269,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CreateAnimSet`
 
+  ```text
   Create a new animation set given a name.  Note that if the name provided is already the name of an existing anim set, an exception will be thrown.
   <AnimSetType> CreateAnimSet(<StringType> animSetName)
+  ```
   """
   @spec create_anim_set(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -241,8 +283,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CreateClothSimulator`
 
+  ```text
   Create a new ClothSimulator object.
   <ClothSimulatorType> CreateClothSimulator(<StringType> name)
+  ```
   """
   @spec create_cloth_simulator(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -252,8 +296,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CreateGeomFromGroup`
 
+  ```text
   Generate a new geom object from a polygon group.
   <GeomType> CreateGeomFromGroup(<ActorType> actor, <StringType> groupName)
+  ```
   """
   @spec create_geom_from_group(Poser.Handle.t(), Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -264,8 +310,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CreateGrouping`
 
+  ```text
   Create a grouping object
   <ActorType> CreateGrouping()
+  ```
   """
   @spec create_grouping(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -275,8 +323,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CreateLight`
 
+  ```text
   Create a new (spot) light in the scene.
   <ActorType> CreateLight()
+  ```
   """
   @spec create_light(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -286,8 +336,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CreateMagnet`
 
+  ```text
   Create a magnet on the current actor.
   <ActorType> CreateMagnet()
+  ```
   """
   @spec create_magnet(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -297,8 +349,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CreatePropFromGeom`
 
+  ```text
   Create a new scene prop from a geometry.
   <ActorType> CreatePropFromGeom(<GeomType> geometry, <StringType> propName)
+  ```
   """
   @spec create_prop_from_geom(Poser.Handle.t(), Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -309,8 +363,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CreateTextProp`
 
+  ```text
   Create a text object
   <ActorType> CreateTextProp(<StringType> theText, <IntType> fontIndex=0)
+  ```
   """
   @spec create_text_prop(Poser.Handle.t(), String.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -321,8 +377,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CreateWave`
 
+  ```text
   Create a wave deformer on the current actor.
   <ActorType> CreateWave()
+  ```
   """
   @spec create_wave(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -332,8 +390,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CurrentActor`
 
+  ```text
   Get the currently selected actor.
   <ActorType> CurrentActor()
+  ```
   """
   @spec current_actor(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -343,8 +403,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CurrentCamera`
 
+  ```text
   Get the current camera.  Note that cameras are a specific kind of actor.
   <ActorType> CurrentCamera()
+  ```
   """
   @spec current_camera(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -354,8 +416,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CurrentFigure`
 
+  ```text
   Get the currently selected figure.
   <FigureType> CurrentFigure()
+  ```
   """
   @spec current_figure(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -365,8 +429,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CurrentFireFlyOptions`
 
+  ```text
   Returns the current FireFly options.
   <TempestOptionsType> CurrentFireFlyOptions()
+  ```
   """
   @spec current_fire_fly_options(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -376,8 +442,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CurrentLight`
 
+  ```text
   Get the current light.  Note that lights are a specific kind of actor.
   <ActorType> CurrentLight()
+  ```
   """
   @spec current_light(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -387,8 +455,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CurrentMaterial`
 
+  ```text
   Returns the currently selected material. Returns None if no material is selected.
   <MaterialType> CurrentMaterial()
+  ```
   """
   @spec current_material(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -398,8 +468,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CurrentMaterialLayer`
 
+  ```text
   Returns the currently selected material layer (typically the layer shown in the Advanced view of the Material Room). Returns None if no material is selected.
   <MaterialLayerType> CurrentMaterialLayer()
+  ```
   """
   @spec current_material_layer(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -409,8 +481,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CurrentRenderEngine`
 
+  ```text
   Get the current render engine.
   <IntType> CurrentRenderEngine()
+  ```
   """
   @spec current_render_engine(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -420,8 +494,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.CurrentSuperFlyOptions`
 
+  ```text
   Returns the current SuperFly options.
   <SuperFlyOptionsType> CurrentSuperFlyOptions()
+  ```
   """
   @spec current_super_fly_options(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -431,8 +507,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.DeleteAnimSet`
 
+  ```text
   Delete an existing animation set from the list.
   <NoneType> DeleteAnimSet(<StringType> animSetName)
+  ```
   """
   @spec delete_anim_set(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -443,8 +521,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.DeleteCurrentFigure`
 
+  ```text
   Delete the currently selected figure.
   <NoneType> DeleteCurrentFigure()
+  ```
   """
   @spec delete_current_figure(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -454,8 +534,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.DeleteCurrentProp`
 
+  ```text
   Delete the currently selected prop.
   <NoneType> DeleteCurrentProp()
+  ```
   """
   @spec delete_current_prop(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def delete_current_prop(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -464,8 +546,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.DisplayStyle`
 
+  ```text
   Get interactive display style of the document.  Typical return values correspond to poser member variable constants (such as poser.kDisplayCodeWIREFRAME).
   <IntType> DisplayStyle()
+  ```
   """
   @spec display_style(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def display_style(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -474,8 +558,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.DocumentPath`
 
+  ```text
   Returns the file system path of the current scene. May return None if the document has not been saved yet.
   <StringType> DocumentPath()
+  ```
   """
   @spec document_path(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -485,8 +571,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.Draw`
 
+  ```text
   Redraw modified objects.
   <NoneType> Draw()
+  ```
   """
   @spec draw(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def draw(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -495,8 +583,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.DrawAll`
 
+  ```text
   Redraw everything in the scene.
   <NoneType> DrawAll()
+  ```
   """
   @spec draw_all(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def draw_all(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -505,8 +595,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.Figure`
 
+  ```text
   Get a figure, given it's name.  The argument is the external name in the Poser GUI pulldown menus (such as "Figure 1")
   <FigureType> Figure(<StringType> figureName)
+  ```
   """
   @spec figure(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -516,8 +608,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.FigureByInternalName`
 
+  ```text
   Get a figure, given it's internal name.  The argument is the external name in the Poser GUI pulldown menus (such as "Figure 1")
   <FigureType> FigureByInternalName(<StringType> figureName)
+  ```
   """
   @spec figure_by_internal_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -528,8 +622,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.Figures`
 
+  ```text
   Get a list of the figure objects in the scene.  Figures are bodies composed of actors in a hierarchy.
   <FigureType list> Figures()
+  ```
   """
   @spec figures(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -539,8 +635,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.FireFlyOptions`
 
+  ```text
   Returns the FireFly options with the specified index.
   <TempestOptionsType> FireFlyOptions(<IntType> index)
+  ```
   """
   @spec fire_fly_options(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -550,8 +648,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.FireFlyOptionsByName`
 
+  ```text
   Finds FireFly options by a name.
   <TempestOptionsType> FireFlyOptionsByName(<StringType> name)
+  ```
   """
   @spec fire_fly_options_by_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -561,8 +661,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.ForegroundColor`
 
+  ```text
   Return the RGB color (with r,g,b in range 0.0..1.0) used for foreground display.
   (<FloatType> R, <FloatType> G, <FloatType> B) ForegroundColor()
+  ```
   """
   @spec foreground_color(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -572,8 +674,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.Frame`
 
+  ```text
   Return the current frame number.  All frame numbers in PoserPython are relative to a starting frame of 0.  For this reason, a frame number in Python is 1 less than the equivalent frame as referenced from the Poser GUI.
   <IntType> Frame()
+  ```
   """
   @spec frame(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def frame(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -582,8 +686,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.FrameSelected`
 
+  ```text
   Frame and zoom current actor in center of scene. 
   <NoneType> FrameSelected()
+  ```
   """
   @spec frame_selected(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def frame_selected(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -592,8 +698,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.FramesPerSecond`
 
+  ```text
   Return the current frame rate.
   <IntType> FramesPerSecond()
+  ```
   """
   @spec frames_per_second(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -603,8 +711,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.GroundColor`
 
+  ```text
   Return the RGB color (with r,g,b in range 0.0..1.0) used for ground display.
   (<FloatType> R, <FloatType> G, <FloatType> B) GroundColor()
+  ```
   """
   @spec ground_color(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -614,8 +724,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.GroundShadows`
 
+  ```text
   Get status of ground shadow display.
   <NoneType> GroundShadows()
+  ```
   """
   @spec ground_shadows(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def ground_shadows(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -624,8 +736,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.ImExporter`
 
+  ```text
   Get the imexporter object to access import and export of non-Poser 3D file formats.
   <ImExporterType> ImExporter()
+  ```
   """
   @spec im_exporter(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -635,8 +749,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.Lights`
 
+  ```text
   Return a list of scene lights.  Note that lights are a specific kind of actor.
   <ActorType List> Lights()
+  ```
   """
   @spec lights(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -646,8 +762,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.LoadLibraryCamera`
 
+  ```text
   Load camera positions from a camera library file (.cm2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> LoadLibraryCamera(<StringType> filePath)
+  ```
   """
   @spec load_library_camera(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -658,8 +776,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.LoadLibraryFace`
 
+  ```text
   Load face from a face library file (.fc2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> LoadLibraryFace(<StringType> filePath)
+  ```
   """
   @spec load_library_face(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -669,8 +789,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.LoadLibraryFigure`
 
+  ```text
   Load a figure from a character library file (.cr2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> LoadLibraryFigure(<StringType> filePath, {<IntType> setupAutoGroup})
+  ```
   """
   @spec load_library_figure(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -688,8 +810,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.LoadLibraryHair`
 
+  ```text
   Load figure hair from a hair library file (.hr2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> LoadLibraryHair(<StringType> filePath)
+  ```
   """
   @spec load_library_hair(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -699,8 +823,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.LoadLibraryHand`
 
+  ```text
   Load hand pose from a hand library file (.hd2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> LoadLibraryHand(<StringType> filePath, {<IntType> leftHand = 0})
+  ```
   """
   @spec load_library_hand(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -718,8 +844,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.LoadLibraryLight`
 
+  ```text
   Load light positions from a light library file (.lt2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> LoadLibraryLight(<StringType> filePath)
+  ```
   """
   @spec load_library_light(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -729,8 +857,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.LoadLibraryPose`
 
+  ```text
   Load pose from a pose library file (.pz2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> LoadLibraryPose(<StringType> filePath)
+  ```
   """
   @spec load_library_pose(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -740,8 +870,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.LoadLibraryProp`
 
+  ```text
   Load a prop from a prop library file (.pp2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> LoadLibraryProp(<StringType> filePath)
+  ```
   """
   @spec load_library_prop(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -751,8 +883,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.MaterialNodeManager`
 
+  ```text
   Return the material node manager for this scene.
   <NodeMangerType> MaterialNodeManager()
+  ```
   """
   @spec material_node_manager(Poser.Handle.t(), keyword()) ::
           {:ok, term()} | {:error, Poser.Error.t()}
@@ -762,8 +896,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.Measurements`
 
+  ```text
   Return a list of measurements.  Note that measurements are a specific kind of actor.
   <ActorType List> Measurements()
+  ```
   """
   @spec measurements(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -773,8 +909,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.MemorizeAll`
 
+  ```text
   Memorize scene state.
   <NoneType> MemorizeAll()
+  ```
   """
   @spec memorize_all(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def memorize_all(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -783,8 +921,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.MemorizeLights`
 
+  ```text
   Memorize only lights.
   <NoneType> MemorizeLights()
+  ```
   """
   @spec memorize_lights(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def memorize_lights(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -793,8 +933,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.MorphFiles`
 
+  ```text
   Returns a list of the used morphtarget files.
    <StringType list> MorphFiles()
+  ```
   """
   @spec morph_files(Poser.Handle.t(), keyword()) ::
           {:ok, [String.t()]} | {:error, Poser.Error.t()}
@@ -804,8 +946,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.MovieMaker`
 
+  ```text
   Get a MovieMaker object to access animation specifics.  All methods needed to output animated movies can be accessed from the returned object.
   <MovieMakerType> MovieMaker()
+  ```
   """
   @spec movie_maker(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -815,8 +959,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.NextKeyFrame`
 
+  ```text
   Return frame number of next key'd frame for current actor.
   <IntType> NextKeyFrame()
+  ```
   """
   @spec next_key_frame(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -826,8 +972,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.NextKeyFrameAll`
 
+  ```text
   Return frame number of next key'd frame in scene.
   <IntType> NextKeyFrameAll()
+  ```
   """
   @spec next_key_frame_all(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -837,8 +985,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.NumBodyParts`
 
+  ```text
   Return the number of body parts in the scene.
   <IntType> NumBodyParts()
+  ```
   """
   @spec num_body_parts(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -848,8 +998,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.NumBumpMaps`
 
+  ```text
   Return the number of bump-maps in the scene.
   <IntType> NumBumpMaps()
+  ```
   """
   @spec num_bump_maps(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_bump_maps(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -858,8 +1010,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.NumCameras`
 
+  ```text
   Return the number of cameras in the scene.
   <IntType> NumCameras()
+  ```
   """
   @spec num_cameras(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_cameras(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -868,8 +1022,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.NumClothSimulators`
 
+  ```text
   Returns the number of ClothSimulators in the scene.
   <IntType> NumClothSimulators()
+  ```
   """
   @spec num_cloth_simulators(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -879,8 +1035,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.NumFigures`
 
+  ```text
   Return the number of figures in the scene.
   <IntType> NumFigures()
+  ```
   """
   @spec num_figures(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_figures(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -889,8 +1047,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.NumFrames`
 
+  ```text
   Return the number of frames of animation.
   <IntType> NumFrames()
+  ```
   """
   @spec num_frames(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_frames(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -899,8 +1059,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.NumGeometries`
 
+  ```text
   Return the number of geometries in the scene (numProps + numBodyParts).
   <IntType> NumGeometries()
+  ```
   """
   @spec num_geometries(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -910,8 +1072,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.NumImageMaps`
 
+  ```text
   Return the number of image-maps in the scene.
   <IntType> NumImageMaps()
+  ```
   """
   @spec num_image_maps(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -921,8 +1085,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.NumLights`
 
+  ```text
   Return the number of lights in the scene.
   <IntType> NumLights()
+  ```
   """
   @spec num_lights(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_lights(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -931,8 +1097,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.NumProps`
 
+  ```text
   Return the number of props in the scene.
   <IntType> NumProps()
+  ```
   """
   @spec num_props(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_props(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -941,8 +1109,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.OutputRange`
 
+  ```text
   Return a tuple containing the frame range to be used for image and library output.  All frame numbers in PoserPython are relative to a starting frame of 0.  For this reason, a frame number in Python is 1 less than the equivalent frame as referenced from the Poser GUI.
   (<IntType> x, <IntType> y) OutputRange()
+  ```
   """
   @spec output_range(Poser.Handle.t(), keyword()) ::
           {:ok, {integer(), integer()}} | {:error, Poser.Error.t()}
@@ -952,8 +1122,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.OutputRes`
 
+  ```text
   Return a tuple containing output resolution (for images).  Resolution consists of a horizontal and a vertical number of pixels.
   (<IntType> x, <IntType> y) OutputRes()
+  ```
   """
   @spec output_res(Poser.Handle.t(), keyword()) ::
           {:ok, {integer(), integer()}} | {:error, Poser.Error.t()}
@@ -963,8 +1135,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.PmdDiff`
 
+  ```text
   Diff two pmd files and save results into a third file. Returns path to third file.
   <StringType> PmdDiff(<StringType> file1, <StringType> file2)
+  ```
   """
   @spec pmd_diff(Poser.Handle.t(), String.t(), String.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -974,8 +1148,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.PrevKeyFrame`
 
+  ```text
   Return frame number of prev key'd frame for current actor.
   <IntType> PrevKeyFrame()
+  ```
   """
   @spec prev_key_frame(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -985,8 +1161,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.PrevKeyFrameAll`
 
+  ```text
   Return frame number of prev key'd frame in scene.
   <IntType> PrevKeyFrameAll()
+  ```
   """
   @spec prev_key_frame_all(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -996,8 +1174,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.ProcessSomeEvents`
 
+  ```text
   Process the specified number of Poser events
   <NoneType> ProcessSomeEvents({<IntType> numEvents = 1})
+  ```
   """
   @spec process_some_events(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def process_some_events(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1006,8 +1186,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.Render`
 
+  ```text
   Render to the current view.
   <NoneType> Render()
+  ```
   """
   @spec render(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def render(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1016,8 +1198,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RenderAntiAliased`
 
+  ```text
   Query renderer use of anti-aliasing.  A return value of 1 indicates that the option is on, while a value of 0 indicates that it is off.
   <IntType> RenderAntiAliased()
+  ```
   """
   @spec render_anti_aliased(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1027,8 +1211,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RenderBumpMaps`
 
+  ```text
   Query renderer use of bump maps.  A return value of 1 indicates that the option is on, while a value of 0 indicates that it is off.
   <IntType> RenderBumpMaps()
+  ```
   """
   @spec render_bump_maps(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1038,8 +1224,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RenderCastShadows`
 
+  ```text
   Query rendering of shadows.  A return value of 1 indicates that the option is on, while a value of 0 indicates that it is off.
   <NoneType> RenderCastShadows()
+  ```
   """
   @spec render_cast_shadows(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def render_cast_shadows(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1048,8 +1236,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RenderDimAutoscale`
 
+  ```text
   Get the current autoscale resolution setting. Choices are: 0 for Exact Size, 1 for Fit to Preview and 2 for Match to Preview.
   (<IntType> option) RenderDimAutoscale()
+  ```
   """
   @spec render_dim_autoscale(Poser.Handle.t(), keyword()) ::
           {:ok, {integer()}} | {:error, Poser.Error.t()}
@@ -1059,8 +1249,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RenderIgnoreShaderTrees`
 
+  ```text
   Query whether the render engine will ignore shader trees.  A return value of 1 indicates that the option is on, while a value of 0 indicates that it is off.
   <NoneType> RenderIgnoreShaderTrees()
+  ```
   """
   @spec render_ignore_shader_trees(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1070,8 +1262,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RenderInBackground`
 
+  ```text
   Starts a background render task.
   <NoneType> RenderInBackground()
+  ```
   """
   @spec render_in_background(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1081,8 +1275,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RenderOnBGColor`
 
+  ```text
   Query render-on-background-color option.  A return value of 1 indicates that the option is on, while a value of 0 indicates that it is off.
   <IntType> RenderOnBGColor()
+  ```
   """
   @spec render_on_bg_color(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1092,8 +1288,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RenderOnBGPict`
 
+  ```text
   Query render-on-background-picture option.  A return value of 1 indicates that the option is on, while a value of 0 indicates that it is off.
   <IntType> RenderOnBGPict()
+  ```
   """
   @spec render_on_bg_pict(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1103,8 +1301,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RenderOnBlack`
 
+  ```text
   Query render-on-black option.  A return value of 1 indicates that the option is on, while a value of 0 indicates that it is off.
   <IntType> RenderOnBlack()
+  ```
   """
   @spec render_on_black(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1114,8 +1314,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RenderOverType`
 
+  ```text
   Query render-over type.  The return values are 0,1,2,3 for color, black, bg pict, and current shader respectively.
   <IntType> RenderOverType()
+  ```
   """
   @spec render_over_type(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1125,8 +1327,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RenderTextureMaps`
 
+  ```text
   Query renderer use of texture maps.  A return value of 1 indicates that the option is on, while a value of 0 indicates that it is off.
   <IntType> RenderTextureMaps()
+  ```
   """
   @spec render_texture_maps(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1136,8 +1340,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RenderToNewWindow`
 
+  ```text
   Query render-to-new-window option.  A return value of 1 indicates that the option is on, while a value of 0 indicates that it is off.
   <IntType> RenderToNewWindow()
+  ```
   """
   @spec render_to_new_window(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1147,8 +1353,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RenderToQueue`
 
+  ```text
   Render the given scene using Queue Manager. The extention of the filename determines the output type. Path can be provided in full or relative to the Poser directory. Use 1 for the isMovie value for rendering movies. When writing out jpg the compression can be specified (10=best compression, 100=best quality). For TIFF images the compression type can be specified (such as kTIFF_LZW), otherwise the compression parameter is ignored. Currently supported image format suffixes are "bmp", "jpg", "pct", "png", and "tif".
   <NoneType> RenderToQueue(<StringType> filepath {<IntType> width, <IntType> height, <IntType> isMovie, <IntType> compression})
+  ```
   """
   @spec render_to_queue(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1165,8 +1373,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.Resolution`
 
+  ```text
   Get the curent resolution value (DPI).
   (<FloatType> res) Resolution()
+  ```
   """
   @spec resolution(Poser.Handle.t(), keyword()) :: {:ok, {float()}} | {:error, Poser.Error.t()}
   def resolution(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1175,8 +1385,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.ResolutionScale`
 
+  ```text
   Get the curent resolution scale. Choices are: 0 for Full, 1 for Half and 2 for Quarter.
   (<IntType> scale) ResolutionScale()
+  ```
   """
   @spec resolution_scale(Poser.Handle.t(), keyword()) ::
           {:ok, {integer()}} | {:error, Poser.Error.t()}
@@ -1186,8 +1398,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.ResolvePendingTextures`
 
+  ```text
   Resolve any texture paths that may not yet have been searched for.  In general Poser will not look for textures unless they are needed.  This method forces textures to be found.
   <NoneType> ResolvePendingTextures()
+  ```
   """
   @spec resolve_pending_textures(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1197,8 +1411,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RestoreAll`
 
+  ```text
   Restore memorized scene state.
   <NoneType> RestoreAll()
+  ```
   """
   @spec restore_all(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def restore_all(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1207,8 +1423,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RestoreLights`
 
+  ```text
   Restore memorized lights.
   <NoneType> RestoreLights()
+  ```
   """
   @spec restore_lights(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def restore_lights(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1217,8 +1435,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.RetimeAnimation`
 
+  ```text
   Retime keyFrames from one framerange to another.
   <NoneType> RetimeAnimation(<IntType> sourceStart, <IntType> sourceEnd, <IntType> destStart, <IntType> destEnd, <BoolType>everything)
+  ```
   """
   @spec retime_animation(
           Poser.Handle.t(),
@@ -1251,8 +1471,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SaveImage`
 
+  ```text
   Write the current view to an image file by specifying a format suffix (such as "jpg") and an output filename. When writing out jpg the compression can be specified (10=best compression, 100=best quality). For TIFF images the compression type can be specified (such as kTIFF_LZW), otherwise the compression parameter is ignored. Currently supported image format suffixes are "bmp", "jpg", "pct", "png", and "tif" .  Output filename should be a path (either absolute or relative to the Poser folder).
   <NoneType> SaveImage(<StringType> formatSuffix, <StringType> filePath, <IntType> compression)
+  ```
   """
   @spec save_image(Poser.Handle.t(), String.t(), String.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1270,8 +1492,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SaveLibraryCamera`
 
+  ```text
   Save current cameras to a camera library file (.cm2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> SaveLibraryCamera(<StringType> filePath, {<IntType> multiFrame, <IntType> startFrame, <IntType> endFrame})
+  ```
   """
   @spec save_library_camera(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1289,8 +1513,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SaveLibraryFace`
 
+  ```text
   Save current face as a face library file (.fc2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> SaveLibraryFace(<StringType> filePath, {<IntType> multiFrame = 0, <IntType> startFrame = 0, <IntType> endFrame = 0})
+  ```
   """
   @spec save_library_face(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1308,8 +1534,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SaveLibraryFigure`
 
+  ```text
   Save current figure to a character library file (.cr2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> SaveLibraryFigure(<StringType> filePath)
+  ```
   """
   @spec save_library_figure(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1320,8 +1548,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SaveLibraryHair`
 
+  ```text
   Save figure hair to a hair library file (.hr2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> SaveLibraryHair(<StringType> filePath)
+  ```
   """
   @spec save_library_hair(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1331,8 +1561,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SaveLibraryHand`
 
+  ```text
   Save hand pose to a hand library file (.hd2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> SaveLibraryHand(<StringType> filePath, {<IntType> multiFrame = 0, <IntType> startFrame = 0, <IntType> endFrame = 0})
+  ```
   """
   @spec save_library_hand(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1350,8 +1582,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SaveLibraryLight`
 
+  ```text
   Save current lights to a light library file (.lt2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> SaveLibraryLight(<StringType> filePath, {<IntType> multiFrame, <IntType> startFrame, <IntType> endFrame})
+  ```
   """
   @spec save_library_light(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1369,8 +1603,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SaveLibraryPose`
 
+  ```text
   Save current pose as a pose library file (.pz2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> SaveLibraryPose(<StringType> filePath, {<IntType> includeMorphTargets, <IntType> multiFrame, <IntType> startFrame, <IntType> endFrame})
+  ```
   """
   @spec save_library_pose(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1393,8 +1629,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SaveLibraryPreview`
 
+  ```text
   Save a preview PNG for the current scene.  Filename should be a path.  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> SaveLibraryPreview(<StringType> filePath)
+  ```
   """
   @spec save_library_preview(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1405,8 +1643,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SaveLibraryProp`
 
+  ```text
   Save current prop as a prop library file (.pp2).  Filename should be a path (either absolute or relative to the Poser folder).  Libraries are typically stored under Poser/Runtime/libraries.
   <NoneType> SaveLibraryProp(<StringType> filePath)
+  ```
   """
   @spec save_library_prop(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1416,8 +1656,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SceneBBox`
 
+  ```text
   GetThe Bounding Box of the Scene in inch.
   <BoundingBoxTuppel> SceneBBox()
+  ```
   """
   @spec scene_b_box(Poser.Handle.t(), keyword()) :: {:ok, term()} | {:error, Poser.Error.t()}
   def scene_b_box(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1426,8 +1668,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SelectActor`
 
+  ```text
   Set the current actor. (i.e. Select an actor.)
   <NoneType> SelectActor(<ActorType> actor)
+  ```
   """
   @spec select_actor(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1437,8 +1681,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SelectFigure`
 
+  ```text
   Set the current figure. (i.e. Select a figure.)
   <NoneType> SelectFigure(<FigureType> figure)
+  ```
   """
   @spec select_figure(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1448,8 +1694,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SelectMaterial`
 
+  ```text
   Select the given material in the Material Room.
   <NoneType> SelectMaterial(<MaterialType> material)
+  ```
   """
   @spec select_material(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1459,8 +1707,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SelectMaterialLayer`
 
+  ```text
   Select the given material layer in the Material Room.
   <NoneType> SelectMaterialLayer(<MaterialLayerType> materialLayer)
+  ```
   """
   @spec select_material_layer(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1471,8 +1721,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetBackgroundColor`
 
+  ```text
   Set the RGB color (with r,g,b in range 0.0..1.0) used for background display.
   <NoneType> SetBackgroundColor(<FloatType> R, <FloatType> G, <FloatType> B)
+  ```
   """
   @spec set_background_color(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1482,8 +1734,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetBackgroundImage`
 
+  ```text
   Set the background image to the specifed file.  Filename should be a path (either absolute or relative to the Poser folder).
   <NoneType> SetBackgroundImage(<StringType> filePath)
+  ```
   """
   @spec set_background_image(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1494,8 +1748,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetBackgroundMovie`
 
+  ```text
   Set background movie to show behind scene.  Filename should be a path (either absolute or relative to the Poser folder).
   <NoneType> SetBackgroundMovie(<StringType> movieName)
+  ```
   """
   @spec set_background_movie(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1506,8 +1762,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetChanged`
 
+  ```text
   Mark the document as changed since it was last saved
   <NoneType> SetChanged()
+  ```
   """
   @spec set_changed(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_changed(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1516,8 +1774,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetCurrentCamera`
 
+  ```text
   Set the current camera.  Note that cameras are a specific kind of actor.
   <NoneType> SetCurrentCamera(<ActorType> camera)
+  ```
   """
   @spec set_current_camera(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1527,8 +1787,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetCurrentLight`
 
+  ```text
   Set the current light.  Note that lights are a specific kind of actor.
   <NoneType> SetCurrentLight(<ActorType> light)
+  ```
   """
   @spec set_current_light(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1538,8 +1800,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetCurrentRenderEngine`
 
+  ```text
   Set the current render engine.
   <NoneType> SetCurrentRenderEngine(<IntType> Engine)
+  ```
   """
   @spec set_current_render_engine(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1550,8 +1814,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetDisplayStyle`
 
+  ```text
   Set interactive display style of the document.  Typical values are constants defined as poser member variables (such as poser.kDisplayCodeWIREFRAME).
   <NoneType> SetDisplayStyle(<IntType> displayCode)
+  ```
   """
   @spec set_display_style(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1562,8 +1828,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetForegroundColor`
 
+  ```text
   Set the RGB color (with r,g,b in range 0.0..1.0) used for foreground display.
   <NoneType> SetForegroundColor(<FloatType> R, <FloatType> G, <FloatType> B)
+  ```
   """
   @spec set_foreground_color(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1573,8 +1841,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetFrame`
 
+  ```text
   Set the current frame number.  All frame numbers in PoserPython are relative to a starting frame of 0.  For this reason, a frame number in Python is 1 less than the equivalent frame as referenced from the Poser GUI.
   <NoneType> SetFrame(<IntType> frame)
+  ```
   """
   @spec set_frame(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1584,8 +1854,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetGeometricOutline`
 
+  ```text
   Set geometric outline on or off.
   <NoneType> SetGeometricOutline(<BoolType> enabled>)
+  ```
   """
   @spec set_geometric_outline(Poser.Handle.t(), boolean(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1596,8 +1868,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetGeometricOutlineWelding`
 
+  ```text
   Set geometric outline welding on or off.
   <NoneType> SetGeometricOutlineWelding(<BoolType> enabled>)
+  ```
   """
   @spec set_geometric_outline_welding(Poser.Handle.t(), boolean(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1608,8 +1882,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetGroundColor`
 
+  ```text
   Set the RGB color (with r,g,b in range 0.0..1.0) used for ground display.
   <NoneType> SetGroundColor(<FloatType> R, <FloatType> G, <FloatType> B)
+  ```
   """
   @spec set_ground_color(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1619,8 +1895,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetGroundShadows`
 
+  ```text
   Toggle display of ground shadows.  The default argument of 1 specifies that the option should be turned on.  To turn it off, call the function with an argument of 0.
   <NoneType> SetGroundShadows({<IntType> on = 1})
+  ```
   """
   @spec set_ground_shadows(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_ground_shadows(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1629,8 +1907,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetMeAsStartupScript`
 
+  ```text
   Specify the current script to be the python script to be associated with this doc and executed on startup when it is re-opened.
   <NoneType> SetMeAsStartupScript()
+  ```
   """
   @spec set_me_as_startup_script(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1640,8 +1920,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetNumFrames`
 
+  ```text
   Set the total number of frames of animation.  Note that keyframes may be deleted if animation length is shortened.
    <NoneType> SetNumFrames(<IntType> numFrames)
+  ```
   """
   @spec set_num_frames(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1651,8 +1933,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetOutputRange`
 
+  ```text
   Specify the output frame range to be used for image and library output (for images).  All frame numbers in PoserPython are relative to a starting frame of 0.  For this reason, a frame number in Python is 1 less than the equivalent frame as referenced from the Poser GUI.
   <NoneType> SetOutputRange(<IntType> x, <IntType> y)
+  ```
   """
   @spec set_output_range(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1662,8 +1946,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetOutputRes`
 
+  ```text
   Set output resolution (for images).  Resolution consists of a horizontal and a vertical number of pixels.
   <NoneType> SetOutputRes(<IntType> x, <IntType> y)
+  ```
   """
   @spec set_output_res(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1673,8 +1959,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetRenderAntiAliased`
 
+  ```text
   Toggle renderer anti-aliasing.  The default argument of 1 specifies that the option should be turned on.  To turn it off, call the function with an argument of 0.
   <NoneType> SetRenderAntiAliased({<IntType> on = 1})
+  ```
   """
   @spec set_render_anti_aliased(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1684,8 +1972,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetRenderBumpMaps`
 
+  ```text
   Toggle renderer use of bump maps.  The default argument of 1 specifies that the option should be turned on.  To turn it off, call the function with an argument of 0.
   <NoneType> SetRenderBumpMaps({<IntType> on = 1})
+  ```
   """
   @spec set_render_bump_maps(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1695,8 +1985,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetRenderCastShadows`
 
+  ```text
   Toggle rendering of shadows.  The default argument of 1 specifies that the option should be turned on.  To turn it off, call the function with an argument of 0.
   <NoneType> SetRenderCastShadows({<IntType> on = 1})
+  ```
   """
   @spec set_render_cast_shadows(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1706,8 +1998,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetRenderDimAutoscale`
 
+  ```text
   Set the choice for the autoscale resolution dimensions. Options are: 0 for Exact Size (as given by OutputRes), 1 for Fit to Preview and 2 for Match to Preview.
   <NoneType> SetRenderDimAutoscale(<IntType> option)
+  ```
   """
   @spec set_render_dim_autoscale(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1718,8 +2012,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetRenderIgnoreShaderTrees`
 
+  ```text
   Toggle whether the render engine will ignore shader trees.  The default argument of 1 specifies that the option should be turned on.  To turn it off, call the function with an argument of 0.
   <NoneType> SetRenderIgnoreShaderTrees({<IntType> on = 1})
+  ```
   """
   @spec set_render_ignore_shader_trees(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1730,8 +2026,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetRenderOnBGColor`
 
+  ```text
   Set renderer to render over background color.  The default argument of 1 specifies that the option should be turned on.  To turn it off, call the function with an argument of 0.
   <NoneType> SetRenderOnBGColor({<IntType> on = 1})
+  ```
   """
   @spec set_render_on_bg_color(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1741,8 +2039,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetRenderOnBGPict`
 
+  ```text
   Set renderer to render over background picture.  The default argument of 1 specifies that the option should be turned on.  To turn it off, call the function with an argument of 0.
   <NoneType> SetRenderOnBGPict({<IntType> on = 1})
+  ```
   """
   @spec set_render_on_bg_pict(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1752,8 +2052,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetRenderOnBlack`
 
+  ```text
   Set renderer to render over black.  The default argument of 1 specifies that the option should be turned on.  To turn it off, call the function with an argument of 0.
   <NoneType> SetRenderOnBlack({<IntType> on = 1})
+  ```
   """
   @spec set_render_on_black(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_render_on_black(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1762,8 +2064,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetRenderOverType`
 
+  ```text
   Set renderer to render over color, black, background picture, or the current shader tree.  Type values are 0,1,2,3 for color, black, bg pict, and current shader respectively.
   <NoneType> SetRenderOverType({<IntType> type})
+  ```
   """
   @spec set_render_over_type(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1773,8 +2077,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetRenderTextureMaps`
 
+  ```text
   Toggle renderer use of texture maps.  The default argument of 1 specifies that the option should be turned on.  To turn it off, call the function with an argument of 0.
   <NoneType> SetRenderTextureMaps({<IntType> on = 1})
+  ```
   """
   @spec set_render_texture_maps(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1784,8 +2090,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetRenderToNewWindow`
 
+  ```text
   Toggle render-to-new-window option.  The default argument of 1 specifies that the option should be turned on.  To turn it off, call the function with an argument of 0.
   <NoneType> SetRenderToNewWindow({<IntType> on = 1})
+  ```
   """
   @spec set_render_to_new_window(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1795,8 +2103,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetResolution`
 
+  ```text
   Set the resolution value. Optionally provide an argument for the units (0 for inches, 1 for cm).
   <NoneType> SetResolution(<FloatType> scale {, <IntType> unit = 0)
+  ```
   """
   @spec set_resolution(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1806,8 +2116,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetResolutionScale`
 
+  ```text
   Set the choice for the resolution scale. Options are: 0 for Full, 1 for Half and 2 for Quarter.
   <NoneType> SetResolutionScale(<IntType> scale)
+  ```
   """
   @spec set_resolution_scale(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1817,8 +2129,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetShadowColor`
 
+  ```text
   Set the RGB color (with r,g,b in range 0.0..1.0) used for shadow display.
   <NoneType> SetShadowColor(<FloatType> R, <FloatType> G, <FloatType> B)
+  ```
   """
   @spec set_shadow_color(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1828,8 +2142,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetSound`
 
+  ```text
   Specify the sound file to be associated with this doc which is played during animation. Filename should be a path (either absolute or relative to the Poser folder).  Note that sound files are platform-specific (WAV files for Windows and AIFF files for Mac).
   <NoneType> SetSound(<StringType> filePath)
+  ```
   """
   @spec set_sound(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1839,8 +2155,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetSoundRange`
 
+  ```text
   Specify the frame range over which the sound should be played during animation.
   <NoneType> SetSoundRange(<IntType> startFrame, <IntType> endFrame)
+  ```
   """
   @spec set_sound_range(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1851,8 +2169,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetStartupScript`
 
+  ```text
   Specify the python script to be associated with this doc and executed on startup when it is re-opened.  Filename should be a path (either absolute or relative to the Poser folder).
   <NoneType> SetStartupScript(<StringType> filePath)
+  ```
   """
   @spec set_startup_script(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1862,8 +2182,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SetUseLimits`
 
+  ```text
   Set the use limits setting of the scene.  Argument should be set to 1 to use limits, and 0 to not.
   <NoneType> SetUseLimits(<IntType> locked)
+  ```
   """
   @spec set_use_limits(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1873,8 +2195,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.ShadowColor`
 
+  ```text
   Return the RGB color (with r,g,b in range 0.0..1.0) used for shadow display.
   (<FloatType> R, <FloatType> G, <FloatType> B) ShadowColor()
+  ```
   """
   @spec shadow_color(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -1884,8 +2208,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.Sound`
 
+  ```text
   Return the name of the sound file associated with this doc which is played during animation.  Note that sound files are platform-specific (WAV files for Windows and AIFF files for Mac).
   <StringType> Sound()
+  ```
   """
   @spec sound(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def sound(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1894,8 +2220,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.SoundRange`
 
+  ```text
   Return the frame range over which the sound is played during animation.  Returns a tuple containing the start frame and the end frame.
    (<IntType>, <IntType>) SoundRange()
+  ```
   """
   @spec sound_range(Poser.Handle.t(), keyword()) ::
           {:ok, {integer(), integer()}} | {:error, Poser.Error.t()}
@@ -1905,8 +2233,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.StartupScript`
 
+  ```text
   Return the python script to be associated with this doc and executed on startup when it is re-opened.  Returned filename is a path (either absolute or relative to the Poser folder).
   <StringType> StartupScript()
+  ```
   """
   @spec startup_script(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -1916,8 +2246,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.UpdateBGPreview`
 
+  ```text
   Updates the preview's background. Call this function after you modify the background shader.
   <NoneType> UpdateBGPreview()
+  ```
   """
   @spec update_bg_preview(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def update_bg_preview(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1926,8 +2258,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.UseLimits`
 
+  ```text
   Query the use limits setting of the scene.  Returns 1 if it is using limits, and 0 if not.
   <IntType> UseLimits()
+  ```
   """
   @spec use_limits(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def use_limits(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1936,8 +2270,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.WacroLights`
 
+  ```text
   Returns a list of actors on which a wacro is to be executed. This method is intended for use inside wacros, they should iterate over this list if they want to modify lights.
   <ActorType list> WacroLights()
+  ```
   """
   @spec wacro_lights(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -1947,8 +2283,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.WacroMaterialLayers`
 
+  ```text
   Returns a list of material layers on which a wacro is to be executed. This method is intended for use inside wacros, they should iterate over this list.
   <MaterialLayerType list> WacroMaterialLayers()
+  ```
   """
   @spec wacro_material_layers(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -1958,8 +2296,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.WacroMaterials`
 
+  ```text
   Returns a list of materials on which a wacro is to be executed. This method is intended for use inside wacros, they should iterate over this list.
   <MaterialType list> WacroMaterials()
+  ```
   """
   @spec wacro_materials(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -1969,8 +2309,10 @@ defmodule Poser.Api.SceneType do
   @doc ~S"""
   Python: `SceneType.WorldToScreen`
 
+  ```text
   Given a world coordinate as three floats x, y, and z, returns a (x, y, z) tuple with coordinates transformed into screen space.
   (<FloatType> x, <FloatType> y, <FloatType> z) WorldToScreen(<FloatType> x, <FloatType> y, <FloatType> z)
+  ```
   """
   @spec world_to_screen(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}

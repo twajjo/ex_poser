@@ -11,8 +11,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.AutoValue`
 
+  ```text
   Get the value of the automatic render settings slider.
   <IntType> AutoValue()
+  ```
   """
   @spec auto_value(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def auto_value(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -21,8 +23,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.BucketSize`
 
+  ```text
   Get the bucket size.
   <IntType> BucketSize()
+  ```
   """
   @spec bucket_size(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def bucket_size(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -31,8 +35,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.DepthOfField`
 
+  ```text
   Query whether or not depth of field is enabled. A return value of 1 indicates that depth of field is enabled, a return value of 0 indicates that depth of field is disabled.
   <IntType> DepthOfField()
+  ```
   """
   @spec depth_of_field(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -42,8 +48,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.Displacement`
 
+  ```text
   Query whether or not displacements are enabled. A return value of 1 indicates that displacements are enabled, a return value of 0 indicates that displacements are disabled.
   <IntType> Displacement()
+  ```
   """
   @spec displacement(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def displacement(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -52,8 +60,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.DisplacementBounds`
 
+  ```text
   Get the size of the displacement bounds.
   <FloatType> DisplacementBounds()
+  ```
   """
   @spec displacement_bounds(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -63,8 +73,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.DrawToonOutline`
 
+  ```text
   Queries whether or not toon outlines are being drawn. A return value of 1 indicates drawing is enabled, 0 indicates that toon outlines are turned off.
   <IntType> DrawToonOutline()
+  ```
   """
   @spec draw_toon_outline(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -74,8 +86,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.ExtraOutput`
 
+  ```text
   Get if an extra output should be rendered and included as layer in the rendered image.
   <IntType> ExtraOutput(<IntType> output)
+  ```
   """
   @spec extra_output(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -85,8 +99,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.FilterSize`
 
+  ```text
   Get the post filter size.
   <IntType> FilterSize()
+  ```
   """
   @spec filter_size(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def filter_size(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -95,8 +111,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.FilterType`
 
+  ```text
   Get the post filter type.
   <IntType> FilterType()
+  ```
   """
   @spec filter_type(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def filter_type(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -105,8 +123,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.Gamma`
 
+  ```text
   Get the Gamma correction of FireFly.
   <FloatType> Gamma()
+  ```
   """
   @spec gamma(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def gamma(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -115,8 +135,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.GIIntensity`
 
+  ```text
   Get the intensity of indirect light. A value of 0 indicates that global illumination is turned off.
   <FloatType> GIIntensity()
+  ```
   """
   @spec gi_intensity(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def gi_intensity(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -125,8 +147,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.GIMaxError`
 
+  ```text
   Get the Max Error of the irradiance cache. Valid values are in the range between 0 and 1.
   <FloatType> GIMaxError()
+  ```
   """
   @spec gi_max_error(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def gi_max_error(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -135,8 +159,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.GINumBounces`
 
+  ```text
   Get the number of bounces for indirect light. Higher values result in better quality and longer render times.
   <IntType> GINumBounces()
+  ```
   """
   @spec gi_num_bounces(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -146,8 +172,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.GINumSamples`
 
+  ```text
   Get the number of rays used for global illumination. Higher values result in better quality and longer render times.
   <IntType> GINumSamples()
+  ```
   """
   @spec gi_num_samples(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -157,8 +185,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.GIOnlyRender`
 
+  ```text
   Queries whether or not only indirect light is being rendered. A return value of 1 stands for indirect light only, 0 indicates a regular render.
   <IntType> GIOnlyRender()
+  ```
   """
   @spec gi_only_render(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -168,8 +198,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.GIPassScale`
 
+  ```text
   Get the scaling factor for the indirect light prepass.
   <FloatType> GIPassScale()
+  ```
   """
   @spec gi_pass_scale(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def gi_pass_scale(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -178,8 +210,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.HDRIOutput`
 
+  ```text
   Query if FireFly optimizes rendering for HDRI output.
   <IntType> HDRIOutput()
+  ```
   """
   @spec hdri_output(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def hdri_output(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -188,8 +222,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.Hider`
 
+  ```text
   Get the current hider. Possible values are poser.kHiderREYES and poser.kHiderRayTrace.
   <StringType> Hider()
+  ```
   """
   @spec hider(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def hider(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -198,8 +234,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.LoadPreset`
 
+  ```text
   Load options from a render preset (.prp file).
   <NoneType> LoadPreset(<StringType> presetFilePath)
+  ```
   """
   @spec load_preset(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -210,8 +248,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.Manual`
 
+  ```text
   Query if manual render settings apply. A return value of 1 indicates that manual settings apply, a return value of 0 indicates that automatic settings apply.
   <IntType> Manual()
+  ```
   """
   @spec manual(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def manual(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -220,8 +260,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.MaxError`
 
+  ```text
   Get the Max Error of the occlusion cache. Valid values are in the range between 0 and 1.
   <FloatType> MaxError()
+  ```
   """
   @spec max_error(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def max_error(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -230,8 +272,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.MaxRayDepth`
 
+  ```text
   Get the max number of raytracing bounces.
   <IntType> MaxRayDepth()
+  ```
   """
   @spec max_ray_depth(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def max_ray_depth(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -240,8 +284,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.MaxSampleSize`
 
+  ```text
   Get the max distance between two irradiance samples.
   <FloatType> MaxSampleSize()
+  ```
   """
   @spec max_sample_size(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def max_sample_size(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -250,8 +296,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.MaxTextureRes`
 
+  ```text
   Get the max texture resolution.
   <IntType> MaxTextureRes()
+  ```
   """
   @spec max_texture_res(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -261,8 +309,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.MinShadingRate`
 
+  ```text
   Get the min shading rate.
   <FloatType> MinShadingRate()
+  ```
   """
   @spec min_shading_rate(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -272,8 +322,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.MotionBlur`
 
+  ```text
   Query whether or not 3d motion blur is enabled. A return value of 1 indicates that motion blur is enabled, a return value of 0 indicates that motion blur is disabled.
   <IntType> MotionBlur()
+  ```
   """
   @spec motion_blur(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def motion_blur(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -282,8 +334,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.PixelSamples`
 
+  ```text
   Get the number of samples per pixel.
   <IntType> PixelSamples()
+  ```
   """
   @spec pixel_samples(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def pixel_samples(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -292,8 +346,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.RayAccelerator`
 
+  ```text
   Get the Ray Acclerator. Return value is a constant like kRayAcceleratorCodeKDTREE.
   <IntType> RayAccelerator()
+  ```
   """
   @spec ray_accelerator(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -303,8 +359,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.RayTracing`
 
+  ```text
   Query whether or not raytracing is enabled. A return value of 1 indicates that raytracing is enabled, a return value of 0 indicates that raytracing is disabled.
   <IntType> RayTracing()
+  ```
   """
   @spec ray_tracing(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def ray_tracing(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -313,8 +371,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.RemoveBackfacing`
 
+  ```text
   Query whether or not remove backfacing polygons is enabled. A return value of 1 indicates that backfacing polygons will be removed.
   <IntType> RemoveBackfacing()
+  ```
   """
   @spec remove_backfacing(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -324,8 +384,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SavePreset`
 
+  ```text
   Save current render options to a preset (.prp file).
   <NoneType> SavePreset(<StringType> presetFilePath)
+  ```
   """
   @spec save_preset(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -336,8 +398,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetAutoValue`
 
+  ```text
   Set the value of the automatic render settings slider. In Poser 6, values from 0 to 8 (including) are valid.
   <NoneType> SetAutoValue(<IntType> value)
+  ```
   """
   @spec set_auto_value(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -347,8 +411,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetBucketSize`
 
+  ```text
   Set the bucket size.
   <NoneType> SetBucketSize(<IntType> size)
+  ```
   """
   @spec set_bucket_size(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -358,8 +424,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetDepthOfField`
 
+  ```text
   Set if depth of field is enabled. A value of 1 enables depth of field, 0 disables depth of field.
   <NoneType> SetDepthOfField(<IntType> depthoffield)
+  ```
   """
   @spec set_depth_of_field(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -370,8 +438,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetDisplacement`
 
+  ```text
   Set if displacements are enabled. A value of 1 enables displacments, 0 disables displacements.
   <NoneType> SetDisplacement(<IntType> displacement)
+  ```
   """
   @spec set_displacement(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -382,8 +452,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetDisplacementBounds`
 
+  ```text
   Set the size of the displacement bounds.
   <NoneType> SetDisplacementBounds(<FloatType> bounds)
+  ```
   """
   @spec set_displacement_bounds(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -394,8 +466,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetDrawToonOutline`
 
+  ```text
   Set if toon outlines are being drawn. A value of 1 enables toon outlines, 0 disables toon outlines.
   <NoneType> SetDrawToonOutline(<IntType> drawoutlines)
+  ```
   """
   @spec set_draw_toon_outline(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -406,8 +480,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetExtraOutput`
 
+  ```text
   Set if an extra output should be rendered and included as layer in the rendered image.
   <NoneType> SetExtraOutput(<IntType> output, <IntType> enabled)
+  ```
   """
   @spec set_extra_output(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -418,8 +494,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetFilterSize`
 
+  ```text
   Set the post filter size.
   <NoneType> SetFilterSize(<IntType size)
+  ```
   """
   @spec set_filter_size(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -429,8 +507,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetFilterType`
 
+  ```text
   Set the post filter type.
   <NoneType> SetFilterType(<IntType> type)
+  ```
   """
   @spec set_filter_type(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -440,8 +520,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetGamma`
 
+  ```text
   Set the Gamma correction of FireFly.
   <NoneType> SetGamma(<FloatType> gamma)
+  ```
   """
   @spec set_gamma(Poser.Handle.t(), number(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_gamma(%Poser.Handle{class: c} = handle, gamma, opts \\ []) when c in @accepts,
@@ -450,8 +532,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetGIIntensity`
 
+  ```text
   Set the intensity of indirect light. A value of 0 turns off global illumination.
   <NoneType> SetGIIntensity(<FloatType> intensity)
+  ```
   """
   @spec set_gi_intensity(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -461,8 +545,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetGIMaxError`
 
+  ```text
   Set the Max Error of the irradiance cache. Valid values are in the range between 0 and 1.
   <NoneType> SetGIMaxError(<FloatType> maxError)
+  ```
   """
   @spec set_gi_max_error(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -472,8 +558,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetGINumBounces`
 
+  ```text
   Set the number of bounces for indirect light. Higher values result in better quality and longer render times.
   <NoneType> SetGINumBounces(<IntType> bounces)
+  ```
   """
   @spec set_gi_num_bounces(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -483,8 +571,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetGINumSamples`
 
+  ```text
   Set the number of rays used for global illumination. Higher values result in better quality and longer render times.
   <NoneType> SetGINumSamples(<IntType> samples)
+  ```
   """
   @spec set_gi_num_samples(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -494,8 +584,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetGIOnlyRender`
 
+  ```text
   Set if only indirect light are being rendered. A value of 0 enables regular renders, 1 enables indirect light only rendering.
   <NoneType> SetGIOnlyRender(<IntType> gionly)
+  ```
   """
   @spec set_gi_only_render(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -505,8 +597,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetGIPassScale`
 
+  ```text
   Set the scaling factor for the indirect light prepass.
   <NoneType> SetGIPassScale(<FloatType> scale)
+  ```
   """
   @spec set_gi_pass_scale(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -516,8 +610,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetHDRIOutput`
 
+  ```text
   Set if FireFly optimizes rendering for HDRI output.
   <NoneType> SetHDRIOutput(<IntType> hdri)
+  ```
   """
   @spec set_hdri_output(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -527,8 +623,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetHider`
 
+  ```text
   Set the current hider. Possible values are poser.kHiderREYES and poser.kHiderRayTrace.
   <NoneType> SetHider(<StringType>)
+  ```
   """
   @spec set_hider(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -538,8 +636,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetManual`
 
+  ```text
   Set whether manual render settings should apply. Pass 1 for manual settings, 0 for automatic settings.
   <NoneType> SetManual(<IntType> manual)
+  ```
   """
   @spec set_manual(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -549,8 +649,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetMaxError`
 
+  ```text
   Set the Max Error of the occlusion cache. Valid values are in the range between 0 and 1.
   <NoneType> SetMaxError(<FloatType> maxError)
+  ```
   """
   @spec set_max_error(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -560,8 +662,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetMaxRayDepth`
 
+  ```text
   Set the max number of raytracing bounces.
   <NoneType> SetMaxRayDepth(<IntType> depth)
+  ```
   """
   @spec set_max_ray_depth(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -571,8 +675,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetMaxSampleSize`
 
+  ```text
   Set the max distance between two irradiance samples.
   <NoneType> SetMaxSampleSize(<FloatType> maxSize)
+  ```
   """
   @spec set_max_sample_size(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -582,8 +688,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetMaxTextureRes`
 
+  ```text
   Set the max texture resolution.
   <NoneType> SetMaxTextureRes(<IntType> resolution)
+  ```
   """
   @spec set_max_texture_res(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -594,8 +702,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetMinShadingRate`
 
+  ```text
   Set the min shading rate.
   <NoneType> SetMinShadingRate(<FloatType> shadingrate)
+  ```
   """
   @spec set_min_shading_rate(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -606,8 +716,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetMotionBlur`
 
+  ```text
   Set if motion blur is enabled. A value of 1 enables motion blur, 0 disables motion blur.
   <NoneType> SetMotionBlur(<IntType> enabled)
+  ```
   """
   @spec set_motion_blur(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -617,8 +729,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetPixelSamples`
 
+  ```text
   Set the number of samples per pixel.
   <NoneType> SetPixelSamples(<IntType> numsamples)
+  ```
   """
   @spec set_pixel_samples(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -628,9 +742,11 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetRayAccelerator`
 
+  ```text
   Set the Ray Acclerator. Value should be a constant like value is a constant like kRayAcceleratorCodeKDTREE.
   Use at your own risk.
   <NoneType> SetRayAccelerator(<IntType> acceleratorType)
+  ```
   """
   @spec set_ray_accelerator(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -641,8 +757,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetRayTracing`
 
+  ```text
   Set if raytracing is enabled. A value of 1 enables raytracing, 0 disables raytracing.
   <NoneType> SetRayTracing(<IntType> raytracing)
+  ```
   """
   @spec set_ray_tracing(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -652,8 +770,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetRemoveBackfacing`
 
+  ```text
   Set if remove backfacing polygons is enabled. A value of 1 specifies that backfacing polygons will be removed.
   <NoneType> SetRemoveBackfacing(<IntType> enabled)
+  ```
   """
   @spec set_remove_backfacing(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -664,8 +784,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetShadowOnlyRender`
 
+  ```text
   Set if only shadows are being rendered. A value of 0 enables regular renders, 1 enables shadows only rendering.
   <NoneType> SetShadowOnlyRender(<IntType> shadowsonly)
+  ```
   """
   @spec set_shadow_only_render(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -676,8 +798,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetShadows`
 
+  ```text
   Set if shadows are being rendered.
   <NoneType> SetShadows(<IntType doshadows)
+  ```
   """
   @spec set_shadows(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -687,8 +811,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetSmoothPolys`
 
+  ```text
   Set if polygons are being smoothed. A value of 0 renders polygons as flat surfaces, a value of 1 turns polygon objects in smooth surfaces. Note that this can be set per actor, see the description of ActorType.
   <NoneType> SetSmoothPolys(<IntType> dosmoothing)
+  ```
   """
   @spec set_smooth_polys(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -698,8 +824,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetTextureCacheCompression`
 
+  ```text
   Set the compression scheme FireFly uses for disk-based textures. Return value is a constant like kTextureCompressorCodeZIP.
   <NoneType> SetTextureCacheCompression(<IntType> compression)
+  ```
   """
   @spec set_texture_cache_compression(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -710,9 +838,11 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetTextureCacheSize`
 
+  ```text
   Set the texture cache size (in kB). This determines how much RAM FireFly reserves to cache disk-based textures.
   Use at your own risk.
   <NoneType> SetTextureCacheSize(<IntType> cacheSize)
+  ```
   """
   @spec set_texture_cache_size(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -723,8 +853,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetTextureFiltering`
 
+  ```text
   Set if texture filtering is enabled. A value of 1 enables texture filtering, 0 disables texture filtering.
   <NoneType> SetTextureFiltering(<IntType> filtering)
+  ```
   """
   @spec set_texture_filtering(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -735,8 +867,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetToneExposure`
 
+  ```text
   Set the tone mapping exposure.
   <NoneType> SetToneExposure(<FloatType> exposure)
+  ```
   """
   @spec set_tone_exposure(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -746,8 +880,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetToneGain`
 
+  ```text
   Set the tone mapping gain.
   <NoneType> SetToneGain(<FloatType> gain)
+  ```
   """
   @spec set_tone_gain(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -757,8 +893,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetToneMapper`
 
+  ```text
   Set the tone mapping operator. Poser 8 supports 0 = no tone mapping and 1 = exponential tone mapping.
   <IntType> SetToneMapper(<IntType> toneMapper)
+  ```
   """
   @spec set_tone_mapper(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -768,8 +906,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetToonOutlineStyle`
 
+  ```text
   Set toon outline style. 
   <NoneType> SetToonOutlineStyle(<IntType> outlineStyle)
+  ```
   """
   @spec set_toon_outline_style(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -780,8 +920,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetUseGamma`
 
+  ```text
   Set if FireFly applies Gamma correction.
   <NoneType> SetUseGamma(<IntType> usegamma)
+  ```
   """
   @spec set_use_gamma(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -791,8 +933,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetUseGI`
 
+  ```text
   Set if indirect light is enabled. A value of 0 stands for disabled, 1 stands for enabled.
   <NoneType> SetUseGI(<IntType> usegi)
+  ```
   """
   @spec set_use_gi(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -802,8 +946,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetUseIrradianceCache`
 
+  ```text
   Set if irradiance caching is enabled. A value of 0 stands for disabled, 1 stands for enabled.
   <NoneType> SetUseIrradianceCache(<IntType> useirradiancecache)
+  ```
   """
   @spec set_use_irradiance_cache(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -814,8 +960,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetUseOcclusionCulling`
 
+  ```text
   Set if FireFly performs occlusion culling to improve performance.
   <NoneType> SetUseOcclusionCulling(<IntType> useOcclusionCulling)
+  ```
   """
   @spec set_use_occlusion_culling(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -830,8 +978,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetUseSSS`
 
+  ```text
   Set if subsurface scattering is enabled. A value of 0 stands for disabled, 1 stands for enabled.
   <NoneType> SetUseSSS(<IntType> usesss)
+  ```
   """
   @spec set_use_sss(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -841,8 +991,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SetUseTextureCache`
 
+  ```text
   Set if FireFly uses cached disk-based textures instead of loading the entire texture into RAM.
   <NoneType> SetUseTextureCache(<IntType> useCache)
+  ```
   """
   @spec set_use_texture_cache(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -853,8 +1005,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.ShadowOnlyRender`
 
+  ```text
   Queries whether or not only shadows are being rendered. A return value of 1 stands for shadows only, 0 indicates a regular render
   <IntType> ShadowOnlyRender()
+  ```
   """
   @spec shadow_only_render(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -864,8 +1018,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.Shadows`
 
+  ```text
   Query whether or not shadows are being rendered.
   <IntType> Shadows()
+  ```
   """
   @spec shadows(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def shadows(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -874,8 +1030,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.SmoothPolys`
 
+  ```text
   Query whether or not polygons are being smoothed. A value of 0 renders polygons as flat surfaces, a value of 1 turns polygon objects in smooth surfaces. Note that this can be set per actor, see the description of ActorType.
   <IntType> SmoothPolys()
+  ```
   """
   @spec smooth_polys(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def smooth_polys(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -884,8 +1042,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.TextureCacheCompression`
 
+  ```text
   Get the compression scheme FireFly uses for disk-based textures. Return value is a constant like kTextureCompressorCodeZIP.
   <IntType> TextureCacheCompression()
+  ```
   """
   @spec texture_cache_compression(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -895,8 +1055,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.TextureCacheSize`
 
+  ```text
   Get the texture cache size (in kB). This determines how much RAM FireFly reserves to cache disk-based textures.
   <IntType> TextureCacheSize()
+  ```
   """
   @spec texture_cache_size(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -906,8 +1068,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.TextureFiltering`
 
+  ```text
   Query whether or not texture filtering is enabled. A return value of 1 indicates that texture filtering is enabled, a return value of 0 indicates that texture filtering is disabled.
   <IntType> TextureFiltering()
+  ```
   """
   @spec texture_filtering(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -917,8 +1081,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.ToneExposure`
 
+  ```text
   Get the tone mapping exposure.
   <FloatType> ToneExposure()
+  ```
   """
   @spec tone_exposure(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def tone_exposure(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -927,8 +1093,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.ToneGain`
 
+  ```text
   Get the tone mapping gain.
   <FloatType> ToneGain()
+  ```
   """
   @spec tone_gain(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def tone_gain(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -937,8 +1105,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.ToneMapper`
 
+  ```text
   Get the tone mapping operator. Poser 8 supports 0 = no tone mapping and 1 = exponential tone mapping.
   <IntType> ToneMapper()
+  ```
   """
   @spec tone_mapper(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def tone_mapper(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -947,8 +1117,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.ToonOutlineStyle`
 
+  ```text
   Queries for toon outline style.
   <IntType> ToonOutlineStyle()
+  ```
   """
   @spec toon_outline_style(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -958,8 +1130,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.UseGamma`
 
+  ```text
   Query if FireFly applies Gamma correction.
   <IntType> UseGamma()
+  ```
   """
   @spec use_gamma(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def use_gamma(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -968,8 +1142,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.UseGI`
 
+  ```text
   Queries whether or not indirect light is enabled. A return value of 1 stands for indirect light enabled, 0 indicates indirect light disabled.
   <IntType> UseGI()
+  ```
   """
   @spec use_gi(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def use_gi(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -978,8 +1154,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.UseIrradianceCache`
 
+  ```text
   Queries whether or not irradiance caching is enabled. A return value of 1 stands for irradiance caching enabled, 0 indicates irradiance caching disabled.
   <IntType> UseIrradianceCache()
+  ```
   """
   @spec use_irradiance_cache(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -989,8 +1167,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.UseOcclusionCulling`
 
+  ```text
   Query if FireFly performs occlusion culling to improve performance.
   <IntType> UseOcclusionCulling()
+  ```
   """
   @spec use_occlusion_culling(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1000,8 +1180,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.UseSSS`
 
+  ```text
   Queries whether or not subsurface scattering is enabled. A return value of 1 stands for enabled, 0 indicates disabled.
   <IntType> UseSSS()
+  ```
   """
   @spec use_sss(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def use_sss(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1010,8 +1192,10 @@ defmodule Poser.Api.TempestOptionsType do
   @doc ~S"""
   Python: `TempestOptionsType.UseTextureCache`
 
+  ```text
   Query if FireFly uses cached disk-based textures instead of loading the entire texture into RAM.
   <IntType> UseTextureCache()
+  ```
   """
   @spec use_texture_cache(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}

@@ -11,8 +11,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.Actor`
 
+  ```text
   Return the actor which owns this parm.
   <ActorType> Actor()
+  ```
   """
   @spec actor(Poser.Handle.t(), keyword()) :: {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
   def actor(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -21,8 +23,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.AddKeyFrame`
 
+  ```text
   Add a keyframe at the specified frame. If no frame is specified, a keyframe will be added at the current frame.
   <NoneType> AddKeyFrame({<IntType> frame})
+  ```
   """
   @spec add_key_frame(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def add_key_frame(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -31,8 +35,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.AddValueOperation`
 
+  ```text
   Add a value operation of the specified type to this parameter.
   <NoneType> AddValueOperation(<IntType> valueOpType, <ParmType> sourceParm)
+  ```
   """
   @spec add_value_operation(Poser.Handle.t(), integer(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -48,8 +54,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.AddZone`
 
+  ```text
   Add a zone of the specified type to this parameter.
   <NoneType> AddZone(<IntType> zoneType)
+  ```
   """
   @spec add_zone(Poser.Handle.t(), integer(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def add_zone(%Poser.Handle{class: c} = handle, zone_type, opts \\ []) when c in @accepts,
@@ -58,8 +66,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.ApplyLimits`
 
+  ```text
   Apply min/max limits to parameter.
   <NoneType> ApplyLimits()
+  ```
   """
   @spec apply_limits(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def apply_limits(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -68,8 +78,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.ClearUpdateCallback`
 
+  ```text
   Clear update callback for calculating this parameter value if it is set.
   <NoneType> ClearUpdateCallback()
+  ```
   """
   @spec clear_update_callback(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -79,8 +91,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.ConstantAtFrame`
 
+  ```text
   Query whether or not the given frame is within a constant range.  If no frame is specified, the default frame is the current frame.
   <IntType> ConstantAtFrame({<IntType> frame})
+  ```
   """
   @spec constant_at_frame(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -90,8 +104,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.DeleteKeyFrame`
 
+  ```text
   Delete the keyframe at the specified frame. If no frame is specified, a keyframe will be added at the current frame.
   <NoneType> DeleteKeyFrame({<IntType> frame})
+  ```
   """
   @spec delete_key_frame(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def delete_key_frame(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -100,8 +116,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.DeleteValueOperation`
 
+  ```text
   Deletes the value operation at the given index.
   <NoneType> DeleteValueOperation(<IntType> index)
+  ```
   """
   @spec delete_value_operation(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -111,8 +129,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.ForceLimits`
 
+  ```text
   Query whether or not this parameter enforces its limits. Returns 1 if it is enforced and 0 if it is not.
   <IntType> ForceLimits()
+  ```
   """
   @spec force_limits(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def force_limits(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -121,8 +141,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.GetIdType`
 
+  ```text
   Return the exact type of this scene object.
   <IntType> GetIdType()
+  ```
   """
   @spec get_id_type(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def get_id_type(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -131,8 +153,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.HasKeyAtFrame`
 
+  ```text
   Query if this parameter has a key frame at a given frame.
   <IntType> HasKeyAtFrame(<IntType> frame)
+  ```
   """
   @spec has_key_at_frame(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -142,8 +166,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.Hidden`
 
+  ```text
   Query whether or not this parameter is hidden from the user-interface. Returns 1 if it is hidden and 0 if it is visible.
   <IntType> Hidden()
+  ```
   """
   @spec hidden(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def hidden(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -152,8 +178,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.InitValue`
 
+  ```text
   Get the init value of the parameter.
   <FloatType> InitValue()
+  ```
   """
   @spec init_value(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def init_value(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -162,8 +190,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.InternalName`
 
+  ```text
   Get the (internal) name for the scene object.  The specified string is a unique name ID internal to Poser.
   <StringType> InternalName()
+  ```
   """
   @spec internal_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -173,8 +203,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsBase`
 
+  ```text
   Return true only if scene object is a base.  Bases are targets of deformation for deformers such as magnets.
   <IntType> IsBase()
+  ```
   """
   @spec is_base(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_base(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -183,8 +215,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsBodyPart`
 
+  ```text
   Return true only if scene object is a body part.
   <IntType> IsBodyPart()
+  ```
   """
   @spec is_body_part(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_body_part(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -193,8 +227,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsCamera`
 
+  ```text
   Return true only if scene object is a camera.
   <IntType> IsCamera()
+  ```
   """
   @spec is_camera(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_camera(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -203,8 +239,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsControlProp`
 
+  ```text
   Return true only if scene object is a control prop.
   <IntType> IsControlProp()
+  ```
   """
   @spec is_control_prop(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -214,8 +252,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsDeformer`
 
+  ```text
   Return true only if scene object is a deformer.
   <IntType> IsDeformer()
+  ```
   """
   @spec is_deformer(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_deformer(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -224,8 +264,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsFigure`
 
+  ```text
   Return true only if scene object is a figure.
   <IntType> IsFigure()
+  ```
   """
   @spec is_figure(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_figure(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -234,8 +276,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsHairProp`
 
+  ```text
   Return true only if scene object is a hair prop.
   <IntType> IsHairProp()
+  ```
   """
   @spec is_hair_prop(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_hair_prop(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -244,8 +288,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsLight`
 
+  ```text
   Return true only if scene object is a light.
   <IntType> IsLight()
+  ```
   """
   @spec is_light(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_light(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -254,8 +300,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsMeasurement`
 
+  ```text
   Return true only if scene object is a measurement.
   <IntType> IsMeasurement()
+  ```
   """
   @spec is_measurement(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -265,8 +313,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsMorphTarget`
 
+  ```text
   Query whether or not this parameter is a morph target parameter.  Returns 1 if it is and 0 if it is not.
   <IntType> IsMorphTarget()
+  ```
   """
   @spec is_morph_target(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -276,8 +326,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsParm`
 
+  ```text
   Return true only if scene object is a parameter.
   <IntType> IsParm()
+  ```
   """
   @spec is_parm(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_parm(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -286,8 +338,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsProp`
 
+  ```text
   Return true only if scene object is a prop.
   <IntType> IsProp()
+  ```
   """
   @spec is_prop(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_prop(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -296,8 +350,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsPropInstance`
 
+  ```text
   Return true only if scene object is a prop instance.
   <IntType> IsPropInstance()
+  ```
   """
   @spec is_prop_instance(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -307,8 +363,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsValueParameter`
 
+  ```text
   Query whether or not this parameter is a value-parameter. Such parameters are not linked to Poser figures, props, etc., but can instead be used to provide UI control over Python scripts. Returns 1 if it is and 0 if it is not.
   <IntType> IsValueParameter()
+  ```
   """
   @spec is_value_parameter(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -318,8 +376,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.IsZone`
 
+  ```text
   Return true only if scene object is a zone.  Zones are regions acted upon by deformers such as magnets.
   <IntType> IsZone()
+  ```
   """
   @spec is_zone(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_zone(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -328,8 +388,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.LinearAtFrame`
 
+  ```text
   Query whether or not the given frame is within a linear range.  If no frame is specified, the default frame is the current frame.
   <IntType> LinearAtFrame({<IntType> frame})
+  ```
   """
   @spec linear_at_frame(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -339,8 +401,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.MaxValue`
 
+  ```text
   Get the current maximum value of the parameter.
   <FloatType> MaxValue()
+  ```
   """
   @spec max_value(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def max_value(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -349,8 +413,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.MinValue`
 
+  ```text
   Get the current minimum value of the parameter.
   <FloatType> MinValue()
+  ```
   """
   @spec min_value(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def min_value(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -359,8 +425,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.MorphTargetDelta`
 
+  ```text
   If this parameter is a morph target parameter, return the morph target "delta" associated with the specified vertex index.  Note: Deltas are 3D differences between the original geometry and the morphed geometry.
   (<FloatType> deltaX, <FloatType> deltaY, <FloatType> deltaZ) MorphTargetDelta(<IntType> vertexIndex)
+  ```
   """
   @spec morph_target_delta(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -371,8 +439,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.Name`
 
+  ```text
   Get the (external) name for the scene object.  The specified name is the same one seen in Poser's GUI pulldown menus.
   <StringType> Name()
+  ```
   """
   @spec name(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def name(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -381,8 +451,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.NextKeyFrame`
 
+  ```text
   Get the next frame in which the parameter has a keyframe set.
   <IntType> NextKeyFrame()
+  ```
   """
   @spec next_key_frame(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -392,8 +464,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.NumMorphTargetDeltas`
 
+  ```text
   If this parameter is a morph target parameter, return the number of morph target "delta" associated with the parameter.
   <IntType> NumMorphTargetDeltas()
+  ```
   """
   @spec num_morph_target_deltas(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -403,8 +477,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.NumValueOperations`
 
+  ```text
   Returns the number of value operations on this parameter. Return 0 if there are no value operations on this parameter.
   <IntType> NumValueOperations()
+  ```
   """
   @spec num_value_operations(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -414,8 +490,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.PrevKeyFrame`
 
+  ```text
   Get the previous frame in which the parameter has a keyframe set.
   <IntType> PrevKeyFrame()
+  ```
   """
   @spec prev_key_frame(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -425,8 +503,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.Sensitivity`
 
+  ```text
   Get the sensitivity of the mouse tracking (on the user interface).
   <FloatType> Sensitivity()
+  ```
   """
   @spec sensitivity(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def sensitivity(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -435,8 +515,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetForceLimits`
 
+  ```text
   Set the if this parameter enforces limits.  Call with an argument of 1 to enforce them or call it with an argument of 0 to not enforce them.
   <NoneType> SetForceLimits(<IntType> force)
+  ```
   """
   @spec set_force_limits(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -446,8 +528,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetHidden`
 
+  ```text
   Set the hidden status of this parameter.  Call with an argument of 1 to hide it in the user-interface or call it with an argument of 0 to make it visible.
   <NoneType> SetHidden(<IntType> hide)
+  ```
   """
   @spec set_hidden(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -457,8 +541,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetInitValue`
 
+  ```text
   Set the init value of the parameter.
   <FloatType> SetInitValue(<FloatType> value)
+  ```
   """
   @spec set_init_value(Poser.Handle.t(), number(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -468,8 +554,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetInternalName`
 
+  ```text
   Set the (internal) name for the parm.
   <NoneType> SetInternalName(<StringType> name)
+  ```
   """
   @spec set_internal_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -479,8 +567,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetMaxValue`
 
+  ```text
   Set the maximum value of the parameter.
   <FloatType> SetMaxValue(<FloatType> value)
+  ```
   """
   @spec set_max_value(Poser.Handle.t(), number(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -490,8 +580,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetMinValue`
 
+  ```text
   Set the minimum value of the parameter.
   <FloatType> SetMinValue(<FloatType> value)
+  ```
   """
   @spec set_min_value(Poser.Handle.t(), number(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -501,8 +593,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetMorphTargetDelta`
 
+  ```text
   If this parameter is a morph target parameter, set the morph target "delta" value associated with the specified vertex index.  Note: Deltas are 3D differences between the original geometry and the morphed geometry.
   <NoneType> SetMorphTargetDelta(<IntType> vertexIndex, <FloatType> deltaX, <FloatType> deltaY, <FloatType> deltaZ)
+  ```
   """
   @spec set_morph_target_delta(
           Poser.Handle.t(),
@@ -534,8 +628,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetName`
 
+  ```text
   Set the (external) name for the scene object.  
   <NoneType> SetName(<StringType>)
+  ```
   """
   @spec set_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -545,8 +641,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetRangeConstant`
 
+  ```text
   Set the given frame range to have constant (step) interpolation between key frames.  Note: automatically sets key frames at start and end of specified range.
   <NoneType> SetRangeConstant(<IntType> startFrame, <IntType> endFrame)
+  ```
   """
   @spec set_range_constant(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -557,8 +655,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetRangeLinear`
 
+  ```text
   Set the given frame range to have linear interpolation between key frames.  Note: automatically sets key frames at start and end of specified range.
   <NoneType> SetRangeLinear(<IntType> startFrame, <IntType> endFrame)
+  ```
   """
   @spec set_range_linear(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -569,8 +669,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetRangeSpline`
 
+  ```text
   Set the given frame range to have spline interpolation between key frames.  Note: automatically sets key frames at start and end of specified range.
   <NoneType> SetRangeSpline(<IntType> startFrame, <IntType> endFrame)
+  ```
   """
   @spec set_range_spline(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -581,8 +683,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetSensitivity`
 
+  ```text
   Set the sensitivity of the mouse tracking (on the user interface).
   <NoneType> SetSensitivity(<FloatType> value)
+  ```
   """
   @spec set_sensitivity(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -592,8 +696,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetSplineBreak`
 
+  ```text
   Break spline interpolation at the given frame.  If the frame is not a key frame, no action will be taken.  If no frame is specified, the default frame is the current frame. A broken spline can be un-broken by passing a 0 as the second argument to this method.
   <NoneType> SetSplineBreak({<IntType> frame, <IntType> on})
+  ```
   """
   @spec set_spline_break(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_spline_break(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -602,8 +708,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetValue`
 
+  ```text
   Set the parameter to a specific value.
   <NoneType> SetValue(<FloatType> value {, <IntType> doUpdate) }
+  ```
   """
   @spec set_value(Poser.Handle.t(), number(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_value(%Poser.Handle{class: c} = handle, value, opts \\ []) when c in @accepts,
@@ -612,8 +720,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetValueFrame`
 
+  ```text
   Set the value of the parameter at a specific key frame.
   <NoneType> SetValueFrame(<FloatType> value, <IntType> keyFrame)
+  ```
   """
   @spec set_value_frame(Poser.Handle.t(), number(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -624,8 +734,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SetWantsConform`
 
+  ```text
   Sets if this parameter wants to auto-conform to a base figure or not.  Call with an argument of 0 or 1.
   <NoneType> SetWantsConform(<IntType> oneOrZero)
+  ```
   """
   @spec set_wants_conform(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -636,8 +748,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SplineAtFrame`
 
+  ```text
   Query whether or not the given frame is within a spline range.  If no frame is specified, the default frame is the current frame.
   <IntType> SplineAtFrame({<IntType> frame})
+  ```
   """
   @spec spline_at_frame(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -647,8 +761,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SplineBreakAtFrame`
 
+  ```text
   Query whether or not the given frame is a spline-break. If the frame is not a key frame, no action will be taken.  If no frame is specified, the default frame is the current frame.
   <IntType> SplineBreakAtFrame({<IntType> frame})
+  ```
   """
   @spec spline_break_at_frame(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -658,8 +774,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.SplitMorphLeftRight`
 
+  ```text
   If this parameter is a morph target parameter, split left & right.
   <NoneType> SplitMorphLeftRight()
+  ```
   """
   @spec split_morph_left_right(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -669,8 +787,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.TypeCode`
 
+  ```text
   Get the type code for this parm.  Type codes are enum values such as 'poser.kParmCodeXROT'.
   <IntType> TypeCode()
+  ```
   """
   @spec type_code(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def type_code(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -679,8 +799,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.UnaffectedValue`
 
+  ```text
   Get the current value of the parameter as if SetSkipParmValueOps() was enabled.
   <FloatType> UnaffectedValue()
+  ```
   """
   @spec unaffected_value(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -690,8 +812,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.Value`
 
+  ```text
   Get the current value of the parameter.
   <FloatType> Value()
+  ```
   """
   @spec value(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def value(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -700,8 +824,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.ValueFrame`
 
+  ```text
   Get the current value of the parameter at a specific frame.
   <FloatType> ValueFrame(<IntType> keyFrame)
+  ```
   """
   @spec value_frame(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -711,8 +837,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.ValueOperations`
 
+  ```text
   Returns the list of value operations on this parameter. Return None if there are no value operations on this parameter.
   <ValueOperationType List> ValueOperations()
+  ```
   """
   @spec value_operations(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -722,8 +850,10 @@ defmodule Poser.Api.ParmType do
   @doc ~S"""
   Python: `ParmType.WantsConform`
 
+  ```text
   Query whether or not this parameter wants to auto-conform to a base figure. Returns 0 or 1.
   <IntType> WantsConform()
+  ```
   """
   @spec wants_conform(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def wants_conform(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,

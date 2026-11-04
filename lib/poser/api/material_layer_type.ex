@@ -11,8 +11,10 @@ defmodule Poser.Api.MaterialLayerType do
   @doc ~S"""
   Python: `MaterialLayerType.ExtName`
 
+  ```text
   Get the name(external only) for the materialLayer.
   <StringType> ExtName()
+  ```
   """
   @spec ext_name(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def ext_name(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -21,8 +23,10 @@ defmodule Poser.Api.MaterialLayerType do
   @doc ~S"""
   Python: `MaterialLayerType.Name`
 
+  ```text
   Get the name(internal only) for the materialLayer.
   <StringType> Name()
+  ```
   """
   @spec name(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def name(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -31,8 +35,10 @@ defmodule Poser.Api.MaterialLayerType do
   @doc ~S"""
   Python: `MaterialLayerType.ShaderTree`
 
+  ```text
   Get the material layer's shader tree.
   <ShaderTreeType> ShaderTree()
+  ```
   """
   @spec shader_tree(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -42,8 +48,10 @@ defmodule Poser.Api.MaterialLayerType do
   @doc ~S"""
   Python: `MaterialLayerType.ShaderTreeHash`
 
+  ```text
   Get the material layer's shader tree's hash.
   <StringType> ShaderTreeHash()
+  ```
   """
   @spec shader_tree_hash(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}

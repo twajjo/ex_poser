@@ -11,8 +11,10 @@ defmodule Poser.Api.ShaderNodeOutputType do
   @doc ~S"""
   Python: `ShaderNodeOutputType.ConnectToInput`
 
+  ```text
   Connect the output to the given input.
   <NoneType> ConnectToInput(<ShaderNodeInputType> Input)
+  ```
   """
   @spec connect_to_input(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -22,8 +24,10 @@ defmodule Poser.Api.ShaderNodeOutputType do
   @doc ~S"""
   Python: `ShaderNodeOutputType.InternalName`
 
+  ```text
   Get the internal name.
   <StringType> InternalName()
+  ```
   """
   @spec internal_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -33,8 +37,10 @@ defmodule Poser.Api.ShaderNodeOutputType do
   @doc ~S"""
   Python: `ShaderNodeOutputType.ItsNode`
 
+  ```text
   Returns the shader node to which this output belongs.
   <ShaderNodeType> ItsNode()
+  ```
   """
   @spec its_node(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -44,8 +50,10 @@ defmodule Poser.Api.ShaderNodeOutputType do
   @doc ~S"""
   Python: `ShaderNodeOutputType.Name`
 
+  ```text
   Get the (external) name.
   <StringType> Name()
+  ```
   """
   @spec name(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def name(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -54,8 +62,10 @@ defmodule Poser.Api.ShaderNodeOutputType do
   @doc ~S"""
   Python: `ShaderNodeOutputType.SetName`
 
+  ```text
   Set the (external) name.
   <NoneType> SetName(<StringType> Name)
+  ```
   """
   @spec set_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}

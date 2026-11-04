@@ -11,8 +11,10 @@ defmodule Poser.Api.ShaderNodeCompoundDataType do
   @doc ~S"""
   Python: `ShaderNodeCompoundDataType.AttachTreeNodes`
 
+  ```text
   Connect a ShaderNode's output to another ShaderNode's input in compound.
   <NoneType> AttachTreeNodes(<ShaderNodeType> node1, <StringType> parameter, <ShaderNodeType> node2)
+  ```
   """
   @spec attach_tree_nodes(
           Poser.Handle.t(),
@@ -29,8 +31,10 @@ defmodule Poser.Api.ShaderNodeCompoundDataType do
   @doc ~S"""
   Python: `ShaderNodeCompoundDataType.ContainedNodes`
 
+  ```text
   Get a list of the nodes contained by the compound node.
   <ListType> ContainedNodes()
+  ```
   """
   @spec contained_nodes(Poser.Handle.t(), keyword()) :: {:ok, list()} | {:error, Poser.Error.t()}
   def contained_nodes(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -39,8 +43,10 @@ defmodule Poser.Api.ShaderNodeCompoundDataType do
   @doc ~S"""
   Python: `ShaderNodeCompoundDataType.CreateNode`
 
+  ```text
   Create a new ShaderNode in compound.
   <ShaderNodeType> CreateNode(<StringType> type)
+  ```
   """
   @spec create_node(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -50,8 +56,10 @@ defmodule Poser.Api.ShaderNodeCompoundDataType do
   @doc ~S"""
   Python: `ShaderNodeCompoundDataType.DeleteNode`
 
+  ```text
   Delete a node from the compound.
   <NoneType> DeleteNode(<ShaderNodeType> node)
+  ```
   """
   @spec delete_node(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -61,8 +69,10 @@ defmodule Poser.Api.ShaderNodeCompoundDataType do
   @doc ~S"""
   Python: `ShaderNodeCompoundDataType.DetachTreeNode`
 
+  ```text
   Detach a node's input in compound.
   <NoneType> DetachTreeNode(<ShaderNodeType> node, <StringType> parameter)
+  ```
   """
   @spec detach_tree_node(Poser.Handle.t(), Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -73,8 +83,10 @@ defmodule Poser.Api.ShaderNodeCompoundDataType do
   @doc ~S"""
   Python: `ShaderNodeCompoundDataType.ExposeInput`
 
+  ```text
   Expose an input on one of the contained nodes.  Returns the output exposed on the compound node.  An option index argument allows caller to specify an insertion rather than an append.
   <ShaderNodeInputType> ExposeInput(<ShaderNodeInputType> outputInSubTree, {<IntType> index})
+  ```
   """
   @spec expose_input(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -85,8 +97,10 @@ defmodule Poser.Api.ShaderNodeCompoundDataType do
   @doc ~S"""
   Python: `ShaderNodeCompoundDataType.ExposeOutput`
 
+  ```text
   Expose an output on one of the contained nodes.  Returns the output exposed on the compound node.
   <ShaderNodeOutputType> ExposeOutput(<ShaderNodeOutputType> outputInSubTree)
+  ```
   """
   @spec expose_output(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -97,8 +111,10 @@ defmodule Poser.Api.ShaderNodeCompoundDataType do
   @doc ~S"""
   Python: `ShaderNodeCompoundDataType.ExposedInputs`
 
+  ```text
   Get a list of tuples that specify a mapping for exposed inputs.  Format will look like: [{exposedInput0, inputInSubTree0}, {exposedInput1, inputInSubTree1}, ... ].
   <ListType> ExposedInputs()
+  ```
   """
   @spec exposed_inputs(Poser.Handle.t(), keyword()) :: {:ok, list()} | {:error, Poser.Error.t()}
   def exposed_inputs(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -107,8 +123,10 @@ defmodule Poser.Api.ShaderNodeCompoundDataType do
   @doc ~S"""
   Python: `ShaderNodeCompoundDataType.ExposedInputsLocation`
 
+  ```text
   Get the UI position (in pixels) of the node representing the exposed inputs.
   (<IntType> x, <IntType> y) ExposedInputsLocation()
+  ```
   """
   @spec exposed_inputs_location(Poser.Handle.t(), keyword()) ::
           {:ok, {integer(), integer()}} | {:error, Poser.Error.t()}
@@ -118,8 +136,10 @@ defmodule Poser.Api.ShaderNodeCompoundDataType do
   @doc ~S"""
   Python: `ShaderNodeCompoundDataType.ExposedOutputs`
 
+  ```text
   Get a list of tuples that specify a mapping for exposed outputs.  Format will look like: [{exposedOutput0, outputInSubTree0}, {exposedOutput1, outputInSubTree1}, ... ].
   <ListType> ExposedOutputs()
+  ```
   """
   @spec exposed_outputs(Poser.Handle.t(), keyword()) :: {:ok, list()} | {:error, Poser.Error.t()}
   def exposed_outputs(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -128,8 +148,10 @@ defmodule Poser.Api.ShaderNodeCompoundDataType do
   @doc ~S"""
   Python: `ShaderNodeCompoundDataType.ExposedOutputsLocation`
 
+  ```text
   Get the UI position (in pixels) of the node representing the exposed outputs.
   (<IntType> x, <IntType> y) ExposedOutputsLocation()
+  ```
   """
   @spec exposed_outputs_location(Poser.Handle.t(), keyword()) ::
           {:ok, {integer(), integer()}} | {:error, Poser.Error.t()}
@@ -139,8 +161,10 @@ defmodule Poser.Api.ShaderNodeCompoundDataType do
   @doc ~S"""
   Python: `ShaderNodeCompoundDataType.SetExposedInputsLocation`
 
+  ```text
   Set the UI position (in pixels) of the node representing the exposed inputs.
   <NoneType> SetExposedInputsLocation(<IntType> x, <IntType> y)
+  ```
   """
   @spec set_exposed_inputs_location(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -151,8 +175,10 @@ defmodule Poser.Api.ShaderNodeCompoundDataType do
   @doc ~S"""
   Python: `ShaderNodeCompoundDataType.SetExposedOutputsLocation`
 
+  ```text
   Set the UI position (in pixels) of the node representing the exposed outputs.
   <NoneType> SetExposedOutputsLocation(<IntType> x, <IntType> y)
+  ```
   """
   @spec set_exposed_outputs_location(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}

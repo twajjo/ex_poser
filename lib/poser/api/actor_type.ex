@@ -11,8 +11,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.AddKeyFrame`
 
+  ```text
   Add a key frame for this actor at the specified frame.  If no frame is specified, a keyframe will be added at the current frame.
   <NoneType> AddKeyFrame({<IntType> frame})
+  ```
   """
   @spec add_key_frame(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def add_key_frame(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -21,8 +23,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.AlignmentRotationXYZ`
 
+  ```text
   Get a tuple comprising the ordered rotation alignment for this actor.  (Order is x,y,z).
   (<FloatType>, <FloatType>, <FloatType>) AlignmentRotationXYZ()
+  ```
   """
   @spec alignment_rotation_xyz(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -32,8 +36,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.AllCustomData`
 
+  ```text
   Get all custom data associated with this actor as a dictionary, including the save flags. Returns None if no data exists.
    <object> AllCustomData()
+  ```
   """
   @spec all_custom_data(Poser.Handle.t(), keyword()) :: {:ok, term()} | {:error, Poser.Error.t()}
   def all_custom_data(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -42,8 +48,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.AltGeomFileName`
 
+  ```text
   Get the name of the alternate geometry file used by this actor (if specified).
   <StringType> AltGeomFileName()
+  ```
   """
   @spec alt_geom_file_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -53,8 +61,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.AmbientOcclusion`
 
+  ```text
   Query whether this light (if this actor is an image light) is using ambient occlusion.
   <IntType> AmbientOcclusion()
+  ```
   """
   @spec ambient_occlusion(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -64,8 +74,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.AmbientOcclusionBias`
 
+  ```text
   Get the ambient occlusion bias of this light (if this actor is an image light).
   <FloatType> AmbientOcclusionBias()
+  ```
   """
   @spec ambient_occlusion_bias(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -75,8 +87,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.AmbientOcclusionDistance`
 
+  ```text
   Get the ambient occlusion maximum distance of this light (if this actor is an image light).
   <FloatType> AmbientOcclusionDistance()
+  ```
   """
   @spec ambient_occlusion_distance(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -86,8 +100,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.AmbientOcclusionStrength`
 
+  ```text
   Get the ambient occlusion strength of this light (if this actor is an image light).
   <FloatType> AmbientOcclusionStrength()
+  ```
   """
   @spec ambient_occlusion_strength(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -97,8 +113,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.AnimatableOrigin`
 
+  ```text
   Query whether this actor's origins can be animated.  Returns 1 if the origins can be animated, and 0 if they cannot.
   <IntType> AnimatableOrigin()
+  ```
   """
   @spec animatable_origin(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -108,8 +126,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.AtmosphereStrength`
 
+  ```text
   Get the atmosphere strength of this light (if this actor is a light).
   <FloatType> AtmosphereStrength()
+  ```
   """
   @spec atmosphere_strength(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -119,8 +139,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.BackfaceCull`
 
+  ```text
   Query the actor's backface culling flag.
   <IntType> BackfaceCull()
+  ```
   """
   @spec backface_cull(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def backface_cull(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -129,8 +151,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Base`
 
+  ```text
   If the actor is a deformer, this returns its Base actor.
   <ActorType> Base()
+  ```
   """
   @spec base(Poser.Handle.t(), keyword()) :: {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
   def base(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -139,8 +163,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Bends`
 
+  ```text
   Query whether or not the actor's bend flag is set.
   <IntType> Bends()
+  ```
   """
   @spec bends(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def bends(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -149,8 +175,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.CastsShadows`
 
+  ```text
   Query whether this actor casts Shadows.
   <IntType> CastsShadows()
+  ```
   """
   @spec casts_shadows(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def casts_shadows(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -159,8 +187,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Children`
 
+  ```text
   Get a list of the actors which are the children of the actor given.
   <ActorType List> Children()
+  ```
   """
   @spec children(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -170,8 +200,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ClearAllCustomData`
 
+  ```text
   Clear all custom data associated with this actor.
    <NoneType> ClearAllCustomData()
+  ```
   """
   @spec clear_all_custom_data(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -181,8 +213,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ClearCustomData`
 
+  ```text
   Clear custom data associated with this actor for the given key.
    <NoneType> ClearCustomData(<StringType> key)
+  ```
   """
   @spec clear_custom_data(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -192,8 +226,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ClearLocalTransformCallback`
 
+  ```text
   Clear the local transform callback.
   <NoneType> ClearLocalTransformCallback()
+  ```
   """
   @spec clear_local_transform_callback(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -204,8 +240,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ClearVertexCallback`
 
+  ```text
   Clear the vertex callback.
   <NoneType> ClearVertexCallback()
+  ```
   """
   @spec clear_vertex_callback(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -215,8 +253,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.CopyMagnetWeights`
 
+  ```text
   Copy the weights of a magnet to another magnet.
   <NoneType> CopyMagnetWeights(<ActorType> destinationMagnetActor)
+  ```
   """
   @spec copy_magnet_weights(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -227,8 +267,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.CreaseAngle`
 
+  ```text
   Get the actor's crease angle.
   <FloatType> CreaseAngle()
+  ```
   """
   @spec crease_angle(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def crease_angle(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -237,8 +279,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.CreateHairGroup`
 
+  ```text
   Create a new hair group.
   <HairType> CreateHairGroup(<StringType> name)
+  ```
   """
   @spec create_hair_group(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -248,8 +292,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.CreateValueParameter`
 
+  ```text
   Create a value parameter on the actor.  Such parameters are not linked to Poser figures, props, etc., but can instead be used to provide UI control over Python scripts.
   <ParmType> CreateValueParameter(<StringType> valueParmName)
+  ```
   """
   @spec create_value_parameter(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -260,8 +306,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.CustomData`
 
+  ```text
   Get custom data associated with this actor. Returns None if no data exists for that key.
    <object> CustomData(<StringType> key)
+  ```
   """
   @spec custom_data(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, term()} | {:error, Poser.Error.t()}
@@ -271,8 +319,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Delete`
 
+  ```text
   Delete the actor from the scene if possible.  Note that you cannot delete a body part from a figure.
   <NoneType> Delete()
+  ```
   """
   @spec delete(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def delete(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -281,8 +331,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.DeleteKeyFrame`
 
+  ```text
   Delete a key frame for this actor at the specified frame.  If no frame is specified, a keyframe will be deleted at the current frame.
   <NoneType> DeleteKeyFrame({<IntType> frame})
+  ```
   """
   @spec delete_key_frame(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def delete_key_frame(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -291,8 +343,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.DeleteTarget`
 
+  ```text
   Delete a morph target by name.
   <NoneType> DeleteTarget(<StringType> name)
+  ```
   """
   @spec delete_target(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -302,8 +356,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.DisplacementBounds`
 
+  ```text
   Get the actor's displacement bounds.
   <IntType> DisplacementBounds()
+  ```
   """
   @spec displacement_bounds(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -313,8 +369,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.DisplayOrigin`
 
+  ```text
   Get if the origin of this actor should be visible in the preview.
    <IntType> DisplayOrigin()
+  ```
   """
   @spec display_origin(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -324,8 +382,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.DisplayStyle`
 
+  ```text
   Get the display style to be used for this actor.  Typical values correspond to display code constants (such as poser.DisplayCodeWIREFRAME).
   <IntType> DisplayStyle()
+  ```
   """
   @spec display_style(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def display_style(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -334,8 +394,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.DropToFloor`
 
+  ```text
   Drop the actor downward (along the Y axis) until it touches the floor (Y==0).
   <NoneType> DropToFloor()
+  ```
   """
   @spec drop_to_floor(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def drop_to_floor(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -344,8 +406,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.EndPoint`
 
+  ```text
   Get the position of the endpoint of the actor.  Typically the endpoint is the origin of an object's child.  It's also a specified endpoint which is used for on screen interactions and potentially for IK relationships.  It also typically ends a line along the first rotation (twist) axis.
   (<FloatType> x, <FloatType> y, <FloatType> z) EndPoint()
+  ```
   """
   @spec end_point(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -355,8 +419,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.GeomFileName`
 
+  ```text
   Get the name of the geometry file used by this actor (if specified).
   <StringType> GeomFileName()
+  ```
   """
   @spec geom_file_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -366,8 +432,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Geometry`
 
+  ```text
   Get the geometry for the actor.  The returned geometry object can then be queried for vertex, set, or polygon information.
   <GeomType> Geometry()
+  ```
   """
   @spec geometry(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -377,8 +445,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.GetIdType`
 
+  ```text
   Return the exact type of this scene object.
   <IntType> GetIdType()
+  ```
   """
   @spec get_id_type(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def get_id_type(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -387,7 +457,9 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.GetLightIntensity`
 
+  ```text
   Gets the light intensity as a percent from 0.0 to 1.0
+  ```
   """
   @spec get_light_intensity(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -397,8 +469,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Gimbal`
 
+  ```text
   Get the gimbal information for the actor.  This method returns a tuple of tuples.  The first sub-tuple contains the gimbal order (e.g. (1, 2, 0) for Y, Z, X).  The second contains the parameters that correspond to the x, y, and z rotations respectively.
   ((<IntType>, <IntType>, <IntType>), (<ParmType>, <ParmType>, <ParmType>)) Gimbal()
+  ```
   """
   @spec gimbal(Poser.Handle.t(), keyword()) ::
           {:ok,
@@ -411,8 +485,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.HairGroup`
 
+  ```text
   Get the hair group specified by the index.
   <HairType> HairGroup(<IntType> index)
+  ```
   """
   @spec hair_group(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -422,8 +498,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.InternalName`
 
+  ```text
   Get the (internal) name for the scene object.  The specified string is a unique name ID internal to Poser.
   <StringType> InternalName()
+  ```
   """
   @spec internal_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -433,8 +511,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.InternalParameter`
 
+  ```text
   Get the named parameter object.  The string argument must be the internal parameter  name (e.g. "TranslationX").
   <ParmType> InternalParameter(<StringType> parmName)
+  ```
   """
   @spec internal_parameter(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -445,8 +525,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.IsBase`
 
+  ```text
   Return true only if scene object is a base.  Bases are targets of deformation for deformers such as magnets.
   <IntType> IsBase()
+  ```
   """
   @spec is_base(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_base(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -455,8 +537,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.IsBodyPart`
 
+  ```text
   Return true only if scene object is a body part.
   <IntType> IsBodyPart()
+  ```
   """
   @spec is_body_part(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_body_part(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -465,8 +549,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.IsCamera`
 
+  ```text
   Return true only if scene object is a camera.
   <IntType> IsCamera()
+  ```
   """
   @spec is_camera(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_camera(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -475,8 +561,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.IsControlProp`
 
+  ```text
   Returns if Actor is a Control Prop.
   <IntType> IsControlProp()
+  ```
   """
   @spec is_control_prop(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -486,8 +574,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.IsDeformer`
 
+  ```text
   Return true only if scene object is a deformer.
   <IntType> IsDeformer()
+  ```
   """
   @spec is_deformer(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_deformer(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -496,8 +586,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.IsFigure`
 
+  ```text
   Return true only if scene object is a figure.
   <IntType> IsFigure()
+  ```
   """
   @spec is_figure(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_figure(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -506,8 +598,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.IsHairProp`
 
+  ```text
   Return true only if scene object is a hair prop.
   <IntType> IsHairProp()
+  ```
   """
   @spec is_hair_prop(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_hair_prop(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -516,8 +610,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.IsLight`
 
+  ```text
   Return true only if scene object is a light.
   <IntType> IsLight()
+  ```
   """
   @spec is_light(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_light(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -526,8 +622,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.IsLocked`
 
+  ```text
   Query the lock state of the actor in the scene.  Returns 1 if actor is currently locked, and 0 if actor is not locked.
   <IntType> IsLocked()
+  ```
   """
   @spec is_locked(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_locked(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -536,8 +634,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.IsMeasurement`
 
+  ```text
   Return true only if scene object is a measurement.
   <IntType> IsMeasurement()
+  ```
   """
   @spec is_measurement(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -547,8 +647,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.IsParm`
 
+  ```text
   Return true only if scene object is a parameter.
   <IntType> IsParm()
+  ```
   """
   @spec is_parm(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_parm(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -557,8 +659,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.IsProp`
 
+  ```text
   Return true only if scene object is a prop.
   <IntType> IsProp()
+  ```
   """
   @spec is_prop(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_prop(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -567,8 +671,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.IsPropInstance`
 
+  ```text
   Return true only if scene object is a prop instance.
   <IntType> IsPropInstance()
+  ```
   """
   @spec is_prop_instance(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -578,8 +684,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.IsZone`
 
+  ```text
   Return true only if scene object is a zone.  Zones are regions acted upon by deformers such as magnets.
   <IntType> IsZone()
+  ```
   """
   @spec is_zone(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_zone(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -588,8 +696,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ItsFigure`
 
+  ```text
   Get the figure of which this actor is a part.  Return value is a figure object.
   <FigureType> ItsFigure()
+  ```
   """
   @spec its_figure(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -599,8 +709,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.JointVertexWeights`
 
+  ```text
   Get a list of vertex weights for the specified joint axis on this actor. Axis argument should be 'x', 'y', or 'z'. If no such joint is present, the method will return None.
   <FloatType list> JointVertexWeights(<StringType> axis)
+  ```
   """
   @spec joint_vertex_weights(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, [float()]} | {:error, Poser.Error.t()}
@@ -610,8 +722,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.LightAttenType`
 
+  ```text
   Get the falloff type of the light (if this actor is a light). Possible falloff types are poser.kLightCodePOSER and poser.kLightCodeINVSQUAREFALLOFF.
   <IntType> LightAttenType()
+  ```
   """
   @spec light_atten_type(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -621,8 +735,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.LightOn`
 
+  ```text
   Query whether this light (if this actor is an image light) is On.
   <IntType> LightOn()
+  ```
   """
   @spec light_on(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def light_on(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -631,8 +747,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.LightPreview`
 
+  ```text
   Query whether this light is a preview/work light.
   <IntType> LightPreview()
+  ```
   """
   @spec light_preview(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def light_preview(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -641,8 +759,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.LightType`
 
+  ```text
   Get the type of the light (if this actor is a light). Possible light types are infinite (0), spot(1), point(2), image(3).
   <IntType> LightType()
+  ```
   """
   @spec light_type(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def light_type(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -651,8 +771,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.LoadMaterialCollection`
 
+  ```text
   Load a material collection for this actor.
   <NoneType> LoadMaterialCollection(<StringType> FileName)
+  ```
   """
   @spec load_material_collection(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -663,8 +785,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.LoadMorphTargetFile`
 
+  ```text
   Load the morph target to the actor.
    <NoneType>LoadMorphTargetFile(<StringType> FileName)
+  ```
   """
   @spec load_morph_target_file(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -675,8 +799,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.LocalDisplacement`
 
+  ```text
   Get a tuple comprising the  local displacement for this actor.
   (<FloatType> tx, <FloatType> ty, <FloatType> tz ) LocalDisplacement()
+  ```
   """
   @spec local_displacement(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -686,8 +812,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.LocalMatrix`
 
+  ```text
   Get the local matrix for the actor.  The local matrix is the matrix which describes the model's relative relationship to it's parent in the hierarchy.  Thus the final world matrix of an object is made by concatenating it's parent's world matrix with it's local matrix to produce it's world matrix.
   <FloatType 4x4 Tuple> LocalMatrix()
+  ```
   """
   @spec local_matrix(Poser.Handle.t(), keyword()) :: {:ok, tuple()} | {:error, Poser.Error.t()}
   def local_matrix(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -696,8 +824,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.LocalQuaternion`
 
+  ```text
   Get a tuple comprising the quaternion local rotation for this actor.
   (<FloatType> qw, <FloatType> qx, <FloatType> qy, <FloatType> qz ) LocalQuaternion()
+  ```
   """
   @spec local_quaternion(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -707,8 +837,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.MagnetAffectedObjects`
 
+  ```text
   Get a list of affected objects for a magnet.
   <ActorType list> MagnetAffectedObjects()
+  ```
   """
   @spec magnet_affected_objects(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -718,8 +850,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.MagnetUsesWeightMap`
 
+  ```text
   Return status of use of weight map on a magnet.
   <IntType> MagnetUsesWeightMap()
+  ```
   """
   @spec magnet_uses_weight_map(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -729,8 +863,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.MarkGeomChanged`
 
+  ```text
   Sets internal flag on actor noting that the geom has been changed.  Should be called after geometry changes so they will be stored properly.
   <NoneType> MarkGeomChanged()
+  ```
   """
   @spec mark_geom_changed(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def mark_geom_changed(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -739,8 +875,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.MatchCentersToFBM`
 
+  ```text
   Adjust the centers of the actors provided to match the full body morph specified.
   <NoneType> MatchCentersToFBM(<StringType> name, <BoolType> checkDependencies, <TupleType> actorList)
+  ```
   """
   @spec match_centers_to_fbm(Poser.Handle.t(), String.t(), boolean(), tuple(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -764,8 +902,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Material`
 
+  ```text
   Get a material object by its name.  String argument should typically be a name displayed in the Poser GUI material pulldown menu (e.g. "skin").  The call searches all materials available to this actor.
   <MaterialType> Material(<StringType> name)
+  ```
   """
   @spec material(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -775,8 +915,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Materials`
 
+  ```text
   Get a list of the materials available to the actor.  Note that these materials may actually belong to a parent figure.
   <MaterialType List> Materials()
+  ```
   """
   @spec materials(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -786,8 +928,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.MeasurementValue`
 
+  ```text
   Get the value for a measurement (if this actor is a measurement).
   <StringType> MeasurementValue()
+  ```
   """
   @spec measurement_value(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -797,8 +941,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Memorize`
 
+  ```text
   Set the actor's default parameter values to the current values so that the actor can be reset later (See actor.Reset()).
   <NoneType> Memorize()
+  ```
   """
   @spec memorize(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def memorize(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -807,8 +953,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.MirrorMagnetWeights`
 
+  ```text
   Mirrors the weights of a magnet to another (or same) magnet along the specified axis 0,1,2.
   <NoneType> MirrorMagnetWeights(<ActorType> destinationMagnetActor, <IntType> axis)
+  ```
   """
   @spec mirror_magnet_weights(Poser.Handle.t(), Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -831,8 +979,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Name`
 
+  ```text
   Get the (external) name for the scene object.  The specified name is the same one seen in Poser's GUI pulldown menus.
   <StringType> Name()
+  ```
   """
   @spec name(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def name(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -841,8 +991,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.NextKeyFrame`
 
+  ```text
   Get the next frame in which the actor has a keyframe set.
   <IntType> NextKeyFrame()
+  ```
   """
   @spec next_key_frame(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -852,8 +1004,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.NumHairGroups`
 
+  ```text
   Returns the number of hair groups.
   <IntType> NumHairGroups()
+  ```
   """
   @spec num_hair_groups(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -863,8 +1017,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.NumbSubdivLevels`
 
+  ```text
   Get the number of subdivision levels for this actor.
    <IntType> NumbSubdivLevels()
+  ```
   """
   @spec numb_subdiv_levels(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -874,8 +1030,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.NumbSubdivRenderLevels`
 
+  ```text
   Get the number of subdivision levels for this actor.
    <IntType> NumbSubdivRenderLevels()
+  ```
   """
   @spec numb_subdiv_render_levels(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -885,8 +1043,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.OnOff`
 
+  ```text
   This method is deprecated. Use Visible() instead.
   <IntType> OnOff()
+  ```
   """
   @spec on_off(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def on_off(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -895,8 +1055,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Orientation`
 
+  ```text
   Get the orientation of the coordinate system of the actor (x,y,z ordered rotation).
   (<FloatType> x, <FloatType> y, <FloatType> z) Orientation()
+  ```
   """
   @spec orientation(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -906,8 +1068,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Origin`
 
+  ```text
   Get the position of the origin of the actor in world space.
   (<FloatType> x, <FloatType> y, <FloatType> z) Origin()
+  ```
   """
   @spec origin(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -917,8 +1081,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Parameter`
 
+  ```text
   Get the named parameter object.  The string argument is the external, or internal, parmameter name (e.g. "TranslationX").
   <ParmType> Parameter(<StringType> parmName)
+  ```
   """
   @spec parameter(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -928,8 +1094,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ParameterByCode`
 
+  ```text
   Get the first parameter object matching the given code. Typical code values are constants defined as poser member variables (such as poser.ParmCodeXTRAN).
   <ParmType> ParameterByCode(<IntType> parmCode)
+  ```
   """
   @spec parameter_by_code(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -939,8 +1107,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Parameters`
 
+  ```text
   Get the settable parameters for the actor.  Return value is a list of parameter objects such as those depicted in Poser's GUI dials (e.g. "TranslationX").
   <ParmType List> Parameters()
+  ```
   """
   @spec parameters(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -950,8 +1120,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Parent`
 
+  ```text
   Get the actor which is the parent of this actor.
   <ActorType> Parent()
+  ```
   """
   @spec parent(Poser.Handle.t(), keyword()) :: {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
   def parent(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -960,8 +1132,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.PointAt`
 
+  ```text
   Set the target actor for this actor to point towards.
   <NoneType> PointAt(<ActorType> target)
+  ```
   """
   @spec point_at(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -971,8 +1145,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.PrevKeyFrame`
 
+  ```text
   Get the most recent previous frame in which the actor has a keyframe set.
   <IntType> PrevKeyFrame()
+  ```
   """
   @spec prev_key_frame(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -982,8 +1158,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.RayTraceShadows`
 
+  ```text
   Query whether this light (if this actor is a light) is using RayTracing for shadows.
   <IntType> RayTraceShadows()
+  ```
   """
   @spec ray_trace_shadows(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -993,8 +1171,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.RemoveValueParameter`
 
+  ```text
   Remove a value parameter from the actor.  Such parameters are not linked to Poser figures, props, etc., but can instead be used to provide UI control over Python scripts.
   <NoneType> RemoveValueParameter(<StringType> valueParmName)
+  ```
   """
   @spec remove_value_parameter(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1005,8 +1185,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Reset`
 
+  ```text
   Reset the actor to its default, or last memorized, values (See actor.Memorize()).
   <NoneType> Reset()
+  ```
   """
   @spec reset(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def reset(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1015,8 +1197,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Restore`
 
+  ```text
   Restore this actor.
    <NoneType> Restore()
+  ```
   """
   @spec restore(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def restore(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1025,8 +1209,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SaveMaterialCollection`
 
+  ```text
   Save the material collection of this actor. Note that only selected materials will be included. See Material.SetSelected() and Material.Selected().
   <NoneType> SaveMaterialCollection(<StringType> FileName)
+  ```
   """
   @spec save_material_collection(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1037,8 +1223,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ScaleMatrix`
 
+  ```text
   Get the scale matrix for the actor.  
   <FloatType 4x4 Tuple> ScaleMatrix()
+  ```
   """
   @spec scale_matrix(Poser.Handle.t(), keyword()) :: {:ok, tuple()} | {:error, Poser.Error.t()}
   def scale_matrix(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1047,8 +1235,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetAlignmentRotationXYZ`
 
+  ```text
   Get a tuple comprising the ordered rotation alignment for this actor.  (Order is x,y,z).
   <NoneType> SetAlignmentRotationXYZ(<FloatType> Rx, <FloatType> Ry, <FloatType> Rz )
+  ```
   """
   @spec set_alignment_rotation_xyz(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1059,8 +1249,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetAmbientOcclusion`
 
+  ```text
   Set whether this light (if this actor is an image light) is using ambient occlusion.
   <NoneType> SetAmbientOcclusion(<IntType> ambientocclusion)
+  ```
   """
   @spec set_ambient_occlusion(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1071,8 +1263,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetAmbientOcclusionBias`
 
+  ```text
   Set the ambient occlusion bias of this light (if this actor is an image light).
   <NoneType> SetAmbientOcclusionBias(<FloatType> bias)
+  ```
   """
   @spec set_ambient_occlusion_bias(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1083,8 +1277,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetAmbientOcclusionDistance`
 
+  ```text
   Set the ambient occlusion maximum distance of this light (if this actor is an image light).
   <NoneType> SetAmbientOcclusionDistance(<FloatType> dist)
+  ```
   """
   @spec set_ambient_occlusion_distance(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1095,8 +1291,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetAmbientOcclusionStrength`
 
+  ```text
   Set the ambient occlusion strength of this light (if this actor is an image light).
   <NoneType> SetAmbientOcclusionStrength(<FloatType> strength)
+  ```
   """
   @spec set_ambient_occlusion_strength(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1107,8 +1305,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetAnimatableOrigin`
 
+  ```text
   Set whether this actor's origins can be animated.  Set to 1 if the origins can be animated, and 0 if they cannot.
   <NoneType> SetAnimatableOrigin(<IntType> animatable)
+  ```
   """
   @spec set_animatable_origin(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1119,8 +1319,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetAtmosphereStrength`
 
+  ```text
   Set the atmosphere strength for this light (if this actor is a light).
   <NoneType> SetAtmosphereStrength(<FloatType> Strength)
+  ```
   """
   @spec set_atmosphere_strength(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1131,8 +1333,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetBackfaceCull`
 
+  ```text
   Set the actor's backface culling flag.
   <NoneType> SetBackfaceCull(<IntType> BackfaceCull)
+  ```
   """
   @spec set_backface_cull(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1143,8 +1347,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetBends`
 
+  ```text
   Set the actor's bend flag.
   <NoneType> SetBends({<IntType> bends=1})
+  ```
   """
   @spec set_bends(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_bends(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1153,8 +1359,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetCastsShadows`
 
+  ```text
   Set whether this actor casts shadows.
   <NoneType> SetCastsShadows(<IntType> Cast)
+  ```
   """
   @spec set_casts_shadows(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1164,8 +1372,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetCreaseAngle`
 
+  ```text
   Set the actor's crease angle.
   <NoneType> SetCreaseAngle(<FloatType> angle)
+  ```
   """
   @spec set_crease_angle(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1175,8 +1385,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetCustomData`
 
+  ```text
   Set custom data associated with this actor. This data will always be saved with a scene file. The additional flags can be set to 1 to make this data also be included in material sets and/or poses.
    <NoneType> SetCustomData(<StringType> key, <object> value, <IntType> saveWithPose, <IntType> saveWithMaterial)
+  ```
   """
   @spec set_custom_data(Poser.Handle.t(), String.t(), term(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1201,8 +1413,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetDisplacementBounds`
 
+  ```text
   Set the actor's displacement bounds.
   <NoneType> SetDisplacementBounds(<IntType> Bounds)
+  ```
   """
   @spec set_displacement_bounds(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1213,8 +1427,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetDisplayOrigin`
 
+  ```text
   Set if the origin of this actor should be visible in the preview.
    <NoneType> SetDisplayOrigin(<IntType> display)
+  ```
   """
   @spec set_display_origin(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1224,8 +1440,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetDisplayStyle`
 
+  ```text
   Set the display style to be used for this actor.  Typical display code constants are defined as poser member variables (such as poser.DisplayCodeWIREFRAME).
   <NoneType> SetDisplayStyle(<IntType> displayCode)
+  ```
   """
   @spec set_display_style(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1236,8 +1454,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetEndPoint`
 
+  ```text
   Set the position of the endpoint of the actor.  Typically the endpoint is the origin of an object's child.  It's also a specified endpoint which is used for on screen interactions and potentially for IK relationships.  It also typically ends a line along the first rotation (twist) axis.
   <NoneType> SetEndPoint(<FloatType> x, <FloatType> y, <FloatType> z)
+  ```
   """
   @spec set_end_point(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1247,8 +1467,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetGeometry`
 
+  ```text
   Set the geometry for the actor.  Actor then takes on the appearance of the given geometry.  Valid geometry objects can be taken from other actors or created from scratch with poser.NewGeometry().
   <NoneType> SetGeometry(<GeomType> geometry)
+  ```
   """
   @spec set_geometry(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1258,8 +1480,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetGimbal`
 
+  ```text
   Set a gimbal for this actor.
    <GimbalErrorType> SetGimbal(<LongType> g1, <LongType> g2, <LongType> g3, <BoolType> makeJoint, <BoolType> useCurve). <GimbalErrorType> can be: kGimbalChangeOk, kGimbalChangedTwist, kGimbalNoChange, or kGimbalMissingRots
+  ```
   """
   @spec set_gimbal(
           Poser.Handle.t(),
@@ -1278,8 +1502,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetIncludeInBoundingBox`
 
+  ```text
   Set to determine inclusion in scene bounding box calculations.  Default argument is set to 1, specifying that the actor should be included.  Argument should be set to 0 to exclude actor.
   <NoneType> SetIncludeInBoundingBox({<IntType> on = 1})
+  ```
   """
   @spec set_include_in_bounding_box(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1290,8 +1516,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetInternalParameter`
 
+  ```text
   Set the current value of the parameter.  The string argument must be the internal parameter  name (e.g. "TranslationX").
   <NoneType> SetInternalParameter(<StringType> parmName, <FloatType> value)
+  ```
   """
   @spec set_internal_parameter(Poser.Handle.t(), String.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1302,8 +1530,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetLightAttenType`
 
+  ```text
   Set the falloff type of the light to a specified value.  Typical values are constant light falloff codes defined as poser member variables such as poser.kLightCodeINVSQUAREFALLOFF.
   <NoneType> SetLightAttenType(<IntType> lightAttenTypeCode)
+  ```
   """
   @spec set_light_atten_type(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1314,7 +1544,9 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetLightIntensity`
 
+  ```text
   Set the intensity of the light to a specified value. 0.0 to 1.0 = 0 to 100%
+  ```
   """
   @spec set_light_intensity(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1325,8 +1557,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetLightOn`
 
+  ```text
   Set whether this light (if this actor is an image light) is On.
   <NoneType> SetLightOn(<IntType> lightOn)
+  ```
   """
   @spec set_light_on(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1336,8 +1570,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetLightPreview`
 
+  ```text
   Set whether this light is a p[review/working light.
   <NoneType> SetLightPreview(<IntType> lightPreview)
+  ```
   """
   @spec set_light_preview(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1348,8 +1584,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetLightType`
 
+  ```text
   Set the type of the light to a specified value.  Typical values are constant light codes defined as poser member variables such as poser.LightCodeINFINITE.
   <NoneType> SetLightType(<IntType> lightTypeCode)
+  ```
   """
   @spec set_light_type(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1360,8 +1598,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetLocked`
 
+  ```text
   Set the lock state the actor in the scene.  Argument should be set to 1 to lock the actor and 0 to unlock the actor.
   <NoneType> SetLocked(<IntType> locked)
+  ```
   """
   @spec set_locked(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1371,8 +1611,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetMagnetAffectedObjects`
 
+  ```text
   Set the list of affected objects for a magnet.
   <NoneType> SetMagnetAffectedObjects(<ActorType list> newAffectedObjects)
+  ```
   """
   @spec set_magnet_affected_objects(Poser.Handle.t(), [Poser.Handle.t()], keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1387,8 +1629,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetMagnetUsesWeightMap`
 
+  ```text
   Turn on or off use of weightmap on Magnet zone.
   <NoneType> SetMagnetUsesWeightMap(<IntType> 0 or 1)
+  ```
   """
   @spec set_magnet_uses_weight_map(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1399,8 +1643,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetName`
 
+  ```text
   Set the (external) name for the scene object.  
   <NoneType> SetName(<StringType>)
+  ```
   """
   @spec set_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1410,8 +1656,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetNumbSubdivLevels`
 
+  ```text
   Set the number of subdivision levels for this actor.
    <NoneType> SetNumbSubdivLevels(<IntType>)
+  ```
   """
   @spec set_numb_subdiv_levels(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1421,8 +1669,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetNumbSubdivRenderLevels`
 
+  ```text
   Set the number of subdivision levels for this actor.
    <NoneType> SetNumbSubdivRenderLevels(<IntType>)
+  ```
   """
   @spec set_numb_subdiv_render_levels(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1433,8 +1683,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetOnOff`
 
+  ```text
   This method is deprecated. Use SetVisible() instead.
   <NoneType> SetOnOff(<IntType> on)
+  ```
   """
   @spec set_on_off(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1444,8 +1696,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetOrientation`
 
+  ```text
   Set the orientation of the coordinate system of the actor (x,y,z ordered rotation).
   <NoneType> SetOrientation(<FloatType> x, <FloatType> y, <FloatType> z)
+  ```
   """
   @spec set_orientation(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1455,8 +1709,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetOrigin`
 
+  ```text
   Set the position of the origin of the actor in world space.
   <NoneType> SetOrigin(<FloatType> x, <FloatType> y, <FloatType> z)
+  ```
   """
   @spec set_origin(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1466,8 +1722,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetParameter`
 
+  ```text
   Set the current value of the parameter.  The string argument is the external, or internal, parmameter name (e.g. "TranslationX").
   <NoneType> SetParameter(<StringType> parmName, <FloatType> value)
+  ```
   """
   @spec set_parameter(Poser.Handle.t(), String.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1478,8 +1736,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetParent`
 
+  ```text
   Set the actor which will become the parent of this actor.  If inheritBends is 1, this actor will acquire the bend parameters of the parent. If realign is 1, this actor will be realigned to the local space of the parent. 
   <NoneType> SetParent(<ActorType> newParent, {<IntType> inheritBends = 0, <IntType> realign = 0})
+  ```
   """
   @spec set_parent(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1496,8 +1756,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetRangeConstant`
 
+  ```text
   Set the given frame range to have constant (step) interpolation between key frames  for all parms of this actor.  Note: automatically sets key frames at start and end of specified range.
   <NoneType> SetRangeConstant(<IntType> startFrame, <IntType> endFrame)
+  ```
   """
   @spec set_range_constant(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1508,8 +1770,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetRangeLinear`
 
+  ```text
   Set the given frame range to have linear interpolation between key frames  for all parms of this actor.  Note: automatically sets key frames at start and end of specified range.
   <NoneType> SetRangeLinear(<IntType> startFrame, <IntType> endFrame)
+  ```
   """
   @spec set_range_linear(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1520,8 +1784,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetRangeSpline`
 
+  ```text
   Set the given frame range to have spline interpolation between key frames for all parms of this actor.  Note: automatically sets key frames at start and end of specified range.
   <NoneType> SetRangeSpline(<IntType> startFrame, <IntType> endFrame)
+  ```
   """
   @spec set_range_spline(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1532,8 +1798,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetRayTraceShadows`
 
+  ```text
   Set whether this light (if this actor is a light) is using ray tracing for shadows.
   <NoneType> SetRayTraceShadows(<IntType> RayTraceShadows)
+  ```
   """
   @spec set_ray_trace_shadows(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1544,8 +1812,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetShadingRate`
 
+  ```text
   Set the actor's shading rate.
   <NoneType> SetShadingRate(<IntType> ShadingRate)
+  ```
   """
   @spec set_shading_rate(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1556,8 +1826,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetShadow`
 
+  ```text
   Set whether this light (if this actor is an image light) is producing shadows.
   <NoneType> SetShadow(<IntType> shadow)
+  ```
   """
   @spec set_shadow(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1567,8 +1839,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetShadowBiasMax`
 
+  ```text
   Set the max shadow bias for depth map shadows on this light (if this actor is a light).
   <NoneType> SetShadowBiasMax(<IntType> ShadowBiasMax)
+  ```
   """
   @spec set_shadow_bias_max(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1579,8 +1853,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetShadowBiasMin`
 
+  ```text
   Set the min shadow bias for depth map shadows on this light (if this actor is a light).
   <NoneType> SetShadowBiasMin(<IntType> ShadowBiasMin)
+  ```
   """
   @spec set_shadow_bias_min(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1591,8 +1867,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetShadowBlurRadius`
 
+  ```text
   Set the shadow map blur radius for this light (if this actor is a light).
   <NoneType> SetShadowBlurRadius(<IntType> Radius)
+  ```
   """
   @spec set_shadow_blur_radius(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1602,8 +1880,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetShadowRaytraceSoftness`
 
+  ```text
   Set the softness of raytraced shadow for this light (if this actor is a light and using raytraced shadows).
   <NoneType> SetShadowRaytraceSoftness(<FloatType> softness)
+  ```
   """
   @spec set_shadow_raytrace_softness(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1614,8 +1894,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetShadowSamples`
 
+  ```text
   Set the number of shadow rays for this light (if this actor is a light and using raytraced shadows).
   <NoneType> SetShadowSamples(<IntType> samples)
+  ```
   """
   @spec set_shadow_samples(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1625,8 +1907,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetSmoothPolys`
 
+  ```text
   Set whether polygons smoothing is enabled for this actor.
   <NoneType> SetSmoothPolys(<IntType> Smooth)
+  ```
   """
   @spec set_smooth_polys(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1636,8 +1920,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetSplineBreak`
 
+  ```text
   Break spline interpolation at the given frame  for all parms of this actor.  If the frame is not a key frame, no action will be taken.  If no frame is specified, the default frame is the current frame. A broken spline can be un-broken by passing a 0 as the second argument to this method.
   <NoneType> SetSplineBreak({<IntType> frame, <IntType> on})
+  ```
   """
   @spec set_spline_break(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_spline_break(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1646,8 +1932,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetStatic`
 
+  ```text
   Set the status of static parameters on the actor.  Argument defaults to 1, specifying that the actor's parameters are static and will not change during animation. To specify non-static parameters, this function should be called with a 0 argument.
   <NoneType> SetStatic(<IntType> on = 1)
+  ```
   """
   @spec set_static(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1657,8 +1945,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetSubdivideWithFigure`
 
+  ```text
   Set the number of subdivision levels for this actor.
    <NoneType> SetSubdivideWithFigure(<IntType>)
+  ```
   """
   @spec set_subdivide_with_figure(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1669,8 +1959,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetVisible`
 
+  ```text
   Set the display status of the actor in the scene.  Argument should be set to 1 to display the actor and 0 to turn actor display off.
   <NoneType> SetVisible(<IntType> visible)
+  ```
   """
   @spec set_visible(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1680,8 +1972,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetVisibleInCamera`
 
+  ```text
   Set whether this actor is visible for the camera.
   <NoneType> SetVisibleInCamera(<IntType> Visible)
+  ```
   """
   @spec set_visible_in_camera(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1691,8 +1985,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetVisibleInIDL`
 
+  ```text
   Set whether this actor casts indirect light.
   <NoneType> SetVisibleInIDL(<IntType> Visible)
+  ```
   """
   @spec set_visible_in_idl(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1702,8 +1998,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetVisibleInReflections`
 
+  ```text
   Set whether this actor is visible in reflections.
   <NoneType> SetVisibleInReflections(<IntType> Visible)
+  ```
   """
   @spec set_visible_in_reflections(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1714,8 +2012,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetVisibleInRender`
 
+  ```text
   Set whether this actor is visible in renders.
   <NoneType> SetVisibleInRender(<IntType> Visible)
+  ```
   """
   @spec set_visible_in_render(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1725,8 +2025,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SetZoneVertexWeights`
 
+  ```text
   Set the list of vertex weights for a magnet zone for the specified affected object.
   <NoneType> SetZoneVertexWeights(<ActorType> affectedObject), <FloatType list> newWeights)
+  ```
   """
   @spec set_zone_vertex_weights(Poser.Handle.t(), Poser.Handle.t(), [number()], keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1749,8 +2051,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ShadingRate`
 
+  ```text
   Get the actor's shading rate.
   <IntType> ShadingRate()
+  ```
   """
   @spec shading_rate(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def shading_rate(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1759,8 +2063,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Shadow`
 
+  ```text
   Query whether this light (if this actor is an image light) is producing shadows.
   <IntType> Shadow()
+  ```
   """
   @spec shadow(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def shadow(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1769,8 +2075,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ShadowBiasMax`
 
+  ```text
   Get the max shadow bias for depth map shadows on this light (if this actor is a light).
   <IntType> ShadowBiasMax()
+  ```
   """
   @spec shadow_bias_max(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1780,8 +2088,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ShadowBiasMin`
 
+  ```text
   Get the min shadow bias for depth map shadows on this light (if this actor is a light).
   <IntType> ShadowBiasMin()
+  ```
   """
   @spec shadow_bias_min(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1791,8 +2101,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ShadowBlurRadius`
 
+  ```text
   Get the shadow map blur radius for this light (if this actor is a light).
   <IntType> ShadowBlurRadius()
+  ```
   """
   @spec shadow_blur_radius(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1802,8 +2114,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ShadowRaytraceSoftness`
 
+  ```text
   Get the softness of raytraced shadow for this light (if this actor is a light and using raytraced shadows).
   <FloatType> ShadowRaytraceSoftness()
+  ```
   """
   @spec shadow_raytrace_softness(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -1813,8 +2127,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ShadowSamples`
 
+  ```text
   Get the number of shadow rays for this light (if this actor is a light and using raytraced shadows).
   <IntType> ShadowSamples()
+  ```
   """
   @spec shadow_samples(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1824,8 +2140,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SmoothPolys`
 
+  ```text
   Query whether polygon smoothing is enabled for this actor.
   <IntType> SmoothPolys()
+  ```
   """
   @spec smooth_polys(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def smooth_polys(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1834,8 +2152,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SpawnTarget`
 
+  ```text
   Creates a new morph channel on the object using the current state of the verts.
   <NoneType> SpawnTarget(<StringType> label)
+  ```
   """
   @spec spawn_target(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1845,8 +2165,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SpawnTargetFromGeometry`
 
+  ```text
   Creates a new morph channel on the object using a geometry.
   <NoneType> SpawnTargetFromGeometry(<GeomType> geometry, <StringType> label)
+  ```
   """
   @spec spawn_target_from_geometry(Poser.Handle.t(), Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -1857,8 +2179,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Static`
 
+  ```text
   Get the status of static parameters on the actor.  A return value of 1 means that the actor has static parameters, while a return value of 0 means that the parameters are not static.
   <IntType> Static()
+  ```
   """
   @spec static(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def static(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1867,8 +2191,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SubdivGeometry`
 
+  ```text
   Get the subdivided geometry for the actor. The returned geometry object can then be queried for vertex, set, or polygon information. The number of subdivisons can be passed as an optional paraemter - if the parameter is missing or negative, the geometry will be subdivided to NumbSubdivRenderLevels(). It is a copy of the geometry, any changes to it will not affect the actor. This method works only on props, for body parts you have to use the SubdivGeometry() method of the figure object.
   <GeomType> SubdivGeometry({<IntType> levels})
+  ```
   """
   @spec subdiv_geometry(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -1878,8 +2204,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.SubdivideWithFigure`
 
+  ```text
   Get the number of subdivision levels for this actor.
    <IntType> SubdivideWithFigure()
+  ```
   """
   @spec subdivide_with_figure(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1889,8 +2217,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.TwistVertexWeights`
 
+  ```text
   Get a list of vertex weights for the specified twist axis on this actor. Axis argument should be 'x', 'y', or 'z'. If no such joint is present, the method will return None.
   <FloatType list> TwistVertexWeights(<StringType> axis)
+  ```
   """
   @spec twist_vertex_weights(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, [float()]} | {:error, Poser.Error.t()}
@@ -1900,8 +2230,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ValueParameter`
 
+  ```text
   Get a value parameter from the actor.  Such parameters are not linked to Poser figures, props, etc., but can instead be used to provide UI control over Python scripts.
   <ParmType> ValueParameter(<StringType> valueParmName)
+  ```
   """
   @spec value_parameter(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -1912,8 +2244,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ValueParameters`
 
+  ```text
   Get a list of value parameters of the actor.  Such parameters are not linked to Poser figures, props, etc., but can instead be used to provide UI control over Python scripts.
   <ParmType List> ValueParameters()
+  ```
   """
   @spec value_parameters(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -1923,8 +2257,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Visible`
 
+  ```text
   Query the display status of the actor in the scene.  Returns 1 if actor is currently displayed, and 0 if actor is not currently displayed.
   <IntType> Visible()
+  ```
   """
   @spec visible(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def visible(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -1933,8 +2269,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.VisibleInCamera`
 
+  ```text
   Query whether this actor is visible for the camera.
   <IntType> VisibleInCamera()
+  ```
   """
   @spec visible_in_camera(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1944,8 +2282,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.VisibleInIDL`
 
+  ```text
   Query whether this actor casts indirect light.
   <IntType> VisibleInIDL()
+  ```
   """
   @spec visible_in_idl(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1955,8 +2295,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.VisibleInReflections`
 
+  ```text
   Query whether this actor is visible in reflections.
   <IntType> VisibleInReflections()
+  ```
   """
   @spec visible_in_reflections(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1966,8 +2308,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.VisibleInRender`
 
+  ```text
   Query whether this actor is visible in renders.
   <IntType> VisibleInRender()
+  ```
   """
   @spec visible_in_render(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -1977,8 +2321,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.WeldGoalActors`
 
+  ```text
   Get a list of actors which are welded to this one.  Weld goal actors share edge vertices with this actor and are used to allow for geometric continuity when limbs bend.
   <ActorType List> WeldGoalActors()
+  ```
   """
   @spec weld_goal_actors(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -1988,8 +2334,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.WeldGoals`
 
+  ```text
   Get a list of vertex index lists that specify the weld goals for this actor.  Each vertex index list corresponds to a weld goal actor with the same index.  And each such list is composed of vertex indices into that weld goal actor's geometry.  Each index list contains as many indices as the geometry of this actor contains vertices, but list items corresponding to vertices with no weld goals are filled with -1's.
   <List of IntType Lists> WeldGoals()
+  ```
   """
   @spec weld_goals(Poser.Handle.t(), keyword()) ::
           {:ok, [[integer()]]} | {:error, Poser.Error.t()}
@@ -1999,8 +2347,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.WorldDisplacement`
 
+  ```text
   Get a tuple comprising the  World displacement for this actor.
   (<FloatType> tx, <FloatType> ty, <FloatType> tz ) WorldDisplacement()
+  ```
   """
   @spec world_displacement(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -2010,8 +2360,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.WorldMatrix`
 
+  ```text
   Get the world matrix for the actor.  The world matrix is the final complete matrix which transforms geometry from its original model space to its final world space.
   <FloatType 4x4 Tuple> WorldMatrix()
+  ```
   """
   @spec world_matrix(Poser.Handle.t(), keyword()) :: {:ok, tuple()} | {:error, Poser.Error.t()}
   def world_matrix(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -2020,8 +2372,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.WorldQuaternion`
 
+  ```text
   Get a tuple comprising the quaternion local rotation for this actor.
   (<FloatType> qw, <FloatType> qx, <FloatType> qy, <FloatType> qz ) WorldQuaternion()
+  ```
   """
   @spec world_quaternion(Poser.Handle.t(), keyword()) ::
           {:ok, {float(), float(), float(), float()}} | {:error, Poser.Error.t()}
@@ -2031,8 +2385,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ZeroMorphs`
 
+  ```text
   Get a list of zero morphs. 
   <StringType list> ZeroMorphs()
+  ```
   """
   @spec zero_morphs(Poser.Handle.t(), keyword()) ::
           {:ok, [String.t()]} | {:error, Poser.Error.t()}
@@ -2042,8 +2398,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.ZoneVertexWeights`
 
+  ```text
   Get a list of vertex weights for a magnet zone for the specified affected object.  If the zone does not use weights, the method will return None.
   <FloatType list> ZoneVertexWeights(<ActorType> affectedObject)
+  ```
   """
   @spec zone_vertex_weights(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, [float()]} | {:error, Poser.Error.t()}
@@ -2054,8 +2412,10 @@ defmodule Poser.Api.ActorType do
   @doc ~S"""
   Python: `ActorType.Zones`
 
+  ```text
   If the actor is a deformer, this returns its list of Zones.
   <ActorType List> Zones()
+  ```
   """
   @spec zones(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}

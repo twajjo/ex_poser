@@ -11,8 +11,10 @@ defmodule Poser.Api.ShaderTreeType do
   @doc ~S"""
   Python: `ShaderTreeType.AttachTreeNodes`
 
+  ```text
   Connect a ShaderNode's output to another ShaderNode's input.
   <NoneType> AttachTreeNodes(<ShaderNodeType> node1, <StringType> parameter, <ShaderNodeType> node2)
+  ```
   """
   @spec attach_tree_nodes(
           Poser.Handle.t(),
@@ -29,8 +31,10 @@ defmodule Poser.Api.ShaderTreeType do
   @doc ~S"""
   Python: `ShaderTreeType.CreateNode`
 
+  ```text
   Create a new ShaderNode.
   <ShaderNodeType> CreateNode(<StringType> type)
+  ```
   """
   @spec create_node(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -40,8 +44,10 @@ defmodule Poser.Api.ShaderTreeType do
   @doc ~S"""
   Python: `ShaderTreeType.DeleteNode`
 
+  ```text
   Delete a node from the ShaderTree.
   <NoneType> DeleteNode(<ShaderNodeType> node)
+  ```
   """
   @spec delete_node(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -51,8 +57,10 @@ defmodule Poser.Api.ShaderTreeType do
   @doc ~S"""
   Python: `ShaderTreeType.DetachTreeNode`
 
+  ```text
   Detach a node's input.
   <NoneType> DetachTreeNode(<ShaderNodeType> node, <StringType> parameter)
+  ```
   """
   @spec detach_tree_node(Poser.Handle.t(), Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -63,8 +71,10 @@ defmodule Poser.Api.ShaderTreeType do
   @doc ~S"""
   Python: `ShaderTreeType.Node`
 
+  ```text
   Get the node number i in this ShaderTree.
   <ShaderNodeType> Node(<IntType> i)
+  ```
   """
   @spec node(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -74,8 +84,10 @@ defmodule Poser.Api.ShaderTreeType do
   @doc ~S"""
   Python: `ShaderTreeType.NodeByInternalName`
 
+  ```text
   Get a ShaderNode by its internal name.
   <ShaderNodeType> NodeByInternalName(<StringType>name)
+  ```
   """
   @spec node_by_internal_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -85,8 +97,10 @@ defmodule Poser.Api.ShaderTreeType do
   @doc ~S"""
   Python: `ShaderTreeType.Nodes`
 
+  ```text
   Get a list of all nodes in this ShaderTree.
   <ListType> Nodes()
+  ```
   """
   @spec nodes(Poser.Handle.t(), keyword()) :: {:ok, list()} | {:error, Poser.Error.t()}
   def nodes(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -95,8 +109,10 @@ defmodule Poser.Api.ShaderTreeType do
   @doc ~S"""
   Python: `ShaderTreeType.NumNodes`
 
+  ```text
   Get the number of nodes in this ShaderTree.
   <IntType> NumNodes()
+  ```
   """
   @spec num_nodes(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_nodes(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -105,9 +121,11 @@ defmodule Poser.Api.ShaderTreeType do
   @doc ~S"""
   Python: `ShaderTreeType.RendererRootNode`
 
+  ```text
   Get output node for desired renderer.
   The enum must <poser.kRenderEngineCodeConstant>.
   <ShaderNodeType> RendererRootNode(<EnumType> renderer)
+  ```
   """
   @spec renderer_root_node(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -117,9 +135,11 @@ defmodule Poser.Api.ShaderTreeType do
   @doc ~S"""
   Python: `ShaderTreeType.SetRendererRootNode`
 
+  ```text
   Set output node for desired renderer.
   The enum must poser.kRenderEngineCodeConstant.
   <NoneType> SetRendererRootNode(<ShaderNodeType> node, <EnumType> renderer)
+  ```
   """
   @spec set_renderer_root_node(Poser.Handle.t(), Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -130,8 +150,10 @@ defmodule Poser.Api.ShaderTreeType do
   @doc ~S"""
   Python: `ShaderTreeType.UpdatePreview`
 
+  ```text
   Tell Poser that this ShaderTree has been modified.
   <NoneType> UpdatePreview()
+  ```
   """
   @spec update_preview(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def update_preview(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,

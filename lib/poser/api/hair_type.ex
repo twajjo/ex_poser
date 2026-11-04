@@ -11,8 +11,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.AirDamping`
 
+  ```text
   Get the air damping.
   <FloatType> AirDamping()
+  ```
   """
   @spec air_damping(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def air_damping(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -21,8 +23,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.BendResistance`
 
+  ```text
   Get the bend resistance.
   <FloatType> BendResistance()
+  ```
   """
   @spec bend_resistance(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def bend_resistance(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -31,8 +35,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.CalculateDynamics`
 
+  ```text
   Calculate this hair group's dynamics. Note that this can take quite some time, depending on the complexity of the hair group, the scenen geometry and the animation length.
   <ActorType> CalculateDynamics()
+  ```
   """
   @spec calculate_dynamics(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -42,8 +48,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.Clumpiness`
 
+  ```text
   Get the clumpiness.
   <FloatType> Clumpiness()
+  ```
   """
   @spec clumpiness(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def clumpiness(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -52,8 +60,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.CollisionsOn`
 
+  ```text
   Get if this hair group reacts to collisions.
   <IntType> CollisionsOn()
+  ```
   """
   @spec collisions_on(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def collisions_on(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -62,8 +72,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.Delete`
 
+  ```text
   Delete the hair group and its associated hair prop.
   <ActorType> Delete()
+  ```
   """
   @spec delete(Poser.Handle.t(), keyword()) :: {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
   def delete(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -72,8 +84,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.Density`
 
+  ```text
   Get the density of populated hairs..
   <FloatType> Density()
+  ```
   """
   @spec density(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def density(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -82,8 +96,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.Gravity`
 
+  ```text
   Get the gravity.
   <FloatType> Gravity()
+  ```
   """
   @spec gravity(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def gravity(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -92,8 +108,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.GrowHair`
 
+  ```text
   Grow guide hairs.
   <NoneType> GrowHair()
+  ```
   """
   @spec grow_hair(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def grow_hair(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -102,8 +120,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.HairProp`
 
+  ```text
   Get the prop that represents this hair group.
   <ActorType> HairProp()
+  ```
   """
   @spec hair_prop(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -113,8 +133,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.KinkDelay`
 
+  ```text
   Get the kink delay.
   <FloatType> KinkDelay()
+  ```
   """
   @spec kink_delay(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def kink_delay(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -123,8 +145,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.KinkScale`
 
+  ```text
   Get the kink scale.
   <FloatType> KinkScale()
+  ```
   """
   @spec kink_scale(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def kink_scale(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -133,8 +157,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.KinkStrength`
 
+  ```text
   Get the kink strength.
   <FloatType> KinkStrength()
+  ```
   """
   @spec kink_strength(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def kink_strength(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -143,8 +169,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.LengthMax`
 
+  ```text
   Get the max length.
   <FloatType> LengthMax()
+  ```
   """
   @spec length_max(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def length_max(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -153,8 +181,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.LengthMin`
 
+  ```text
   Get the min length.
   <FloatType> LengthMin()
+  ```
   """
   @spec length_min(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def length_min(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -163,8 +193,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.Name`
 
+  ```text
   Get the name of this Hair.
   <StringType> Name()
+  ```
   """
   @spec name(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def name(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -173,8 +205,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.NumbPopHairs`
 
+  ```text
   Get the total number of hairs.
   <IntType> NumbPopHairs()
+  ```
   """
   @spec numb_pop_hairs(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -184,8 +218,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.NumbVertsPerHair`
 
+  ```text
   Get the number of vertices per hair.
   <IntType> NumbVertsPerHair()
+  ```
   """
   @spec numb_verts_per_hair(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -195,8 +231,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.PositionForce`
 
+  ```text
   Get the PositionForce.
   <FloatType> PositionForce()
+  ```
   """
   @spec position_force(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def position_force(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -205,8 +243,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.PullBack`
 
+  ```text
   Get the pull back parameter.
   <FloatType> PullBack()
+  ```
   """
   @spec pull_back(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def pull_back(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -215,8 +255,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.PullDown`
 
+  ```text
   Get the pull down parameter.
   <FloatType> PullDown()
+  ```
   """
   @spec pull_down(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def pull_down(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -225,8 +267,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.PullLeft`
 
+  ```text
   Get the pull left parameter.
   <FloatType> PullLeft()
+  ```
   """
   @spec pull_left(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def pull_left(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -235,8 +279,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.RootStiffness`
 
+  ```text
   Get the root stiffness.
   <FloatType> RootStiffness()
+  ```
   """
   @spec root_stiffness(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def root_stiffness(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -245,8 +291,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.RootStiffnessFalloff`
 
+  ```text
   Get the root stiffness falloff.
   <FloatType> RootStiffnessFalloff()
+  ```
   """
   @spec root_stiffness_falloff(Poser.Handle.t(), keyword()) ::
           {:ok, float()} | {:error, Poser.Error.t()}
@@ -256,8 +304,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.RootWidth`
 
+  ```text
   Get the hair rootwidth.
   <FloatType> RootWidth()
+  ```
   """
   @spec root_width(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def root_width(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -266,8 +316,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetAirDamping`
 
+  ```text
   Set the air damping.
   <NoneType> SetAirDamping(<FloatType> value)
+  ```
   """
   @spec set_air_damping(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -277,8 +329,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetBendResistance`
 
+  ```text
   Set the bend resistance.
   <NoneType> SetBendResistance(<FloatType> value)
+  ```
   """
   @spec set_bend_resistance(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -288,8 +342,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetClumpiness`
 
+  ```text
   Set the clumpiness.
   <NoneType> SetClumpiness(<FloatType> value)
+  ```
   """
   @spec set_clumpiness(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -299,8 +355,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetCollisionsOn`
 
+  ```text
   Set if this hair group reacts to collisions.
   <NoneType> SetCollisionsOn(<IntType> value)
+  ```
   """
   @spec set_collisions_on(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -310,8 +368,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetDensity`
 
+  ```text
   Set the density of populated hairs.
   <NoneType> SetDensity(<FloatType> value)
+  ```
   """
   @spec set_density(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -321,8 +381,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetGravity`
 
+  ```text
   Set the gravity.
   <NoneType> SetGravity(<FloatType> value)
+  ```
   """
   @spec set_gravity(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -332,8 +394,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetKinkDelay`
 
+  ```text
   Set the kink delay.
   <NoneType> SetKinkDelay(<FloatType> value)
+  ```
   """
   @spec set_kink_delay(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -343,8 +407,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetKinkScale`
 
+  ```text
   Set the kink scale.
   <NoneType> SetKinkScale(<FloatType> value)
+  ```
   """
   @spec set_kink_scale(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -354,8 +420,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetKinkStrength`
 
+  ```text
   Set the kink strength.
   <NoneType> SetKinkStrength(<FloatType> value)
+  ```
   """
   @spec set_kink_strength(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -365,8 +433,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetLengthMax`
 
+  ```text
   Set the max length.
   <NoneType> SetLengthMax(<FloatType> value)
+  ```
   """
   @spec set_length_max(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -376,8 +446,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetLengthMin`
 
+  ```text
   Set the min length.
   <NoneType> SetLengthMin(<FloatType> value)
+  ```
   """
   @spec set_length_min(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -387,8 +459,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetName`
 
+  ```text
   Set the name of this Hair.
   <NoneType> SetName(<StringType>)
+  ```
   """
   @spec set_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -398,8 +472,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetNumbPopHairs`
 
+  ```text
   Set the total number of hairs.
   <NoneType> SetNumbPopHairs(<IntType> value)
+  ```
   """
   @spec set_numb_pop_hairs(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -409,8 +485,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetNumbVertsPerHair`
 
+  ```text
   Set the number of vertices per hair.
   <NoneType> SetNumbVertsPerHair(<IntType> value)
+  ```
   """
   @spec set_numb_verts_per_hair(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -420,8 +498,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetPositionForce`
 
+  ```text
   Set the PositionForce.
   <NoneType> SetPositionForce(<FloatType> value)
+  ```
   """
   @spec set_position_force(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -431,8 +511,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetPullBack`
 
+  ```text
   Set the pull back parameter.
   <NoneType> SetPullBack(<FloatType> value)
+  ```
   """
   @spec set_pull_back(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -442,8 +524,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetPullDown`
 
+  ```text
   Set the pull down parameter.
   <NoneType> setPullDown(<FloatType> value)
+  ```
   """
   @spec set_pull_down(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -453,8 +537,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetPullLeft`
 
+  ```text
   Set the pull left parameter.
   <NoneType> SetPullLeft(<FloatType> value)
+  ```
   """
   @spec set_pull_left(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -464,8 +550,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetRootStiffness`
 
+  ```text
   Set the root stiffness.
   <NoneType> SetRootStiffness(<FloatType> value)
+  ```
   """
   @spec set_root_stiffness(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -475,8 +563,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetRootStiffnessFalloff`
 
+  ```text
   Set the root stiffness falloff.
   <NoneType> SetRootStiffnessFalloff(<FloatType> value)
+  ```
   """
   @spec set_root_stiffness_falloff(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -487,8 +577,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetRootWidth`
 
+  ```text
   Set the hair rootwidth.
   <NoneType> SetRootWidth(<FloatType> value)
+  ```
   """
   @spec set_root_width(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -498,8 +590,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetShowPopulated`
 
+  ```text
   Set if populated hair is shown.
   <NoneType> SetShowPopulated(<IntType> value)
+  ```
   """
   @spec set_show_populated(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -509,8 +603,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetSpringDamping`
 
+  ```text
   Set the spring damping.
   <NoneType> SetSpringDamping(<FloatType> value)
+  ```
   """
   @spec set_spring_damping(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -520,8 +616,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetSpringStrength`
 
+  ```text
   Set the spring strength.
   <NoneType> SetSpringStrength(<FloatType> value)
+  ```
   """
   @spec set_spring_strength(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -531,8 +629,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SetTipWidth`
 
+  ```text
   Set the hair tip width.
   <NoneType> SetTipWidth(<FloatType> value)
+  ```
   """
   @spec set_tip_width(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -542,8 +642,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.ShowPopulated`
 
+  ```text
   Get if populated hair is shown.
   <IntType> ShowPopulated()
+  ```
   """
   @spec show_populated(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -553,8 +655,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SpringDamping`
 
+  ```text
   Get the spring damping.
   <FloatType> SpringDamping()
+  ```
   """
   @spec spring_damping(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def spring_damping(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -563,8 +667,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.SpringStrength`
 
+  ```text
   Get the spring strength.
   <FloatType> SpringStrength()
+  ```
   """
   @spec spring_strength(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def spring_strength(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -573,8 +679,10 @@ defmodule Poser.Api.HairType do
   @doc ~S"""
   Python: `HairType.TipWidth`
 
+  ```text
   Get the hair tip width.
   <FloatType> TipWidth()
+  ```
   """
   @spec tip_width(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def tip_width(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,

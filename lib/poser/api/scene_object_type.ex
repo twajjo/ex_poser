@@ -11,8 +11,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.GetIdType`
 
+  ```text
   Return the exact type of this scene object.
   <IntType> GetIdType()
+  ```
   """
   @spec get_id_type(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def get_id_type(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -21,8 +23,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.InternalName`
 
+  ```text
   Get the (internal) name for the scene object.  The specified string is a unique name ID internal to Poser.
   <StringType> InternalName()
+  ```
   """
   @spec internal_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -32,8 +36,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.IsBase`
 
+  ```text
   Return true only if scene object is a base.  Bases are targets of deformation for deformers such as magnets.
   <IntType> IsBase()
+  ```
   """
   @spec is_base(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_base(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -42,8 +48,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.IsBodyPart`
 
+  ```text
   Return true only if scene object is a body part.
   <IntType> IsBodyPart()
+  ```
   """
   @spec is_body_part(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_body_part(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -52,8 +60,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.IsCamera`
 
+  ```text
   Return true only if scene object is a camera.
   <IntType> IsCamera()
+  ```
   """
   @spec is_camera(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_camera(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -62,8 +72,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.IsControlProp`
 
+  ```text
   Return true only if scene object is a control prop.
   <IntType> IsControlProp()
+  ```
   """
   @spec is_control_prop(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -73,8 +85,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.IsDeformer`
 
+  ```text
   Return true only if scene object is a deformer.
   <IntType> IsDeformer()
+  ```
   """
   @spec is_deformer(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_deformer(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -83,8 +97,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.IsFigure`
 
+  ```text
   Return true only if scene object is a figure.
   <IntType> IsFigure()
+  ```
   """
   @spec is_figure(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_figure(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -93,8 +109,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.IsHairProp`
 
+  ```text
   Return true only if scene object is a hair prop.
   <IntType> IsHairProp()
+  ```
   """
   @spec is_hair_prop(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_hair_prop(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -103,8 +121,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.IsLight`
 
+  ```text
   Return true only if scene object is a light.
   <IntType> IsLight()
+  ```
   """
   @spec is_light(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_light(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -113,8 +133,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.IsMeasurement`
 
+  ```text
   Return true only if scene object is a measurement.
   <IntType> IsMeasurement()
+  ```
   """
   @spec is_measurement(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -124,8 +146,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.IsParm`
 
+  ```text
   Return true only if scene object is a parameter.
   <IntType> IsParm()
+  ```
   """
   @spec is_parm(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_parm(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -134,8 +158,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.IsProp`
 
+  ```text
   Return true only if scene object is a prop.
   <IntType> IsProp()
+  ```
   """
   @spec is_prop(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_prop(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -144,8 +170,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.IsPropInstance`
 
+  ```text
   Return true only if scene object is a prop instance.
   <IntType> IsPropInstance()
+  ```
   """
   @spec is_prop_instance(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -155,8 +183,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.IsZone`
 
+  ```text
   Return true only if scene object is a zone.  Zones are regions acted upon by deformers such as magnets.
   <IntType> IsZone()
+  ```
   """
   @spec is_zone(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_zone(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -165,8 +195,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.Name`
 
+  ```text
   Get the (external) name for the scene object.  The specified name is the same one seen in Poser's GUI pulldown menus.
   <StringType> Name()
+  ```
   """
   @spec name(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def name(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -175,8 +207,10 @@ defmodule Poser.Api.SceneObjectType do
   @doc ~S"""
   Python: `SceneObjectType.SetName`
 
+  ```text
   Set the (external) name for the scene object.  
   <NoneType> SetName(<StringType>)
+  ```
   """
   @spec set_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}

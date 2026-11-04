@@ -11,8 +11,10 @@ defmodule Poser.Api.TexVertexType do
   @doc ~S"""
   Python: `TexVertexType.SetU`
 
+  ```text
   Set u coordinate.
   <NoneType> SetU(<FloatType> value)
+  ```
   """
   @spec set_u(Poser.Handle.t(), number(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_u(%Poser.Handle{class: c} = handle, value, opts \\ []) when c in @accepts,
@@ -21,8 +23,10 @@ defmodule Poser.Api.TexVertexType do
   @doc ~S"""
   Python: `TexVertexType.SetV`
 
+  ```text
   Set v coordinate.
   <NoneType> SetV(<FloatType> value)
+  ```
   """
   @spec set_v(Poser.Handle.t(), number(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_v(%Poser.Handle{class: c} = handle, value, opts \\ []) when c in @accepts,
@@ -31,8 +35,10 @@ defmodule Poser.Api.TexVertexType do
   @doc ~S"""
   Python: `TexVertexType.U`
 
+  ```text
   Get u coordinate.
   <FloatType> U()
+  ```
   """
   @spec u(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def u(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -41,8 +47,10 @@ defmodule Poser.Api.TexVertexType do
   @doc ~S"""
   Python: `TexVertexType.V`
 
+  ```text
   Get v coordinate.
   <FloatType> V()
+  ```
   """
   @spec v(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def v(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,

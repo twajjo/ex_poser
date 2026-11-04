@@ -11,8 +11,10 @@ defmodule Poser.Api.PolygonType do
   @doc ~S"""
   Python: `PolygonType.Groups`
 
+  ```text
   Return a list of groups in which this polygon is included.  Groups can be created using the grouping tool in the Poser GUI.
   <StringType list> Groups()
+  ```
   """
   @spec groups(Poser.Handle.t(), keyword()) :: {:ok, [String.t()]} | {:error, Poser.Error.t()}
   def groups(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -21,8 +23,10 @@ defmodule Poser.Api.PolygonType do
   @doc ~S"""
   Python: `PolygonType.InGroup`
 
+  ```text
   Determine if the polygon is in the specified group.  Groups can be created using the grouping tool in the Poser GUI.
   <IntType> InGroup(<StringType> groupName)
+  ```
   """
   @spec in_group(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -32,8 +36,10 @@ defmodule Poser.Api.PolygonType do
   @doc ~S"""
   Python: `PolygonType.IncludeInGroup`
 
+  ```text
   Include the polygon in the specified group.  Groups can be created using the grouping tool in the Poser GUI.
   <NoneType> IncludeInGroup(<StringType> groupName)
+  ```
   """
   @spec include_in_group(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -43,8 +49,10 @@ defmodule Poser.Api.PolygonType do
   @doc ~S"""
   Python: `PolygonType.MaterialIndex`
 
+  ```text
   Get the material index of the element.  This is an index into the list of materials of this geometry object.
   <IntType> MaterialIndex()
+  ```
   """
   @spec material_index(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -54,8 +62,10 @@ defmodule Poser.Api.PolygonType do
   @doc ~S"""
   Python: `PolygonType.MaterialName`
 
+  ```text
   Get the material name of the element.
   <StringType> MaterialName()
+  ```
   """
   @spec material_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -65,8 +75,10 @@ defmodule Poser.Api.PolygonType do
   @doc ~S"""
   Python: `PolygonType.NumVertices`
 
+  ```text
   Get the number of vertices in the polygon.
   <IntType> NumVertices()
+  ```
   """
   @spec num_vertices(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_vertices(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -75,8 +87,10 @@ defmodule Poser.Api.PolygonType do
   @doc ~S"""
   Python: `PolygonType.RemoveFromGroup`
 
+  ```text
   Remove the polygon from the specified group.  Groups can be created using the grouping tool in the Poser GUI.
   <NoneType> RemoveFromGroup(<StringType> groupName)
+  ```
   """
   @spec remove_from_group(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -86,8 +100,10 @@ defmodule Poser.Api.PolygonType do
   @doc ~S"""
   Python: `PolygonType.SetMaterialIndex`
 
+  ```text
   Set the material index of the element.  This is an index into the list of materials of this geometry object.
   <NoneType> SetMaterialIndex(<IntType> index)
+  ```
   """
   @spec set_material_index(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -97,8 +113,10 @@ defmodule Poser.Api.PolygonType do
   @doc ~S"""
   Python: `PolygonType.SetMaterialName`
 
+  ```text
   Set the material name of the element, returns material index.
   <IntType> SetMaterialName(<StringType> name)
+  ```
   """
   @spec set_material_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -108,8 +126,10 @@ defmodule Poser.Api.PolygonType do
   @doc ~S"""
   Python: `PolygonType.Start`
 
+  ```text
   Get the starting set index of the element. Using this value to index into the set list, one can get the index of the associated vertex.
   <IntType> Start()
+  ```
   """
   @spec start(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def start(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -118,8 +138,10 @@ defmodule Poser.Api.PolygonType do
   @doc ~S"""
   Python: `PolygonType.Vertices`
 
+  ```text
   Get a list of vertex objects for the polygon.
   <VertexType List> Vertices()
+  ```
   """
   @spec vertices(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}

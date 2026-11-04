@@ -11,8 +11,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.Antialias`
 
+  ```text
   Query the antialias settings. A return value of 1 indicates that the option is on, while a value of 0 indicates that it is off
   <IntType> Antialias()
+  ```
   """
   @spec antialias(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def antialias(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -21,8 +23,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.FrameOptions`
 
+  ```text
   Return the values for frame rate and increment.
   (<IntType> rate, <IntType> increment) FrameOptions()
+  ```
   """
   @spec frame_options(Poser.Handle.t(), keyword()) ::
           {:ok, {integer(), integer()}} | {:error, Poser.Error.t()}
@@ -32,8 +36,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.GetAutoDeleteFrames`
 
+  ```text
   Get the auto delete image frames setting
   <BoolType> GetAutoDeleteFrames()
+  ```
   """
   @spec get_auto_delete_frames(Poser.Handle.t(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -43,8 +49,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.GetAutoMakeMovie`
 
+  ```text
   Get the auto make movie setting
   <BoolType> GetAutoMakeMovie()
+  ```
   """
   @spec get_auto_make_movie(Poser.Handle.t(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -54,8 +62,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.GetAutoOpenFolder`
 
+  ```text
   Get the auto play movie setting
   <BoolType> GetAutoOpenFolder()
+  ```
   """
   @spec get_auto_open_folder(Poser.Handle.t(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -65,8 +75,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.GetAutoPlayMovie`
 
+  ```text
   Get the auto play movie setting
   <BoolType> GetAutoPlayMovie()
+  ```
   """
   @spec get_auto_play_movie(Poser.Handle.t(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -76,8 +88,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.MakeMovie`
 
+  ```text
   Convert a sequence of image files into a movie. Filepath should be a fullpath and can point to any frame from the animation. Code options is an optional complicated string to specify all the options.
   <BoolType> MakeMovie(<StringType> filePath, {<StringType> codecOptions})
+  ```
   """
   @spec make_movie(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -87,8 +101,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.MotionBlur`
 
+  ```text
   Query the motion blur settings. A return value of 1 indicates that the option is on, while a value of 0 indicates that it is off. The second parameter is the blur amount
   (<IntType> on, <FloatType> amount) MotionBlur()
+  ```
   """
   @spec motion_blur(Poser.Handle.t(), keyword()) ::
           {:ok, {integer(), float()}} | {:error, Poser.Error.t()}
@@ -98,8 +114,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.MovieFormat`
 
+  ```text
   Return the current movie format setting. See OutputFormats() for available formats.
   <IntType> MovieFormat()
+  ```
   """
   @spec movie_format(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def movie_format(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -108,8 +126,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.MovieRenderer`
 
+  ```text
   Return the current movie renderer setting.
   <IntType> MovieRenderer()
+  ```
   """
   @spec movie_renderer(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -119,8 +139,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.OutputEndFrame`
 
+  ```text
   Return the last frame to be used in making the movie.  All frame numbers in PoserPython are relative to a starting frame of 0.  For this reason, a frame number in Python is 1 less than the equivalent frame as referenced from the Poser GUI.
   <IntType> OutputEndFrame()
+  ```
   """
   @spec output_end_frame(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -130,8 +152,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.OutputFormats`
 
+  ```text
   Get the supported movie output formats. Use list index for SetMovieFormat() call. Format will look like: [<StringType> Name}, . . .]
   <ListType> OutputFormats()
+  ```
   """
   @spec output_formats(Poser.Handle.t(), keyword()) :: {:ok, list()} | {:error, Poser.Error.t()}
   def output_formats(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -140,8 +164,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.OutputRes`
 
+  ```text
   Return a tuple containing output resolution (for movies).
   (<IntType> x, <IntType> y) OutputRes()
+  ```
   """
   @spec output_res(Poser.Handle.t(), keyword()) ::
           {:ok, {integer(), integer()}} | {:error, Poser.Error.t()}
@@ -151,8 +177,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.OutputStartFrame`
 
+  ```text
   Return the first frame to be used in making the movie.  All frame numbers in PoserPython are relative to a starting frame of 0.  For this reason, a frame number in Python is 1 less than the equivalent frame as referenced from the Poser GUI.
   <IntType> OutputStartFrame()
+  ```
   """
   @spec output_start_frame(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -162,8 +190,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.RenderImages`
 
+  ```text
   Write out the animation to a sequence of image file from the OutputStartFrame to the OutputEndFrame. Filepath should be a full path ending in a basename_0000.png The extension can be one of: png|jpg|tif|bmp|tga|psd  When writing out jpg the compression can be specified (10=best compression, 100=best quality), otherwise the compression parameter is ignored. 
   <BoolType> MakeMovie(<StringType> filePath, {<IntType> compression})
+  ```
   """
   @spec render_images(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -173,8 +203,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.SetAntialias`
 
+  ```text
   Toggle the antialias value. The default argument of 1 specifies that the option should be turned on. To turn it off, call the function with an argument of 0
   <NoneType> SetAntialias({<IntType> on = 1})
+  ```
   """
   @spec set_antialias(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_antialias(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -183,8 +215,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.SetAutoDeleteFrames`
 
+  ```text
   Set the auto delete image frames setting.
   <NoneType> SetAutoDeleteFrames(<BoolType> active)
+  ```
   """
   @spec set_auto_delete_frames(Poser.Handle.t(), boolean(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -194,8 +228,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.SetAutoMakeMovie`
 
+  ```text
   Set the auto make movie setting.
   <NoneType> SetAutoMakeMovie(<BoolType> active)
+  ```
   """
   @spec set_auto_make_movie(Poser.Handle.t(), boolean(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -205,8 +241,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.SetAutoOpenFolder`
 
+  ```text
   Set the auto open folder movie setting.
   <NoneType> SetAutoOpenFolder(<BoolType> active)
+  ```
   """
   @spec set_auto_open_folder(Poser.Handle.t(), boolean(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -216,8 +254,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.SetAutoPlayMovie`
 
+  ```text
   Set the auto play movie setting.
   <NoneType> SetAutoPlayMovie(<BoolType> active)
+  ```
   """
   @spec set_auto_play_movie(Poser.Handle.t(), boolean(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -227,8 +267,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.SetFrameOptions`
 
+  ```text
   Set the values for frame rate and increment.
   <NoneType> SetFrameOptions(<IntType> rate, <IntType> increment)
+  ```
   """
   @spec set_frame_options(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -239,8 +281,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.SetMotionBlur`
 
+  ```text
   Set the values values for motion blur settings. Default is ON (1) , with a value of 0.5. To turn it off, call the function with a single argument of 0
   <NoneType> SetMotionBlur(<IntType> on = 1, {<FloatType> amount})
+  ```
   """
   @spec set_motion_blur(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -250,8 +294,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.SetMovieFormat`
 
+  ```text
   Set the movie format. See OutputFormats() for available formats.
   <NoneType> SetMovieFormat(<IntType> Format)
+  ```
   """
   @spec set_movie_format(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -261,8 +307,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.SetMovieRenderer`
 
+  ```text
   Set the movie renderer.
   <NoneType> SetMovieRenderer(<IntType> Renderer)
+  ```
   """
   @spec set_movie_renderer(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -272,8 +320,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.SetOutputEndFrame`
 
+  ```text
   Set the last frame to be used in making the movie.  All frame numbers in PoserPython are relative to a starting frame of 0.  For this reason, a frame number in Python is 1 less than the equivalent frame as referenced from the Poser GUI.
   <NoneType> SetOutputEndFrame(<IntType> frame)
+  ```
   """
   @spec set_output_end_frame(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -283,8 +333,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.SetOutputRes`
 
+  ```text
   (DEPRECATED) Set output resolution (for movies).
   <NoneType> SetOutputRes(<IntType> x, <IntType> y)
+  ```
   """
   @spec set_output_res(Poser.Handle.t(), integer(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -294,8 +346,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.SetOutputResScale`
 
+  ```text
   Set output resolution scale (for movies).
   <NoneType> SetOutputResScale(<FloatType> resScale)
+  ```
   """
   @spec set_output_res_scale(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -306,8 +360,10 @@ defmodule Poser.Api.MovieMakerType do
   @doc ~S"""
   Python: `MovieMakerType.SetOutputStartFrame`
 
+  ```text
   Set the first frame to be used in making the movie.  All frame numbers in PoserPython are relative to a starting frame of 0.  For this reason, a frame number in Python is 1 less than the equivalent frame as referenced from the Poser GUI.
   <NoneType> SetOutputStartFrame(<IntType> frame)
+  ```
   """
   @spec set_output_start_frame(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}

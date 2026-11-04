@@ -58,7 +58,7 @@ defmodule Poser.Gen.Render do
         do: "Module-level functions of PoserPython's `poser` module.",
         else: "PoserPython `#{mod.py_class}`."
 
-    class_doc = Map.get(mod, :class_doc) || ""
+    class_doc = python_doc(Map.get(mod, :class_doc))
 
     """
     defmodule #{inspect(mod.module)} do
@@ -122,7 +122,7 @@ defmodule Poser.Gen.Render do
   defp fun_source(fun, py_class) do
     where = if fun.kind == :method, do: "#{py_class}.#{fun.py_name}", else: "poser.#{fun.py_name}"
     note = if fun.note, do: "\n\nNote: #{fun.note}.", else: ""
-    doc = "Python: `#{where}`#{note}\n\n#{String.trim(fun.doc)}"
+    doc = "Python: `#{where}`#{note}\n\n#{python_doc(fun.doc)}"
 
     """
     @doc #{heredoc(doc)}
@@ -160,6 +160,15 @@ defmodule Poser.Gen.Render do
 
         "def #{fun.name}(#{params}), " <>
           "do: Poser.Call.function(#{inspect(fun.py_name)}, #{args}, #{optional}, opts)"
+    end
+  end
+
+  # Python docstrings are plain text with signatures like `<IntType> Show()`,
+  # which Markdown would read as HTML tags, so they go in a text block.
+  defp python_doc(doc) do
+    case String.trim(doc || "") do
+      "" -> ""
+      text -> "```text\n" <> text <> "\n```"
     end
   end
 

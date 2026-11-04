@@ -11,8 +11,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.Animated`
 
+  ```text
   Returns 1 if the input is animated, 0 if it is not animated.
   <IntType> Animated()
+  ```
   """
   @spec animated(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def animated(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -21,8 +23,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.CanBeAnimated`
 
+  ```text
   Returns 1 if the input can be animated, 0 if the input cannot be animated.
   <IntType> CanBeAnimated()
+  ```
   """
   @spec can_be_animated(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -32,8 +36,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.Disconnect`
 
+  ```text
   Disconnects the node that is plugged in this input from this input.
   <NoneType> Disconnect()
+  ```
   """
   @spec disconnect(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def disconnect(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -42,8 +48,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.InNode`
 
+  ```text
   Returns the shader node that is plugged in this input. Returns none if no shader node is plugged in. Caller can optionally pass a recurseToFirstNonCompound argument.  If 1, method recursively traverses any compound sub-tree to find the first node that is not a compound type.
   <ShaderNodeType> InNode({<IntType> recurseToFirstNonCompound})
+  ```
   """
   @spec in_node(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -53,8 +61,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.InOutput`
 
+  ```text
   Returns the output of the shader node that is plugged in this input. Returns none if no shader node is plugged in.
   <ShaderNodeOutputType> InOutput()
+  ```
   """
   @spec in_output(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -64,8 +74,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.InternalName`
 
+  ```text
   Get the internal name.
   <StringType> InternalName()
+  ```
   """
   @spec internal_name(Poser.Handle.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -75,8 +87,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.ItsNode`
 
+  ```text
   Returns the shader node to which this input belongs.
   <ShaderNodeType> ItsNode()
+  ```
   """
   @spec its_node(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -86,8 +100,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.Name`
 
+  ```text
   Get the (external) name.
   <StringType> Name()
+  ```
   """
   @spec name(Poser.Handle.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def name(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -96,8 +112,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.Parameters`
 
+  ```text
   Returns the parameter(s) if the input is animated. Depending on the type of the input, the latter two return values may be set to None
   (<ParmType> r, <ParmType> g, <ParmType> b) Parameters()
+  ```
   """
   @spec parameters(Poser.Handle.t(), keyword()) ::
           {:ok, {Poser.Handle.t(), Poser.Handle.t(), Poser.Handle.t()}}
@@ -108,8 +126,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.SetAnimated`
 
+  ```text
   Set the animation status of this input. Set it to 1 for the input to be animated, 0 for it to be not animated.
   <NoneType> SetAnimated(<IntType> animated)
+  ```
   """
   @spec set_animated(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -119,8 +139,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.SetColor`
 
+  ```text
   Set the value of a color or vector input.
   <NoneType> SetColor(<FloatType> r, <FloatType> g, <FloatType> b)
+  ```
   """
   @spec set_color(Poser.Handle.t(), number(), number(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -130,8 +152,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.SetFloat`
 
+  ```text
   Set the value of a float, integer, boolean or menu input.
   <NoneType> SetFloat(<FloatType> value)
+  ```
   """
   @spec set_float(Poser.Handle.t(), number(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_float(%Poser.Handle{class: c} = handle, value, opts \\ []) when c in @accepts,
@@ -140,8 +164,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.SetName`
 
+  ```text
   Set the (external) name.
   <NoneType> SetName(<StringType> Name)
+  ```
   """
   @spec set_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -151,8 +177,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.SetString`
 
+  ```text
   Set the string value. In this version of Poser, this is the path of a texture or movie file.
   <NoneType> SetString(<StringValue> file)
+  ```
   """
   @spec set_string(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -162,8 +190,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.Texture`
 
+  ```text
   Get the texture associated with this input
   <TextureType> Texture()
+  ```
   """
   @spec texture(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -173,8 +203,10 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.Type`
 
+  ```text
   Get the type. The types are defined as poser member variables such as poser.kNodeInputCodeCOLOR.
   <IntType> Type()
+  ```
   """
   @spec type(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def type(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -183,10 +215,12 @@ defmodule Poser.Api.ShaderNodeInputType do
   @doc ~S"""
   Python: `ShaderNodeInputType.Value`
 
+  ```text
   Get the value. Depending on the type of the input, the return value can be a float, a tuple of three floats or a string.
   <FloatType> Value()
   (<FloatType>, <FloatType>, <FloatType>) Value()
   <StringType> Value()
+  ```
   """
   @spec value(Poser.Handle.t(), keyword()) ::
           {:ok, (float() | {float(), float(), float()}) | String.t()} | {:error, Poser.Error.t()}

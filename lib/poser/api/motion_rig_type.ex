@@ -11,8 +11,10 @@ defmodule Poser.Api.MotionRigType do
   @doc ~S"""
   Python: `MotionRigType.AddNodeChannel`
 
+  ```text
   Add a node channel.
   <NoneType> AddNodeChannel(<MotionNodeType>parent, <StringType> channelType)
+  ```
   """
   @spec add_node_channel(Poser.Handle.t(), Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -23,8 +25,10 @@ defmodule Poser.Api.MotionRigType do
   @doc ~S"""
   Python: `MotionRigType.NewNode`
 
+  ```text
   Creates a new node in the motion rig.
   <MotionNodeType> NewNode(<StringType> name, <MotionNodeType>parent)
+  ```
   """
   @spec new_node(Poser.Handle.t(), String.t(), Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -34,8 +38,10 @@ defmodule Poser.Api.MotionRigType do
   @doc ~S"""
   Python: `MotionRigType.SetAttemptContinuous`
 
+  ```text
   Set if the import attempts to do a continuous decompositon of the rotations.
   <NoneType> SetAttemptContinuous(<IntType>continuous)
+  ```
   """
   @spec set_attempt_continuous(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -46,8 +52,10 @@ defmodule Poser.Api.MotionRigType do
   @doc ~S"""
   Python: `MotionRigType.SetNodeTargets`
 
+  ```text
   Set the node targets.
   <NoneType> SetNodeTargets(<FigureType>figure)
+  ```
   """
   @spec set_node_targets(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -57,8 +65,10 @@ defmodule Poser.Api.MotionRigType do
   @doc ~S"""
   Python: `MotionRigType.SetRestOrientations`
 
+  ```text
   NOT IMPLEMENTED: Sets the current joint orientations as the rest orientations.
   <NoneType> SetRestOrientations()
+  ```
   """
   @spec set_rest_orientations(Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -68,8 +78,10 @@ defmodule Poser.Api.MotionRigType do
   @doc ~S"""
   Python: `MotionRigType.SetSwapXZ`
 
+  ```text
   Set if the x and z axis are swapped.
   <NoneType> SetSwapXZ(<IntType>)
+  ```
   """
   @spec set_swap_xz(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}

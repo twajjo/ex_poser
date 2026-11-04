@@ -13,8 +13,10 @@ defmodule Poser.Api.ImExporterType do
 
   Note: callback parameters dropped: Phase 4.
 
+  ```text
   Export models using plugins.  The file suffix argument is the extension typically following files of the type to be exported, such as "dxf".  The actual plugin name may be given (e.g. "File Format HAnim") to specify which plugin to choose if there are several plugins that export the same file type.  If only one plugin exists that exports files with the given extension, then this argument may be None.   The filePath string (which can be an absolute path, or a path relative to the Poser folder) specifies the file to be exported.  The default options-dictionary can be acquired by a call to the imexporter.ExportOptions() method with the same fileSuffix as an argument.  It can then be modified and passed back to as an arguement to this method.  If this argument is omitted, the default options will be used. The optional scene hierarchy callback function allows for specification of object inclusion in the export process.  The function should take an actor object and return 1 if the actor is to be included and 0 if the actor is to be excluded.  The function will be called back for all actors in the scene.  If this argument is omitted, all visible objects will be exported.
   <NoneType> Export(<StringType> fileSuffix, <StringType> pluginName, <StringType> filePath, {<DictType> options, <FunctionType> selectionCallback, <ObjectType> callbackArgs})
+  ```
   """
   @spec export(Poser.Handle.t(), String.t(), String.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -32,8 +34,10 @@ defmodule Poser.Api.ImExporterType do
   @doc ~S"""
   Python: `ImExporterType.ExportOptionString`
 
+  ```text
   Get an export option string for the specified file suffix and plugin name.  The enumeration value is a key from the export options dictionary.
   <StringType> ExportOptionString(<StringType> fileSuffix, <StringType> pluginName, <IntType> enumValue)
+  ```
   """
   @spec export_option_string(Poser.Handle.t(), String.t(), String.t(), integer(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -57,8 +61,10 @@ defmodule Poser.Api.ImExporterType do
   @doc ~S"""
   Python: `ImExporterType.ExportOptions`
 
+  ```text
   Get a dictionary of options for the specified exporter.  The file suffix argument is the extension typically following files of the type to be exported, such as "dxf".  The actual plugin name may be given (e.g. "File Format HAnim") to specify which plugin to choose if there are several plugins that export the same file type.  If only one plugin exists that exports files with the given extension, then this argument may be None.
   <DictType> ExportOptions(<StringType> fileSuffix, <StringType> pluginName)
+  ```
   """
   @spec export_options(Poser.Handle.t(), String.t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, Poser.Error.t()}
@@ -69,8 +75,10 @@ defmodule Poser.Api.ImExporterType do
   @doc ~S"""
   Python: `ImExporterType.Import`
 
+  ```text
   Import models using plugins.  The file suffix argument is the extension typically following files of the type to be exported, such as "dxf".  The actual plugin name may be given (e.g. "File Format HAnim") to specify which plugin to choose if there are several plugins that import the same file type.  If only one plugin exists that imports files with the given extension, then this argument may be None.  The filePath string (which can be an absolute path, or a path relative to the Poser folder) specifies the file to be imported.  The default options-dictionary can be acquired by a call to the imexporter.ImportOptions() method with the same fileSuffix as an argument.  It can then be modified and passed back to as an arguement to this method.  If this argument is omitted, the default options will be used.
   <NoneType> Import(<StringType> fileSuffix, <StringType> pluginName, <StringType> filePath, {<DictType> options})
+  ```
   """
   @spec import_(Poser.Handle.t(), String.t(), String.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -88,8 +96,10 @@ defmodule Poser.Api.ImExporterType do
   @doc ~S"""
   Python: `ImExporterType.ImportOptionString`
 
+  ```text
   Get an import option string for the specified file suffix and plugin name.  The enumeration value is a key from the import options dictionary.
   <StringType> ImportOptionString(<StringType> fileSuffix, <StringType> pluginName, <IntType> enumValue)
+  ```
   """
   @spec import_option_string(Poser.Handle.t(), String.t(), String.t(), integer(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -113,8 +123,10 @@ defmodule Poser.Api.ImExporterType do
   @doc ~S"""
   Python: `ImExporterType.ImportOptions`
 
+  ```text
   Get a dictionary of options for the specified importer.  The file suffix argument is the extension typically following files of the type to be exported, such as "dxf".  The actual plugin name may be given (e.g. "File Format HAnim") to specify which plugin to choose if there are several plugins that import the same file type.  If only one plugin exists that imports files with the given extension, then this argument may be None.
   <DictType> ImportOptions(<StringType> fileSuffix, <StringType> pluginName)
+  ```
   """
   @spec import_options(Poser.Handle.t(), String.t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, Poser.Error.t()}

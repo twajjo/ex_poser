@@ -8,8 +8,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.AppLocation`
 
+  ```text
   Query the file path location of the Poser application.
   <StringType> AppLocation()
+  ```
   """
   @spec app_location(keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def app_location(opts \\ []), do: Poser.Call.function("AppLocation", [], [], opts)
@@ -17,8 +19,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.AppVersion`
 
+  ```text
   Query the version of the Poser application.
   <StringType> AppVersion()
+  ```
   """
   @spec app_version(keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def app_version(opts \\ []), do: Poser.Call.function("AppVersion", [], [], opts)
@@ -26,8 +30,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.Bitness`
 
+  ```text
   Get the word size (32-bit or 64-bit) Poser was compiled for.
   <StringType> Bitness()
+  ```
   """
   @spec bitness(keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def bitness(opts \\ []), do: Poser.Call.function("Bitness", [], [], opts)
@@ -35,8 +41,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.ClearCommands`
 
+  ```text
   Clear the command stack.
   <NoneType> ClearCommands()
+  ```
   """
   @spec clear_commands(keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def clear_commands(opts \\ []), do: Poser.Call.function("ClearCommands", [], [], opts)
@@ -44,8 +52,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.ClearTextureCache`
 
+  ```text
   Empty the on-disk texture cache.
   <NoneType> ClearTextureCache()
+  ```
   """
   @spec clear_texture_cache(keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def clear_texture_cache(opts \\ []), do: Poser.Call.function("ClearTextureCache", [], [], opts)
@@ -53,8 +63,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.CloseDocument`
 
+  ```text
   Close the current Poser document.  Optional argument non-zero means discard any changes.
   <NoneType> CloseDocument({<IntType> discardChanges = 0})
+  ```
   """
   @spec close_document(keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def close_document(opts \\ []),
@@ -63,8 +75,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.CommandNames`
 
+  ```text
   Returns a list of names of commands.  The first is the oldest.
   <List of StringType> CommandNames()
+  ```
   """
   @spec command_names(keyword()) :: {:ok, [String.t()]} | {:error, Poser.Error.t()}
   def command_names(opts \\ []), do: Poser.Call.function("CommandNames", [], [], opts)
@@ -72,8 +86,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.ContentRootLocation`
 
+  ```text
   Query the file path location of the main Poser Runtime. .
   <StringType> ContentRootLocation()
+  ```
   """
   @spec content_root_location(keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def content_root_location(opts \\ []),
@@ -82,8 +98,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.CredManager`
 
+  ```text
   Get a CredManager object.  All methods needed to store and retrieve password can be accessed from the returned object.
   <CredManagerType> CredManager()
+  ```
   """
   @spec cred_manager(keyword()) :: {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
   def cred_manager(opts \\ []), do: Poser.Call.function("CredManager", [], [], opts)
@@ -91,8 +109,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.CurrentCommand`
 
+  ```text
   Returns the current command index.
   <IntType> CurrentCommand()
+  ```
   """
   @spec current_command(keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def current_command(opts \\ []), do: Poser.Call.function("CurrentCommand", [], [], opts)
@@ -100,8 +120,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.CurrentRoom`
 
+  ```text
   Return the id of the current room.
   <IntType> CurrentRoom()
+  ```
   """
   @spec current_room(keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def current_room(opts \\ []), do: Poser.Call.function("CurrentRoom", [], [], opts)
@@ -109,8 +131,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.DefineMaterialWacroButton`
 
+  ```text
   Attach a python script to one of 10 user defineable material wacro buttons.  Takes index, file name, and a label as arguments.
   <NoneType> DefineMaterialWacroButton(<IntType> buttonIndex, <StringType> filePath, <StringType> label)
+  ```
   """
   @spec define_material_wacro_button(integer(), String.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -121,8 +145,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.DefineScriptButton`
 
+  ```text
   Attach a python script to one of 10 user defineable buttons.  Takes index, file name, and a label as arguments.
   <NoneType> DefineScriptButton(<IntType> buttonIndex, <StringType> filePath, <StringType> label)
+  ```
   """
   @spec define_script_button(integer(), String.t(), String.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -132,8 +158,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.EnableParallelComputeActors`
 
+  ```text
   Set to enable actor computation in parallel
   <NoneType> EnableParallelComputeActors(<BoolType> value)
+  ```
   """
   @spec enable_parallel_compute_actors(boolean(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -143,8 +171,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.ExecFile`
 
+  ```text
   Run a python script using a Mac or Win pathname.
   <NoneType> ExecFile(<StringType> fileName)
+  ```
   """
   @spec exec_file(String.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def exec_file(file_name, opts \\ []), do: Poser.Call.function("ExecFile", [file_name], [], opts)
@@ -152,8 +182,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.FileMetadata`
 
+  ```text
   Get a set of key/value metadata pairs for a Poser file
   <DictType> FileMetadata(<StringType> poserFilePath)
+  ```
   """
   @spec file_metadata(String.t(), keyword()) :: {:ok, map()} | {:error, Poser.Error.t()}
   def file_metadata(poser_file_path, opts \\ []),
@@ -162,8 +194,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.FindHFSPath`
 
+  ```text
   Convert the HFS style path to a system path.
   <StringType> FindHFSPath(<StringType> path)
+  ```
   """
   @spec find_hfs_path(String.t(), keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def find_hfs_path(path, opts \\ []), do: Poser.Call.function("FindHFSPath", [path], [], opts)
@@ -171,8 +205,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.Flavor`
 
+  ```text
   Return a string identifying the flavor of the running Poser application.  e.g. Poser, Poser Pro, or Poser Debut.
   <StringType> Flavor()
+  ```
   """
   @spec flavor(keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def flavor(opts \\ []), do: Poser.Call.function("Flavor", [], [], opts)
@@ -180,8 +216,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.GetHFSRelativePath`
 
+  ```text
   Convert the system path to a HFS style path.
   <StringType> GetHFSRelativePath(<StringType> path)
+  ```
   """
   @spec get_hfs_relative_path(String.t(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -191,8 +229,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.IsGameDev`
 
+  ```text
   Return whether the Poser executable is the GameDev version.
   <IntType> IsGameDev()
+  ```
   """
   @spec is_game_dev(keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_game_dev(opts \\ []), do: Poser.Call.function("IsGameDev", [], [], opts)
@@ -200,8 +240,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.IsPro`
 
+  ```text
   Return whether the Poser executable is the Pro version.
   <IntType> IsPro()
+  ```
   """
   @spec is_pro(keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def is_pro(opts \\ []), do: Poser.Call.function("IsPro", [], [], opts)
@@ -209,8 +251,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.Language`
 
+  ```text
   Query the language of the app.
   <IntType> Language()
+  ```
   """
   @spec language(keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def language(opts \\ []), do: Poser.Call.function("Language", [], [], opts)
@@ -218,8 +262,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.Libraries`
 
+  ```text
   Query the file paths of the Libraries. Returns an Array of the librarypaths.
   <StringType> Libraries()
+  ```
   """
   @spec libraries(keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def libraries(opts \\ []), do: Poser.Call.function("Libraries", [], [], opts)
@@ -227,8 +273,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.MainWindow`
 
+  ```text
   DEPRECATED: Returns the Poser Shell.
   <NoneType> MainWindow()
+  ```
   """
   @spec main_window(keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def main_window(opts \\ []), do: Poser.Call.function("MainWindow", [], [], opts)
@@ -236,8 +284,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.NewDocument`
 
+  ```text
   Open the default Poser document.
   <NoneType> NewDocument()
+  ```
   """
   @spec new_document(keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def new_document(opts \\ []), do: Poser.Call.function("NewDocument", [], [], opts)
@@ -245,8 +295,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.NewGeometry`
 
+  ```text
   Create an empty geometry object which is not attached to the scene.  Use the actor.SetGeometry() method to attach geometry to an actor once it is built.
   <GeomType> NewGeometry()
+  ```
   """
   @spec new_geometry(keyword()) :: {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
   def new_geometry(opts \\ []), do: Poser.Call.function("NewGeometry", [], [], opts)
@@ -254,8 +306,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.NewMotionRig`
 
+  ```text
   Create a new motion rig. Motion rigs are for internal use in Poser and are not intended for use by third party script authors. We won't stop you from doing it anyway, use at your own risk.
   <MotionRigType> NewMotionRig(<NoneType>)
+  ```
   """
   @spec new_motion_rig(keyword()) :: {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
   def new_motion_rig(opts \\ []), do: Poser.Call.function("NewMotionRig", [], [], opts)
@@ -263,8 +317,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.NumRenderThreads`
 
+  ```text
   Get the number of rendering threads.
   <IntType> NumRenderThreads()
+  ```
   """
   @spec num_render_threads(keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_render_threads(opts \\ []), do: Poser.Call.function("NumRenderThreads", [], [], opts)
@@ -272,8 +328,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.OpenDocument`
 
+  ```text
   Open an existing Poser document (.pz3 file).  Takes a file path (absolute or relative to the Poser folder) as argument.
   <NoneType> OpenDocument(<StringType> filePath)
+  ```
   """
   @spec open_document(String.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def open_document(file_path, opts \\ []),
@@ -282,10 +340,12 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.PaletteById`
 
+  ```text
   Returns a specific Palette identified by the Poser constant.
   PaletteID must be one of:
   poser.kCmdCodeJOINTPALETTE, poser.kCmdCodeGROUPPALETTE, poser.kCmdCodeLIBRARYPALETTE, poser.kCmdCodeWALKPALETTE, poser.kCmdCodeANIMATIONPALETTE, poser.kCmdCodePANDPPALETTE
    <Palette> PaletteById(<IntType> PaletteID)
+  ```
   """
   @spec palette_by_id(integer(), keyword()) :: {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
   def palette_by_id(palette_id, opts \\ []),
@@ -294,12 +354,14 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.Palettes`
 
+  ```text
   Returns a list of accessible palettes.
   Each palette is indexed by its ID in the list. Not all palettes are always available, so this list can contain <None>.
   Example:
   pals = poser.Palettes()
   jointPalette = pals[poser.kCmdCodeJOINTPALETTE]
   <list Palettes> Palettes()
+  ```
   """
   @spec palettes(keyword()) :: {:ok, [term()]} | {:error, Poser.Error.t()}
   def palettes(opts \\ []), do: Poser.Call.function("Palettes", [], [], opts)
@@ -307,9 +369,11 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.ParmStringToCode`
 
+  ```text
   Convert a string used in a scene file to itgis corresponding kParmCode constant.
   Returns -1 for unknown lookup strings.
   <IntType> ParmStringToCode(<StringType> lookup)
+  ```
   """
   @spec parm_string_to_code(String.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def parm_string_to_code(lookup, opts \\ []),
@@ -318,8 +382,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.PrefsLocation`
 
+  ```text
   Get the Poser Prefs dir
   <String> PrefsLocation([<BoolType> includeFileName])
+  ```
   """
   @spec prefs_location(keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def prefs_location(opts \\ []),
@@ -328,8 +394,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.PreviewRenderEngineType`
 
+  ```text
   Get active preview render engine type. Returns either poser.kPreviewRenderEngineTypeCodeOPENGL or poser.kPreviewRenderEngineTypeCodeSREED.
   <IntType> PreviewRenderEngineType()
+  ```
   """
   @spec preview_render_engine_type(keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def preview_render_engine_type(opts \\ []),
@@ -338,7 +406,9 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.ProcessCommand`
 
+  ```text
   Send a command to Poser, <NoneType> ProcessCommand(<IntType>)
+  ```
   """
   @spec process_command(integer(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def process_command(command_id, opts \\ []),
@@ -347,8 +417,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.Quit`
 
+  ```text
   Quit the Poser Application. Optional argument non-zero means discard any changes.
   <NoneType> Quit({<IntType> discardChanges = 0})
+  ```
   """
   @spec quit(keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def quit(opts \\ []),
@@ -357,8 +429,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.Redo`
 
+  ```text
   Redoes one action.
   <NoneType> Redo()
+  ```
   """
   @spec redo(keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def redo(opts \\ []), do: Poser.Call.function("Redo", [], [], opts)
@@ -366,8 +440,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.RegisterAddon`
 
+  ```text
   Register a new addon module.
   <NoneType> RegisterAddon(<StringType>addonName)
+  ```
   """
   @spec register_addon(String.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def register_addon(addon_name, opts \\ []),
@@ -376,8 +452,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.RenderCacheLocation`
 
+  ```text
   Get the folder where renders are saved
   <String> RenderCacheLocation()
+  ```
   """
   @spec render_cache_location(keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def render_cache_location(opts \\ []),
@@ -386,8 +464,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.RenderInSeparateProcess`
 
+  ```text
   Get if FireFly runs in a separate process.
   <IntType> RenderInSeparateProcess()
+  ```
   """
   @spec render_in_separate_process(keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def render_in_separate_process(opts \\ []),
@@ -396,8 +476,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.RevertDocument`
 
+  ```text
   Revert the current document to the last saved state.
   <NoneType> RevertDocument()
+  ```
   """
   @spec revert_document(keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def revert_document(opts \\ []), do: Poser.Call.function("RevertDocument", [], [], opts)
@@ -405,9 +487,11 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.Rooms`
 
+  ```text
   Returns a list of accessible Rooms as integers.
   Each int is one of the following constants: poser.kCmdCodePOSEROOM, poser.kCmdCodeSETUPROOM, poser.kCmdCodeHAIRROOM, poser.kCmdCodeMATERIALROOM, poser.kCmdCodeCLOTHROOM, poser.kCmdCodeFITTINGROOM
   <list IntType> Rooms()
+  ```
   """
   @spec rooms(keyword()) :: {:ok, [integer()]} | {:error, Poser.Error.t()}
   def rooms(opts \\ []), do: Poser.Call.function("Rooms", [], [], opts)
@@ -415,8 +499,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.SaveDocument`
 
+  ```text
   Save an existing Poser document.  Takes an optional file name as argument.
   <NoneType> SaveDocument({<StringType> filePath})
+  ```
   """
   @spec save_document(keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def save_document(opts \\ []),
@@ -425,8 +511,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.SavePrefs`
 
+  ```text
   Ask Poser to save the preferences of addon modules. Call this after the preferences of your addon were changed and you want to save them.
   <NoneType> SavePrefs()
+  ```
   """
   @spec save_prefs(keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def save_prefs(opts \\ []), do: Poser.Call.function("SavePrefs", [], [], opts)
@@ -434,8 +522,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.Scene`
 
+  ```text
   Return the current Poser scene as an object.
   <SceneType> Scene()
+  ```
   """
   @spec scene(keyword()) :: {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
   def scene(opts \\ []), do: Poser.Call.function("Scene", [], [], opts)
@@ -443,8 +533,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.ScriptLocation`
 
+  ```text
   Query the file path location of the current Python script.
   <StringType> ScriptLocation()
+  ```
   """
   @spec script_location(keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def script_location(opts \\ []), do: Poser.Call.function("ScriptLocation", [], [], opts)
@@ -452,8 +544,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.SetCheckZeroMorphs`
 
+  ```text
   Set if Poser check zero morph targets in binary files.
   <NoneType> SetCheckZeroMorphs(<IntType>binaryMorphs)
+  ```
   """
   @spec set_check_zero_morphs(integer(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_check_zero_morphs(binary_morphs, opts \\ []),
@@ -462,8 +556,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.SetCurrentRoom`
 
+  ```text
   Set the current room of the UI via room id.
   SetCurrentRoom(<IntType>)
+  ```
   """
   @spec set_current_room(integer(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_current_room(room_id, opts \\ []),
@@ -472,8 +568,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.SetFileMetadata`
 
+  ```text
   Set a dictionary of key/value metadata pairs for a Poser file
   <NoneType> SetFileMetadata(<StringType> poserFilePath, <DictType> keyValuePairs)
+  ```
   """
   @spec set_file_metadata(String.t(), map(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_file_metadata(poser_file_path, key_value_pairs, opts \\ []),
@@ -482,8 +580,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.SetNumRenderThreads`
 
+  ```text
   Set the number of rendering threads.
   <NoneType> SetNumRenderThreads(<IntType>numThreads)
+  ```
   """
   @spec set_num_render_threads(integer(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_num_render_threads(num_threads, opts \\ []),
@@ -492,8 +592,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.SetPreviewRenderEngineType`
 
+  ```text
   Set active preview render engine type. Type can be either poser.kPreviewRenderEngineTypeCodeOpenGL or poser.kPreviewRenderEngineTypeCodeSREED.
   <NoneType> SetPreviewRenderEngineType(<IntType> renderEngineType)
+  ```
   """
   @spec set_preview_render_engine_type(integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -503,8 +605,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.SetRenderInSeparateProcess`
 
+  ```text
   Set if FireFly runs in a separate process.
   <NoneType> SetRenderInSeparateProcess(<IntType>separateProcess)
+  ```
   """
   @spec set_render_in_separate_process(integer(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -514,8 +618,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.SetWriteBinaryMorphs`
 
+  ```text
   Set if Poser writes morph targets as binary files.
   <NoneType> SetWriteBinaryMorphs(<IntType>binaryMorphs)
+  ```
   """
   @spec set_write_binary_morphs(integer(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_write_binary_morphs(binary_morphs, opts \\ []),
@@ -524,8 +630,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.ShowFrameRate`
 
+  ```text
   Enable or disable display of framerate
   <NoneType> ShowFrameRate(<BoolType> iOnOff)
+  ```
   """
   @spec show_frame_rate(boolean(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def show_frame_rate(i_on_off, opts \\ []),
@@ -534,8 +642,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.StringResource`
 
+  ```text
   Return the string resource for the given major, minor id.
   <StringType> StringResource(<IntType> majorID, <IntType> minorID, {<StringType> fallbackString=None, <IntType> replaceLineBreaks=1, <IntType> replaceTabs=1})
+  ```
   """
   @spec string_resource(integer(), integer(), keyword()) ::
           {:ok, String.t()} | {:error, Poser.Error.t()}
@@ -555,8 +665,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.TempLocation`
 
+  ```text
   Get the Poser temp dir
   <String> TempLocation()
+  ```
   """
   @spec temp_location(keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def temp_location(opts \\ []), do: Poser.Call.function("TempLocation", [], [], opts)
@@ -564,8 +676,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.Undo`
 
+  ```text
   Undoes one action.
   <NoneType> Undo()
+  ```
   """
   @spec undo(keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def undo(opts \\ []), do: Poser.Call.function("Undo", [], [], opts)
@@ -573,8 +687,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.UpdateButtonJsonPath`
 
+  ```text
   Assign path to currently active json button file.
   <NoneType> UpdateButtonJsonPath(<StringType> jsonFilePath]
+  ```
   """
   @spec update_button_json_path(String.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def update_button_json_path(json_file_path, opts \\ []),
@@ -583,8 +699,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.UpdateWacrosJsonPath`
 
+  ```text
   Assign path to currently active json wacros file.
   <NoneType> UpdateWacrosJsonPath(<StringType> jsonFilePath]
+  ```
   """
   @spec update_wacros_json_path(String.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def update_wacros_json_path(json_file_path, opts \\ []),
@@ -593,8 +711,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.VerifyPurchase`
 
+  ```text
   Verify the purchase of a Python script.
   <BoolType> VerifyPurchase(<IntType> storeId, <IntType> purchaseId)
+  ```
   """
   @spec verify_purchase(integer(), integer(), keyword()) ::
           {:ok, boolean() | integer()} | {:error, Poser.Error.t()}
@@ -604,8 +724,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.Version`
 
+  ```text
   Return the version number for Poser.
   <StringType> Version()
+  ```
   """
   @spec version(keyword()) :: {:ok, String.t()} | {:error, Poser.Error.t()}
   def version(opts \\ []), do: Poser.Call.function("Version", [], [], opts)
@@ -613,8 +735,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.WriteBinaryMorphs`
 
+  ```text
   Get if Poser writes morph targets as binary files.
   <IntType> WriteBinaryMorphs()
+  ```
   """
   @spec write_binary_morphs(keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def write_binary_morphs(opts \\ []), do: Poser.Call.function("WriteBinaryMorphs", [], [], opts)
@@ -622,8 +746,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.WxApp`
 
+  ```text
   Get the wxApp object of the Poser application.
   <class 'wx._core.App'> WxApp()
+  ```
   """
   @spec wx_app(keyword()) :: {:ok, term()} | {:error, Poser.Error.t()}
   def wx_app(opts \\ []), do: Poser.Call.function("WxApp", [], [], opts)
@@ -631,8 +757,10 @@ defmodule Poser.Api do
   @doc ~S"""
   Python: `poser.WxAuiManager`
 
+  ```text
   Get the wxAuiManager of the Poser UI.
   <> WxAuiManager()
+  ```
   """
   @spec wx_aui_manager(keyword()) :: {:ok, term()} | {:error, Poser.Error.t()}
   def wx_aui_manager(opts \\ []), do: Poser.Call.function("WxAuiManager", [], [], opts)

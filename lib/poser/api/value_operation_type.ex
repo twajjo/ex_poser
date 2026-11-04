@@ -11,8 +11,10 @@ defmodule Poser.Api.ValueOperationType do
   @doc ~S"""
   Python: `ValueOperationType.DeleteKey`
 
+  ```text
   Deletes the key/value pair at the given index for a key valueOp. Returns 1 if the key was deleted, returns 0 if no key exists at the given index or the valueOp is not of type kValueOpTypeCodeKEY.
   <IntType> DeleteKey(<IntType> index)
+  ```
   """
   @spec delete_key(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -22,8 +24,10 @@ defmodule Poser.Api.ValueOperationType do
   @doc ~S"""
   Python: `ValueOperationType.Delta`
 
+  ```text
   Get the delta value of a deltaAdd value operation. Returns 0 if the value operation is not of type kValueOpTypeCodeDELTAADD.
   <FloatType> Delta()
+  ```
   """
   @spec delta(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def delta(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -32,8 +36,10 @@ defmodule Poser.Api.ValueOperationType do
   @doc ~S"""
   Python: `ValueOperationType.GetKey`
 
+  ```text
   Returns a tuple containing the key and value at the given index for a key valueOp.
   (<IntType>, <IntType>) GetKey(<IntType> index)
+  ```
   """
   @spec get_key(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, {integer(), integer()}} | {:error, Poser.Error.t()}
@@ -43,8 +49,10 @@ defmodule Poser.Api.ValueOperationType do
   @doc ~S"""
   Python: `ValueOperationType.InsertKey`
 
+  ```text
   Inserts a key/value pair in this key valueOp. Returns 1 if the key was inserted, returns 0 if the valueOp is not of type kValueOpTypeCodeKEY.
   <IntType> InsertKey(<FloatType> key, <FloatType> value)
+  ```
   """
   @spec insert_key(Poser.Handle.t(), number(), number(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -54,8 +62,10 @@ defmodule Poser.Api.ValueOperationType do
   @doc ~S"""
   Python: `ValueOperationType.NumKeys`
 
+  ```text
   Get the number of keys of a key value operation. Returns -1 if the value operation is not of type kValueOpTypeCodeKEY.
   <IntType> NumKeys()
+  ```
   """
   @spec num_keys(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_keys(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -64,8 +74,10 @@ defmodule Poser.Api.ValueOperationType do
   @doc ~S"""
   Python: `ValueOperationType.Parameter`
 
+  ```text
   Get the parameter associated with this valueOp.
   <ParmType> Parameter()
+  ```
   """
   @spec parameter(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -75,8 +87,10 @@ defmodule Poser.Api.ValueOperationType do
   @doc ~S"""
   Python: `ValueOperationType.SetDelta`
 
+  ```text
   Set the delta value of a deltaAdd value operation.
   <NoneType> SetDelta(<FloatValue> delta)
+  ```
   """
   @spec set_delta(Poser.Handle.t(), number(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_delta(%Poser.Handle{class: c} = handle, delta, opts \\ []) when c in @accepts,
@@ -85,8 +99,10 @@ defmodule Poser.Api.ValueOperationType do
   @doc ~S"""
   Python: `ValueOperationType.SetSourceParameter`
 
+  ```text
   Set the source paramater associated with this value operation.
   <NoneType> SetSourceParameter(<ParmType> source)
+  ```
   """
   @spec set_source_parameter(Poser.Handle.t(), Poser.Handle.t(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -96,8 +112,10 @@ defmodule Poser.Api.ValueOperationType do
   @doc ~S"""
   Python: `ValueOperationType.SetStrength`
 
+  ```text
   Set the strength value of a value operation.
   <NoneType> SetStrength(<FloatValue> strength)
+  ```
   """
   @spec set_strength(Poser.Handle.t(), number(), keyword()) ::
           {:ok, nil} | {:error, Poser.Error.t()}
@@ -107,8 +125,10 @@ defmodule Poser.Api.ValueOperationType do
   @doc ~S"""
   Python: `ValueOperationType.SourceParameter`
 
+  ```text
   Get the source parameter associated with this valueOp.
   <ParmType> SourceParameter()
+  ```
   """
   @spec source_parameter(Poser.Handle.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -118,8 +138,10 @@ defmodule Poser.Api.ValueOperationType do
   @doc ~S"""
   Python: `ValueOperationType.Strength`
 
+  ```text
   Get the strength value of a value operation.
   <FloatType> Strength()
+  ```
   """
   @spec strength(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def strength(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -128,8 +150,10 @@ defmodule Poser.Api.ValueOperationType do
   @doc ~S"""
   Python: `ValueOperationType.Type`
 
+  ```text
   Get the type of the valueOp.
   <IntType> Type()
+  ```
   """
   @spec type(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def type(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,

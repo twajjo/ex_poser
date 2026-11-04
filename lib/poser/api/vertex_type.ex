@@ -11,8 +11,10 @@ defmodule Poser.Api.VertexType do
   @doc ~S"""
   Python: `VertexType.SetX`
 
+  ```text
   Set x coordinate.
   <NoneType> SetX(<FloatType> value)
+  ```
   """
   @spec set_x(Poser.Handle.t(), number(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_x(%Poser.Handle{class: c} = handle, value, opts \\ []) when c in @accepts,
@@ -21,8 +23,10 @@ defmodule Poser.Api.VertexType do
   @doc ~S"""
   Python: `VertexType.SetY`
 
+  ```text
   Set y coordinate.
   <NoneType> SetY(<FloatType> value)
+  ```
   """
   @spec set_y(Poser.Handle.t(), number(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_y(%Poser.Handle{class: c} = handle, value, opts \\ []) when c in @accepts,
@@ -31,8 +35,10 @@ defmodule Poser.Api.VertexType do
   @doc ~S"""
   Python: `VertexType.SetZ`
 
+  ```text
   Set z coordinate.
   <NoneType> SetZ(<FloatType> value)
+  ```
   """
   @spec set_z(Poser.Handle.t(), number(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def set_z(%Poser.Handle{class: c} = handle, value, opts \\ []) when c in @accepts,
@@ -41,8 +47,10 @@ defmodule Poser.Api.VertexType do
   @doc ~S"""
   Python: `VertexType.X`
 
+  ```text
   Get x coordinate.
   <FloatType> X()
+  ```
   """
   @spec x(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def x(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -51,8 +59,10 @@ defmodule Poser.Api.VertexType do
   @doc ~S"""
   Python: `VertexType.Y`
 
+  ```text
   Get y coordinate.
   <FloatType> Y()
+  ```
   """
   @spec y(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def y(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -61,8 +71,10 @@ defmodule Poser.Api.VertexType do
   @doc ~S"""
   Python: `VertexType.Z`
 
+  ```text
   Get z coordinate.
   <FloatType> Z()
+  ```
   """
   @spec z(Poser.Handle.t(), keyword()) :: {:ok, float()} | {:error, Poser.Error.t()}
   def z(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,

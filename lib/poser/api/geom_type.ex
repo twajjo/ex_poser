@@ -11,8 +11,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.AddGeneralMesh`
 
+  ```text
   Add a general mesh to existing geometry.  Arguments are numerical python arrays specifying polygons, sets, and vertices, as well as optionally texture-polygons, texture-sets, and texture-vertices.  (See Numerical Python documentation for more details).
   <NoneType> AddGeneralMesh(<IntType nx2 Numeric.Array> polygons, <IntType nx1 Numeric.Array> sets, <FloatType nx3 Numeric.Array> vertices, {<IntType nx2 Numeric.Array> texPolygons, <IntType nx1 Numeric.Array> texSets, <FloatType nx3 Numeric.Array> texVertices})
+  ```
   """
   @spec add_general_mesh(
           Poser.Handle.t(),
@@ -35,8 +37,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.AddMaterialName`
 
+  ```text
   Adds a material name to the geom and returns its index.
   <IntType> AddMaterialName(<StringType> name)
+  ```
   """
   @spec add_material_name(Poser.Handle.t(), String.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -46,8 +50,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.AddPolygon`
 
+  ```text
   Add a polygon to existing geometry by providing a 2-dimensional nx3 numerical python array of vertices.  (See Numerical Python documentation for more details).
   <PolygonType> AddPolygon(<FloatType nx3 Numeric.Array> vertices)
+  ```
   """
   @spec add_polygon(Poser.Handle.t(), Poser.NDArray.t(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -57,8 +63,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.AddTriangle`
 
+  ```text
   Add a triangle to existing geometry by specifying 3 points.
   <PolygonType> AddTriangle(<FloatType 3x3 Tuple> vertices)
+  ```
   """
   @spec add_triangle(Poser.Handle.t(), tuple(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -68,8 +76,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.Groups`
 
+  ```text
   Get the list of group names for this geometry.
   <StringType list> Groups()
+  ```
   """
   @spec groups(Poser.Handle.t(), keyword()) :: {:ok, [String.t()]} | {:error, Poser.Error.t()}
   def groups(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -78,8 +88,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.Materials`
 
+  ```text
   Get a list of material objects of the geometry.
   <MaterialType List> Materials()
+  ```
   """
   @spec materials(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -89,8 +101,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.Normals`
 
+  ```text
   Get a list of vertex normals.  Each normal is a vertex object. 
   <VertexType List> Normals()
+  ```
   """
   @spec normals(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -100,8 +114,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.NumMaterials`
 
+  ```text
   Get the number of materials in the geometry.
   <IntType> NumMaterials()
+  ```
   """
   @spec num_materials(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_materials(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -110,8 +126,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.NumNormals`
 
+  ```text
   Get the number of normals in the geometry.
   <IntType> NumNormals()
+  ```
   """
   @spec num_normals(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_normals(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -120,8 +138,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.NumPolygons`
 
+  ```text
   Get the number of polygons in the geometry.
   <IntType> NumPolygons()
+  ```
   """
   @spec num_polygons(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_polygons(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -130,8 +150,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.NumSets`
 
+  ```text
   Get the number of sets in the geometry.
   <IntType> NumSets()
+  ```
   """
   @spec num_sets(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_sets(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -140,8 +162,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.NumTexPolygons`
 
+  ```text
   Get the number of texture polygons in the geometry.
   <IntType> NumTexPolygons()
+  ```
   """
   @spec num_tex_polygons(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -151,8 +175,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.NumTexSets`
 
+  ```text
   Get the number of texture sets in the geometry.
   <IntType> NumTexSets()
+  ```
   """
   @spec num_tex_sets(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_tex_sets(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -161,8 +187,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.NumTexVertices`
 
+  ```text
   Get the number of texture vertices in the geometry.
   <IntType> NumTexVertices()
+  ```
   """
   @spec num_tex_vertices(Poser.Handle.t(), keyword()) ::
           {:ok, integer()} | {:error, Poser.Error.t()}
@@ -172,8 +200,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.NumVertices`
 
+  ```text
   Get the number of vertices in the geometry.
   <IntType> NumVertices()
+  ```
   """
   @spec num_vertices(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def num_vertices(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -182,8 +212,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.Polygon`
 
+  ```text
   Get a polygon object by specifying its index.
   <PolygonType> Polygon(<IntType> index)
+  ```
   """
   @spec polygon(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -193,8 +225,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.Polygons`
 
+  ```text
   Get a list of polygon objects.  Each polygon object can be queried for a start set index as well as the number of vertices in the polygon.
   <PolygonType List> Polygons()
+  ```
   """
   @spec polygons(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -204,8 +238,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.ReducePolys`
 
+  ```text
   Returns a copy of the mesh with a reduced polygon count.
   <GeomType> ReducePolys(<IntType> numPolygon> )
+  ```
   """
   @spec reduce_polys(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -215,8 +251,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.Sets`
 
+  ```text
   Get a set list for the geometry.  Each set value is an index into the vertex list.
   <IntType List> Sets()
+  ```
   """
   @spec sets(Poser.Handle.t(), keyword()) :: {:ok, [integer()]} | {:error, Poser.Error.t()}
   def sets(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -225,8 +263,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.TexPolygons`
 
+  ```text
   Get a list of texture polygon objects.  Each texture polygon object can be queried for a start set index as well as the number of vertices in the polygon.
   <TexPolygonType List> TexPolygons()
+  ```
   """
   @spec tex_polygons(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -236,8 +276,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.TexSets`
 
+  ```text
   Get a texture set list for the geometry.  Each texture set value is an index into the texture vertex list.
   <IntType List> TexSets()
+  ```
   """
   @spec tex_sets(Poser.Handle.t(), keyword()) :: {:ok, [integer()]} | {:error, Poser.Error.t()}
   def tex_sets(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -246,8 +288,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.TexVertices`
 
+  ```text
   Get a list of texture vertex objects.  Each vertex object can be queried for u, v values.
   <TexVertexType List> TexVertices()
+  ```
   """
   @spec tex_vertices(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -257,8 +301,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.Vertex`
 
+  ```text
   Get a (model space) vertex object by specifying its index.
   <VertexType> Vertex(<IntType> index)
+  ```
   """
   @spec vertex(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -268,8 +314,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.Vertices`
 
+  ```text
   Get a list of vertex objects.  Each vertex object can be queried for x,y,z values.
   <VertexType List> Vertices()
+  ```
   """
   @spec vertices(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -279,8 +327,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.Weld`
 
+  ```text
   Share similar vertices.  This call smooths objects by homogenizing normals for coincident vertices.
   <NoneType> Weld()
+  ```
   """
   @spec weld(Poser.Handle.t(), keyword()) :: {:ok, nil} | {:error, Poser.Error.t()}
   def weld(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
@@ -289,8 +339,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.WorldNormals`
 
+  ```text
   Get the normals of the geometry in world space if possible.  If no world space data is available, the function will return None.
   <VertexType List> WorldNormals()
+  ```
   """
   @spec world_normals(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
@@ -300,8 +352,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.WorldVertex`
 
+  ```text
   If possible, get a (world space) vertex object by specifying its index.  If no world space data is available, the function will return None.
   <VertexType> WorldVertex(<IntType> index)
+  ```
   """
   @spec world_vertex(Poser.Handle.t(), integer(), keyword()) ::
           {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
@@ -311,8 +365,10 @@ defmodule Poser.Api.GeomType do
   @doc ~S"""
   Python: `GeomType.WorldVertices`
 
+  ```text
   Get the vertices of the geometry in world space if possible.  If no world space data is available, the function will return None.
   <VertexType List> WorldVertices()
+  ```
   """
   @spec world_vertices(Poser.Handle.t(), keyword()) ::
           {:ok, [Poser.Handle.t()]} | {:error, Poser.Error.t()}
