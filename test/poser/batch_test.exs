@@ -141,6 +141,22 @@ defmodule Poser.BatchTest do
     end
   end
 
+  describe "run/2 options" do
+    test "an unknown option raises" do
+      assert_raise ArgumentError, fn -> Batch.new() |> Batch.get(@p) |> Batch.run(chunks: 4) end
+    end
+
+    test "a chunk that isn't an integer raises" do
+      assert_raise ArgumentError, ~r/positive integer/, fn ->
+        Batch.new() |> Batch.get(@p) |> Batch.run(chunk: "x")
+      end
+    end
+
+    test "a chunk of 0 raises, even for an empty batch" do
+      assert_raise ArgumentError, ~r/positive integer/, fn -> Batch.run(Batch.new(), chunk: 0) end
+    end
+  end
+
   describe "run/2" do
     setup :connect
 

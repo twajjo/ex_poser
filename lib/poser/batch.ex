@@ -164,7 +164,8 @@ defmodule Poser.Batch do
 
   Options: `:server` and `:timeout` as in `Poser.Client`, and `:chunk`, the
   most wire ops per request, lookups and frame moves included (default
-  #{@default_chunk}). A chunk too small for a single op raises `ArgumentError`.
+  #{@default_chunk}). An unknown option, a `:chunk` that isn't a positive
+  integer, or a chunk too small for a single op raises `ArgumentError`.
 
   > #### No rollback {: .warning}
   >
@@ -197,14 +198,16 @@ defmodule Poser.Batch do
       #=> {:error, %Poser.Error{kind: :not_found, details: %{index: 0, ...}}}
   """
   @spec run(t(), keyword()) :: {:ok, [term()]} | {:error, Error.t()}
-  def run(b, opts \\ [])
-  def run(%__MODULE__{size: 0}, _opts), do: {:ok, []}
+  def run(%__MODULE__{} = b, opts \\ []) do
+    {chunk, client_opts} = opts |> run_opts() |> Keyword.pop!(:chunk)
 
-  def run(%__MODULE__{} = b, opts) do
-    chunks = compile(b, chunk: Keyword.get(opts, :chunk, @default_chunk))
-    kinds = b |> ops() |> Enum.map(& &1.result) |> List.to_tuple()
-    client_opts = Keyword.take(opts, [:server, :timeout])
-    run_chunks(chunks, kinds, client_opts, %{orig: nil, moved: false, acc: []})
+    if b.size == 0 do
+      {:ok, []}
+    else
+      chunks = compile(b, chunk: chunk)
+      kinds = b |> ops() |> Enum.map(& &1.result) |> List.to_tuple()
+      run_chunks(chunks, kinds, client_opts, %{orig: nil, moved: false, acc: []})
+    end
   end
 
   @doc group: "Running"
@@ -233,6 +236,15 @@ defmodule Poser.Batch do
   end
 
   defp ops(%__MODULE__{ops: ops}), do: Enum.reverse(ops)
+
+  defp run_opts(opts) do
+    opts = Keyword.validate!(opts, [:server, :timeout, chunk: @default_chunk])
+
+    case opts[:chunk] do
+      chunk when is_integer(chunk) and chunk > 0 -> opts
+      other -> raise ArgumentError, "chunk must be a positive integer, got #{inspect(other)}"
+    end
+  end
 
   defp frame_opt(opts) do
     case Keyword.validate!(opts, [:frame])[:frame] do
