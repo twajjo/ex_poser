@@ -94,21 +94,22 @@ before = Poser.Parameter.value!(parm, frame: 4)
 keys_before = Poser.Parameter.keyframes!(parm)
 start_frame = Poser.Scene.frame!()
 
-Poser.Parameter.set_value!(parm, 30.0, frame: 4)
+try do
+  Poser.Parameter.set_value!(parm, 30.0, frame: 4)
 
-result = %{
-  keyframes: Poser.Parameter.keyframes!(parm),
-  at_0: Poser.Parameter.value_at!(parm, 0),
-  at_2: Poser.Parameter.value_at!(parm, 2),
-  at_4: Poser.Parameter.value_at!(parm, 4),
-  frame_unchanged?: Poser.Scene.frame!() == start_frame
-}
-
-# Put the scene back: the old value, and no key at frame 4 unless one was there.
-Poser.Parameter.set_value!(parm, before, frame: 4)
-if 4 not in keys_before, do: Poser.Parameter.delete_keyframe!(parm, 4)
-
-result
+  %{
+    keyframes: Poser.Parameter.keyframes!(parm),
+    at_0: Poser.Parameter.value_at!(parm, 0),
+    at_2: Poser.Parameter.value_at!(parm, 2),
+    at_4: Poser.Parameter.value_at!(parm, 4),
+    frame_unchanged?: Poser.Scene.frame!() == start_frame
+  }
+after
+  # Put the scene back, even if a read raised: the old value, and no key at
+  # frame 4 unless one was there.
+  Poser.Parameter.set_value!(parm, before, frame: 4)
+  if 4 not in keys_before, do: Poser.Parameter.delete_keyframe!(parm, 4)
+end
 ```
 
 ## A batch

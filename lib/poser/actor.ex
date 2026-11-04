@@ -245,7 +245,8 @@ defmodule Poser.Actor do
   The actor's `%Poser.Handle{}`, for calls this library doesn't wrap.
 
   The handle belongs to the caller: release it with `Poser.Client.release/2`.
-  Options: `:server`, `:timeout`.
+  A path that doesn't resolve gives `:not_found` with `details.path` and
+  `details.index` nil. Options: `:server`, `:timeout`.
 
   ## Examples
 
@@ -273,6 +274,10 @@ defmodule Poser.Actor do
           {:ok, Poser.Handle.t()} | {:error, Error.t()}
   def to_handle({:ok, [_, %Poser.Handle{} = h]}, _a), do: {:ok, h}
   def to_handle({:ok, [_, nil]}, a), do: {:error, Error.not_found(Ref.path(a))}
+
+  def to_handle({:error, %Error{kind: :not_found} = e}, _a),
+    do: {:error, %{e | details: %{e.details | index: nil}}}
+
   def to_handle({:error, _} = error, _a), do: error
 
   @doc group: "Escape hatch"

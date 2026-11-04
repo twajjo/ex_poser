@@ -79,7 +79,15 @@ defmodule Poser.ParameterTest do
              Parameter.value(@missing, server: c)
 
     assert path == Poser.Ref.path(@missing)
-    assert {:error, %Error{kind: :not_found}} = Parameter.handle(@missing, server: c)
+
+    assert {:error, %Error{kind: :not_found, details: %{index: nil}}} =
+             Parameter.handle(@missing, server: c)
+
+    gone = %{@missing | actor: %{@missing.actor | internal: "zz"}}
+
+    assert {:error, %Error{kind: :not_found, details: %{index: nil}}} =
+             Parameter.handle(gone, server: c)
+
     assert {:error, %Error{kind: :not_found}} = Parameter.keyframes(@missing, server: c)
     assert_raise Error, fn -> Parameter.value!(@missing, server: c) end
     assert_raise Error, fn -> Parameter.min_max!(@missing, server: c) end

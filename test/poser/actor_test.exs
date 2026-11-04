@@ -138,7 +138,10 @@ defmodule Poser.ActorTest do
     assert_no_handles(c)
     assert %Handle{} = h2 = Actor.handle!(@hip, server: c)
     {:ok, _} = Client.release([h2], server: c)
-    assert {:error, %Error{kind: :not_found}} = Actor.handle(%{@hip | internal: "zz"}, server: c)
+
+    assert {:error, %Error{kind: :not_found, details: %{index: nil}}} =
+             Actor.handle(%{@hip | internal: "zz"}, server: c)
+
     assert_no_handles(c)
   end
 

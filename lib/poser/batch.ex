@@ -176,8 +176,9 @@ defmodule Poser.Batch do
   On failure the frame is moved back to where the batch found it, and every
   handle the batch created is released, including `call/5` results from
   earlier chunks. A path that doesn't resolve gives `:not_found` with
-  `details.path`. Every error gains `details.index`, the index of the
-  caller's op; other `details` keys are kept (for `:not_allowed`,
+  `details.path`. Every error raised by an op gains `details.index`, the
+  index of the caller's op; `:timeout` and `:disconnected` errors concern the
+  whole request and have no `index`. Other `details` keys are kept (for `:not_allowed`,
   `details.op` stays the refused wire op kind, such as `:invoke`).
 
   One case leaves the frame moved: a `:timeout` or `:disconnected` error in

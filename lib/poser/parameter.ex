@@ -62,7 +62,7 @@ defmodule Poser.Parameter do
       Poser.Parameter.value(bend, frame: 12)
       #=> {:ok, 30.0}
   """
-  @spec value(t(), keyword()) :: {:ok, float()} | {:error, Error.t()}
+  @spec value(t(), keyword()) :: {:ok, Poser.Actor.value()} | {:error, Error.t()}
   def value(%__MODULE__{} = p, opts \\ []) do
     {op, run} = split(opts)
     with {:ok, [v]} <- Batch.new() |> Batch.get(p, op) |> Batch.run(run), do: {:ok, v}
@@ -77,7 +77,7 @@ defmodule Poser.Parameter do
       Poser.Parameter.value!(bend)
       #=> 0.0
   """
-  @spec value!(t(), keyword()) :: float()
+  @spec value!(t(), keyword()) :: Poser.Actor.value()
   def value!(p, opts \\ []), do: p |> value(opts) |> Ref.unwrap!()
 
   @doc group: "Values"
@@ -89,7 +89,8 @@ defmodule Poser.Parameter do
       Poser.Parameter.value_at(bend, 12)
       #=> {:ok, 30.0}
   """
-  @spec value_at(t(), non_neg_integer(), keyword()) :: {:ok, float()} | {:error, Error.t()}
+  @spec value_at(t(), non_neg_integer(), keyword()) ::
+          {:ok, Poser.Actor.value()} | {:error, Error.t()}
   def value_at(p, frame, opts \\ []), do: value(p, Keyword.put(opts, :frame, frame))
 
   @doc group: "Values"
@@ -101,7 +102,7 @@ defmodule Poser.Parameter do
       Poser.Parameter.value_at!(bend, 12)
       #=> 30.0
   """
-  @spec value_at!(t(), non_neg_integer(), keyword()) :: float()
+  @spec value_at!(t(), non_neg_integer(), keyword()) :: Poser.Actor.value()
   def value_at!(p, frame, opts \\ []), do: p |> value_at(frame, opts) |> Ref.unwrap!()
 
   @doc group: "Values"
@@ -285,7 +286,8 @@ defmodule Poser.Parameter do
 
   The handle belongs to the caller: release it with `Poser.Client.release/2`
   (the dial lives in Poser, so releasing only drops the bridge's reference).
-  Options: `:server`, `:timeout`.
+  A path that doesn't resolve gives `:not_found` with `details.path` and
+  `details.index` nil. Options: `:server`, `:timeout`.
 
   ## Examples
 
@@ -301,10 +303,13 @@ defmodule Poser.Parameter do
 
     case Batch.run(batch, run) do
       {:ok, [nil]} ->
-        {:error, Error.not_found(Ref.path(p), 0)}
+        {:error, Error.not_found(Ref.path(p))}
 
       {:ok, [%Poser.Handle{} = h]} ->
         {:ok, h}
+
+      {:error, %Error{kind: :not_found} = e} ->
+        {:error, %{e | details: %{e.details | index: nil}}}
 
       {:error, _} = error ->
         error

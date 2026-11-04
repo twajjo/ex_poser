@@ -115,10 +115,10 @@ end)
 ### 5. Errors
 
 `%Poser.Error{}` gains two kinds:
-- `:not_found`: `details.path` is the struct path that failed to resolve, and `details.op` is the caller's op index in a batch.
+- `:not_found`: `details.path` is the struct path that failed to resolve, and `details.index` is the caller's op index in a batch.
 - `:ambiguous`: `details.matches` lists the matching structs.
 
-A Python error inside a batch keeps its class, message and traceback, and gains `details.op` (the caller's index, not the wire index).
+A Python error inside a batch keeps its class, message and traceback, and gains `details.index` (the caller's index, not the wire index).
 
 ## Testing
 
@@ -134,7 +134,7 @@ A Python error inside a batch keeps its class, message and traceback, and gains 
   - `Poser.Ref` path compilation and shared lookups (pure);
   - chunk boundaries;
   - the frame is restored after success and after failure;
-  - error mapping to `details.op`;
+  - error mapping to `details.index`;
   - `:not_found` and `:ambiguous`;
   - every public function and its `!` variant;
   - `Client.stats` reports `handles == 0` after every operation, including failed batches.
