@@ -36,59 +36,6 @@ defmodule Poser.Client do
   # ms between status checks in await_connected/1
   @await_poll 50
 
-  # --- Public API ---
-
-  @doc """
-  Starts a client. Options: `:name` (default `Poser.Client`), `:session`
-  (session file path, default `Poser.Session.default_path/0`), `:host`,
-  `:port`, `:token` (override the session file), `:transport`,
-  `:call_timeout`, `:connect_timeout`, `:heartbeat_interval`,
-  `:heartbeat_timeout`, `:backoff_initial`, `:backoff_max`.
-  """
-  def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, opts, name: Keyword.get(opts, :name, __MODULE__))
-  end
-
-  @doc "Calls a module-level `poser` function, e.g. `call(\"Scene\")`."
-  def call(name, args \\ [], opts \\ []), do: request({:call, name, args, kw(opts)}, opts)
-
-  @doc "Calls a method on a Poser object."
-  def invoke(%Handle{} = h, method, args \\ [], opts \\ []),
-    do: request({:invoke, h, method, args, kw(opts)}, opts)
-
-  @doc "Reads an attribute of a Poser object."
-  def get_attr(%Handle{} = h, attr, opts \\ []), do: request({:get_attr, h, attr}, opts)
-
-  @doc """
-  Runs several operations in one main-thread turn. Ops are
-  `{:call, name, args}`, `{:call, name, args, kw}`, `{:invoke, target, method, args}`,
-  `{:invoke, target, method, args, kw}` and `{:get_attr, target, attr}`, where a
-  target or argument may be `{:result, n}` (the result of op `n`, 0-based).
-  """
-  def batch(ops, opts \\ []) when is_list(ops), do: request({:batch, ops}, opts)
-
-  @doc "Releases handles on the Poser side. Returns how many were still held."
-  def release(handles, opts \\ []), do: request({:release, List.wrap(handles)}, opts)
-
-  @doc "Dev mode only: calls `module.function(*args)` in Poser's Python."
-  def raw(module, function, args \\ [], opts \\ []),
-    do: request({:raw, module, function, args}, opts)
-
-  @doc """
-  Round trip answered by the add-on's network thread, never queued behind
-  Poser's main thread. Returns the round-trip time in microseconds.
-  """
-  def ping(opts \\ []), do: request(:ping, opts)
-
-  @doc "Handle-table statistics: `%{\"handles\" => n, \"generation\" => g}`."
-  def stats(opts \\ []), do: request(:stats, opts)
-
-  @doc "The add-on's hello reply (mode, versions, api_hash)."
-  def info(opts \\ []), do: GenServer.call(server(opts), :info)
-
-  @spec status(keyword()) :: :connected | :disconnected
-  def status(opts \\ []), do: GenServer.call(server(opts), :status)
-
   @doc """
   Waits until the client is connected and the handshake is done, polling
   `status/1`. Returns `:ok`, or `{:error, %Poser.Error{kind: :timeout}}` if the
@@ -114,37 +61,56 @@ defmodule Poser.Client do
     poll_connected(opts, deadline)
   end
 
-  # --- Callbacks ---
+  @doc """
+  Runs several operations in one main-thread turn. Ops are
+  `{:call, name, args}`, `{:call, name, args, kw}`, `{:invoke, target, method, args}`,
+  `{:invoke, target, method, args, kw}` and `{:get_attr, target, attr}`, where a
+  target or argument may be `{:result, n}` (the result of op `n`, 0-based).
+  """
+  def batch(ops, opts \\ []) when is_list(ops), do: request({:batch, ops}, opts)
 
-  @impl true
-  def init(opts) do
-    opts = Keyword.merge(@defaults, opts)
+  @doc "Calls a module-level `poser` function, e.g. `call(\"Scene\")`."
+  def call(name, args \\ [], opts \\ []), do: request({:call, name, args, kw(opts)}, opts)
 
-    state = %{
-      opts: opts,
-      name: Keyword.get(opts, :name, __MODULE__),
-      transport: opts[:transport],
-      conn: nil,
-      info: nil,
-      epoch: 0,
-      next_id: 1,
-      pending: %{},
-      backoff: opts[:backoff_initial],
-      reconnect_timer: nil,
-      # ref of the running handshake task, and why the last attempt failed
-      connecting: nil,
-      last_error: nil,
-      # pid => %{handle_id => %Handle{}} for handles returned to that process
-      owners: %{},
-      monitors: %{},
-      last_inbound: 0
-    }
+  @doc "Reads an attribute of a Poser object."
+  def get_attr(%Handle{} = h, attr, opts \\ []), do: request({:get_attr, h, attr}, opts)
 
-    {:ok, state, {:continue, :connect}}
+  @doc "The add-on's hello reply (mode, versions, api_hash)."
+  def info(opts \\ []), do: GenServer.call(server(opts), :info)
+
+  @doc "Calls a method on a Poser object."
+  def invoke(%Handle{} = h, method, args \\ [], opts \\ []),
+    do: request({:invoke, h, method, args, kw(opts)}, opts)
+
+  @doc """
+  Round trip answered by the add-on's network thread, never queued behind
+  Poser's main thread. Returns the round-trip time in microseconds.
+  """
+  def ping(opts \\ []), do: request(:ping, opts)
+
+  @doc "Dev mode only: calls `module.function(*args)` in Poser's Python."
+  def raw(module, function, args \\ [], opts \\ []),
+    do: request({:raw, module, function, args}, opts)
+
+  @doc "Releases handles on the Poser side. Returns how many were still held."
+  def release(handles, opts \\ []), do: request({:release, List.wrap(handles)}, opts)
+
+  @doc """
+  Starts a client. Options: `:name` (default `Poser.Client`), `:session`
+  (session file path, default `Poser.Session.default_path/0`), `:host`,
+  `:port`, `:token` (override the session file), `:transport`,
+  `:call_timeout`, `:connect_timeout`, `:heartbeat_interval`,
+  `:heartbeat_timeout`, `:backoff_initial`, `:backoff_max`.
+  """
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, opts, name: Keyword.get(opts, :name, __MODULE__))
   end
 
-  @impl true
-  def handle_continue(:connect, state), do: {:noreply, connect(state)}
+  @doc "Handle-table statistics: `%{\"handles\" => n, \"generation\" => g}`."
+  def stats(opts \\ []), do: request(:stats, opts)
+
+  @spec status(keyword()) :: :connected | :disconnected
+  def status(opts \\ []), do: GenServer.call(server(opts), :status)
 
   @impl true
   def handle_call(:info, _from, %{conn: nil} = state),
@@ -184,6 +150,9 @@ defmodule Poser.Client do
       {:error, %Error{} = error} -> {:reply, {:error, error}, state}
     end
   end
+
+  @impl true
+  def handle_continue(:connect, state), do: {:noreply, connect(state)}
 
   @impl true
   def handle_info(:connect, state), do: {:noreply, connect(%{state | reconnect_timer: nil})}
@@ -242,31 +211,49 @@ defmodule Poser.Client do
 
   def handle_info(_msg, state), do: {:noreply, state}
 
-  # --- Public API helpers ---
+  @impl true
+  def init(opts) do
+    opts = Keyword.merge(@defaults, opts)
 
-  defp request(req, opts) do
-    GenServer.call(server(opts), {:request, req, Keyword.get(opts, :timeout)}, :infinity)
+    state = %{
+      opts: opts,
+      name: Keyword.get(opts, :name, __MODULE__),
+      transport: opts[:transport],
+      conn: nil,
+      info: nil,
+      epoch: 0,
+      next_id: 1,
+      pending: %{},
+      backoff: opts[:backoff_initial],
+      reconnect_timer: nil,
+      # ref of the running handshake task, and why the last attempt failed
+      connecting: nil,
+      last_error: nil,
+      # pid => %{handle_id => %Handle{}} for handles returned to that process
+      owners: %{},
+      monitors: %{},
+      last_inbound: 0
+    }
+
+    {:ok, state, {:continue, :connect}}
   end
 
-  defp server(opts), do: Keyword.get(opts, :server, __MODULE__)
+  defp batch_op({:call, name, args}), do: batch_op({:call, name, args, []})
+  defp batch_op({:call, name, args, kw}), do: {:C, name, Codec.to_wire(args), kw_map(kw)}
+  defp batch_op({:invoke, t, m, args}), do: batch_op({:invoke, t, m, args, []})
 
-  defp poll_connected(opts, deadline) do
-    cond do
-      status(opts) == :connected ->
-        :ok
+  defp batch_op({:invoke, t, m, args, kw}),
+    do: {:I, Codec.to_wire(t), m, Codec.to_wire(args), kw_map(kw)}
 
-      System.monotonic_time(:millisecond) >= deadline ->
-        {:error, %Error{kind: :timeout, message: "not connected after #{opts[:timeout]} ms"}}
+  defp batch_op({:get_attr, t, attr}), do: {:G, Codec.to_wire(t), attr}
 
-      true ->
-        Process.sleep(@await_poll)
-        poll_connected(opts, deadline)
-    end
+  # Malformed arguments must not crash the shared client: report them to the caller.
+  defp build_frame(req, id) do
+    {:ok, frame(req, id)}
+  rescue
+    e in [ArgumentError, FunctionClauseError, Protocol.UndefinedError] ->
+      {:error, %Error{kind: :bad_request, message: Exception.message(e)}}
   end
-
-  defp kw(opts), do: Keyword.get(opts, :kw, [])
-
-  # --- Connecting ---
 
   # The handshake runs in a task so requests keep getting fast `:disconnected`
   # replies while a connect hangs (e.g. a firewall dropping SYNs).
@@ -320,63 +307,6 @@ defmodule Poser.Client do
     schedule_reconnect(%{state | last_error: reason})
   end
 
-  defp handshake(opts, transport) do
-    with {:ok, target} <- target(opts),
-         {:ok, conn} <- transport.connect(target.host, target.port, opts[:connect_timeout]) do
-      hello = {:hello, %{token: target.token, protocol: 1, client: "poserx #{@version}"}}
-
-      with :ok <- transport.send_frame(conn, Codec.encode(hello)),
-           {:ok, bin} <- transport.recv_frame(conn, opts[:connect_timeout]),
-           {:ok, info} <- hello_reply(Codec.decode(bin)) do
-        {:ok, conn, info}
-      else
-        error ->
-          transport.close(conn)
-          error
-      end
-    end
-  end
-
-  defp disconnected_error(state),
-    do: %Error{kind: :disconnected, details: %{reason: state.last_error}}
-
-  defp target(opts) do
-    session =
-      case Session.read(opts[:session] || Session.default_path()) do
-        {:ok, s} -> s
-        {:error, _} = error -> error
-      end
-
-    case {session, opts[:host], opts[:port], opts[:token]} do
-      {%{} = s, host, port, token} ->
-        {:ok,
-         %{
-           host: host || Session.pick_host(s.hosts),
-           port: port || s.port,
-           token: token || s.token
-         }}
-
-      {_error, host, port, token}
-      when is_binary(host) and is_integer(port) and is_binary(token) ->
-        {:ok, %{host: host, port: port, token: token}}
-
-      {error, _, _, _} ->
-        error
-    end
-  end
-
-  defp hello_reply({:ok, {:r, 0, %{protocol: 1} = info}}), do: {:ok, info}
-
-  defp hello_reply({:ok, {:e, 0, reason}}),
-    do: {:error, Error.from_wire(reason)}
-
-  defp hello_reply(_), do: {:error, %Error{kind: :handshake_failed}}
-
-  defp schedule_reconnect(state) do
-    timer = Process.send_after(self(), :connect, state.backoff)
-    %{state | reconnect_timer: timer, backoff: min(state.backoff * 2, state.opts[:backoff_max])}
-  end
-
   defp disconnect(state, reason) do
     if state.conn, do: state.transport.close(state.conn)
 
@@ -399,25 +329,19 @@ defmodule Poser.Client do
     schedule_reconnect(%{state | conn: nil, info: nil, pending: %{}, owners: %{}, monitors: %{}})
   end
 
-  # --- Requests ---
+  defp disconnected_error(state),
+    do: %Error{kind: :disconnected, details: %{reason: state.last_error}}
 
-  defp next_id(state), do: {state.next_id, %{state | next_id: state.next_id + 1}}
+  defp disown(state, {:release, handles}) do
+    ids = handles |> Codec.handles_in() |> MapSet.new(& &1.id)
 
-  defp valid_timeout(t) when is_nil(t) or t == :infinity or (is_integer(t) and t >= 0), do: :ok
+    owners =
+      Map.new(state.owners, fn {pid, owned} -> {pid, Map.drop(owned, MapSet.to_list(ids))} end)
 
-  defp valid_timeout(t),
-    do: {:error, %Error{kind: :bad_request, message: "invalid timeout #{inspect(t)}"}}
-
-  # Malformed arguments must not crash the shared client: report them to the caller.
-  defp build_frame(req, id) do
-    {:ok, frame(req, id)}
-  rescue
-    e in [ArgumentError, FunctionClauseError, Protocol.UndefinedError] ->
-      {:error, %Error{kind: :bad_request, message: Exception.message(e)}}
+    %{state | owners: owners}
   end
 
-  defp kind(:ping), do: :ping
-  defp kind(_), do: :request
+  defp disown(state, _req), do: state
 
   defp frame({:call, name, args, kw}, id), do: {:C, id, name, Codec.to_wire(args), kw_map(kw)}
 
@@ -433,44 +357,6 @@ defmodule Poser.Client do
 
   defp frame(:ping, id), do: {:ping, id}
   defp frame(:stats, id), do: {:S, id}
-
-  defp batch_op({:call, name, args}), do: batch_op({:call, name, args, []})
-  defp batch_op({:call, name, args, kw}), do: {:C, name, Codec.to_wire(args), kw_map(kw)}
-  defp batch_op({:invoke, t, m, args}), do: batch_op({:invoke, t, m, args, []})
-
-  defp batch_op({:invoke, t, m, args, kw}),
-    do: {:I, Codec.to_wire(t), m, Codec.to_wire(args), kw_map(kw)}
-
-  defp batch_op({:get_attr, t, attr}), do: {:G, Codec.to_wire(t), attr}
-
-  defp kw_map(kw), do: Map.new(kw, fn {k, v} -> {to_string(k), Codec.to_wire(v)} end)
-
-  defp stale_handle(req, epoch) do
-    req |> request_terms() |> Codec.handles_in() |> Enum.find(&(&1.epoch != epoch))
-  end
-
-  defp request_terms({:batch, ops}), do: ops
-  defp request_terms(req) when is_tuple(req), do: req
-  defp request_terms(_), do: []
-
-  defp stale_error(h),
-    do: %Error{kind: :stale_handle, details: %{id: h.id, generation: h.generation}}
-
-  # Fire-and-forget request: the reply is matched and dropped.
-  defp send_untracked(state, req) do
-    {id, state} = next_id(state)
-    entry = %{from: nil, timer: nil, kind: :request, t0: 0}
-    send_request(%{state | pending: Map.put(state.pending, id, entry)}, frame(req, id))
-  end
-
-  defp send_request(state, frame) do
-    case state.transport.send_frame(state.conn, Codec.encode(frame)) do
-      :ok -> {:noreply, state}
-      {:error, reason} -> {:noreply, disconnect(state, reason)}
-    end
-  end
-
-  # --- Inbound ---
 
   defp handle_frame(bin, state) do
     state = %{state | last_inbound: System.monotonic_time(:millisecond)}
@@ -501,6 +387,76 @@ defmodule Poser.Client do
     state
   end
 
+  defp handshake(opts, transport) do
+    with {:ok, target} <- target(opts),
+         {:ok, conn} <- transport.connect(target.host, target.port, opts[:connect_timeout]) do
+      hello = {:hello, %{token: target.token, protocol: 1, client: "poserx #{@version}"}}
+
+      with :ok <- transport.send_frame(conn, Codec.encode(hello)),
+           {:ok, bin} <- transport.recv_frame(conn, opts[:connect_timeout]),
+           {:ok, info} <- hello_reply(Codec.decode(bin)) do
+        {:ok, conn, info}
+      else
+        error ->
+          transport.close(conn)
+          error
+      end
+    end
+  end
+
+  defp hello_reply({:ok, {:r, 0, %{protocol: 1} = info}}), do: {:ok, info}
+
+  defp hello_reply({:ok, {:e, 0, reason}}),
+    do: {:error, Error.from_wire(reason)}
+
+  defp hello_reply(_), do: {:error, %Error{kind: :handshake_failed}}
+
+  defp kind(:ping), do: :ping
+  defp kind(_), do: :request
+
+  defp kw(opts), do: Keyword.get(opts, :kw, [])
+
+  defp kw_map(kw), do: Map.new(kw, fn {k, v} -> {to_string(k), Codec.to_wire(v)} end)
+
+  defp next_id(state), do: {state.next_id, %{state | next_id: state.next_id + 1}}
+
+  # Handles returned to a process are released when that process exits.
+  defp own(state, _pid, []), do: state
+
+  defp own(state, pid, handles) do
+    monitors = Map.put_new_lazy(state.monitors, pid, fn -> Process.monitor(pid) end)
+    owned = Map.get(state.owners, pid, %{})
+    owned = Enum.reduce(handles, owned, &Map.put(&2, &1.id, &1))
+    %{state | owners: Map.put(state.owners, pid, owned), monitors: monitors}
+  end
+
+  defp poll_connected(opts, deadline) do
+    cond do
+      status(opts) == :connected ->
+        :ok
+
+      System.monotonic_time(:millisecond) >= deadline ->
+        {:error, %Error{kind: :timeout, message: "not connected after #{opts[:timeout]} ms"}}
+
+      true ->
+        Process.sleep(@await_poll)
+        poll_connected(opts, deadline)
+    end
+  end
+
+  # A reply nobody waits for any more (the caller timed out): free its handles,
+  # including those in a failed batch's partial results.
+  defp release_late(state, result) do
+    case returned_handles(result) do
+      [] ->
+        state
+
+      handles ->
+        {:noreply, state} = send_untracked(state, {:release, handles})
+        state
+    end
+  end
+
   defp reply(state, id, result) do
     case Map.pop(state.pending, id) do
       {nil, _} ->
@@ -521,6 +477,14 @@ defmodule Poser.Client do
     end
   end
 
+  defp request(req, opts) do
+    GenServer.call(server(opts), {:request, req, Keyword.get(opts, :timeout)}, :infinity)
+  end
+
+  defp request_terms({:batch, ops}), do: ops
+  defp request_terms(req) when is_tuple(req), do: req
+  defp request_terms(_), do: []
+
   defp returned_handles({:ok, value}), do: Codec.handles_in(value)
 
   defp returned_handles({:error, %Error{kind: :batch_failed, details: %{partial: partial}}}),
@@ -528,42 +492,66 @@ defmodule Poser.Client do
 
   defp returned_handles(_), do: []
 
-  # Handles returned to a process are released when that process exits.
-  defp own(state, _pid, []), do: state
-
-  defp own(state, pid, handles) do
-    monitors = Map.put_new_lazy(state.monitors, pid, fn -> Process.monitor(pid) end)
-    owned = Map.get(state.owners, pid, %{})
-    owned = Enum.reduce(handles, owned, &Map.put(&2, &1.id, &1))
-    %{state | owners: Map.put(state.owners, pid, owned), monitors: monitors}
+  defp schedule_reconnect(state) do
+    timer = Process.send_after(self(), :connect, state.backoff)
+    %{state | reconnect_timer: timer, backoff: min(state.backoff * 2, state.opts[:backoff_max])}
   end
 
-  defp disown(state, {:release, handles}) do
-    ids = handles |> Codec.handles_in() |> MapSet.new(& &1.id)
-
-    owners =
-      Map.new(state.owners, fn {pid, owned} -> {pid, Map.drop(owned, MapSet.to_list(ids))} end)
-
-    %{state | owners: owners}
+  defp send_request(state, frame) do
+    case state.transport.send_frame(state.conn, Codec.encode(frame)) do
+      :ok -> {:noreply, state}
+      {:error, reason} -> {:noreply, disconnect(state, reason)}
+    end
   end
 
-  defp disown(state, _req), do: state
+  # Fire-and-forget request: the reply is matched and dropped.
+  defp send_untracked(state, req) do
+    {id, state} = next_id(state)
+    entry = %{from: nil, timer: nil, kind: :request, t0: 0}
+    send_request(%{state | pending: Map.put(state.pending, id, entry)}, frame(req, id))
+  end
+
+  defp server(opts), do: Keyword.get(opts, :server, __MODULE__)
 
   defp shape(%{kind: :ping, t0: t0}, {:ok, :pong}),
     do: {:ok, System.monotonic_time(:microsecond) - t0}
 
   defp shape(_entry, result), do: result
 
-  # A reply nobody waits for any more (the caller timed out): free its handles,
-  # including those in a failed batch's partial results.
-  defp release_late(state, result) do
-    case returned_handles(result) do
-      [] ->
-        state
+  defp stale_error(h),
+    do: %Error{kind: :stale_handle, details: %{id: h.id, generation: h.generation}}
 
-      handles ->
-        {:noreply, state} = send_untracked(state, {:release, handles})
-        state
+  defp stale_handle(req, epoch) do
+    req |> request_terms() |> Codec.handles_in() |> Enum.find(&(&1.epoch != epoch))
+  end
+
+  defp target(opts) do
+    session =
+      case Session.read(opts[:session] || Session.default_path()) do
+        {:ok, s} -> s
+        {:error, _} = error -> error
+      end
+
+    case {session, opts[:host], opts[:port], opts[:token]} do
+      {%{} = s, host, port, token} ->
+        {:ok,
+         %{
+           host: host || Session.pick_host(s.hosts),
+           port: port || s.port,
+           token: token || s.token
+         }}
+
+      {_error, host, port, token}
+      when is_binary(host) and is_integer(port) and is_binary(token) ->
+        {:ok, %{host: host, port: port, token: token}}
+
+      {error, _, _, _} ->
+        error
     end
   end
+
+  defp valid_timeout(t) when is_nil(t) or t == :infinity or (is_integer(t) and t >= 0), do: :ok
+
+  defp valid_timeout(t),
+    do: {:error, %Error{kind: :bad_request, message: "invalid timeout #{inspect(t)}"}}
 end
