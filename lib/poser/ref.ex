@@ -46,7 +46,7 @@ defmodule Poser.Ref do
           (map() -> boolean())
         ) ::
           {:ok, struct()} | {:error, Poser.Error.t()}
-  def find(parent, list_method, name, build, opts, extra \\ [], keep \\ fn _ -> true end) do
+  def find(parent, list_method, name, build, opts, extra \\ [], keep \\ &keep_all/1) do
     with {:ok, rows} <- children(parent, list_method, extra, opts) do
       case Enum.filter(rows, &(keep.(&1) and &1["Name"] == name)) do
         [row] ->
@@ -78,7 +78,7 @@ defmodule Poser.Ref do
           (map() -> boolean())
         ) ::
           {:ok, struct()} | {:error, Poser.Error.t()}
-  def lookup(guess, parent, list_method, name, build, opts, extra \\ [], keep \\ fn _ -> true end) do
+  def lookup(guess, parent, list_method, name, build, opts, extra \\ [], keep \\ &keep_all/1) do
     methods = ["InternalName", "Name" | extra]
     batch = Enum.reduce(methods, Poser.Batch.new(), &Poser.Batch.call(&2, guess, &1, []))
 
@@ -129,6 +129,9 @@ defmodule Poser.Ref do
   @spec unwrap!({:ok, v} | {:error, Exception.t()}) :: v when v: term()
   def unwrap!({:ok, value}), do: value
   def unwrap!({:error, error}), do: raise(error)
+
+  # The default `keep`: every row counts.
+  defp keep_all(_row), do: true
 
   defp read_children([], _methods, _opts), do: {:ok, []}
 
