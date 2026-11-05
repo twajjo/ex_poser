@@ -229,6 +229,12 @@ defmodule Poser.Batch do
   @spec run!(t(), keyword()) :: [term()]
   def run!(b, opts \\ []), do: b |> run(opts) |> Ref.unwrap!()
 
+  @doc false
+  # Returns `[{wire_ops, roles}]`, one per chunk; see Poser.Batch.Compiler.
+  @spec compile(t(), keyword()) :: [{list(), %{non_neg_integer() => role()}}]
+  def compile(%__MODULE__{} = b, opts),
+    do: b |> ops() |> Compiler.compile(Keyword.get(opts, :chunk, @default_chunk))
+
   # --- Building ---
 
   defp push(%__MODULE__{ops: ops, size: size} = b, ref, method, args, frame, result) do
@@ -253,12 +259,6 @@ defmodule Poser.Batch do
       other -> raise ArgumentError, "frame must be a non-negative integer, got #{inspect(other)}"
     end
   end
-
-  @doc false
-  # Returns `[{wire_ops, roles}]`, one per chunk; see Poser.Batch.Compiler.
-  @spec compile(t(), keyword()) :: [{list(), %{non_neg_integer() => role()}}]
-  def compile(%__MODULE__{} = b, opts),
-    do: b |> ops() |> Compiler.compile(Keyword.get(opts, :chunk, @default_chunk))
 
   # --- Running ---
 
