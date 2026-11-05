@@ -37,13 +37,6 @@ defmodule Poser.Gen.Signature do
     end
   end
 
-  defp split_line(re, line) do
-    case Regex.run(re, line, capture: :all_but_first) do
-      [before, rest] -> [{before, rest}]
-      nil -> []
-    end
-  end
-
   @doc """
   The signature for one dump entry: a skip from the overrides, an
   override line, or the docstring, in that order. `key` is
@@ -64,6 +57,13 @@ defmodule Poser.Gen.Signature do
 
       true ->
         with {:ok, sig} <- parse(name, doc, constants), do: {:ok, sig, :docstring}
+    end
+  end
+
+  defp split_line(re, line) do
+    case Regex.run(re, line, capture: :all_but_first) do
+      [before, rest] -> [{before, rest}]
+      nil -> []
     end
   end
 
