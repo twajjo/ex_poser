@@ -58,64 +58,6 @@ defmodule Poser.Batch do
 
   @doc group: "Building"
   @doc """
-  An empty batch.
-
-  ## Examples
-
-      iex> Poser.Batch.new()
-      %Poser.Batch{ops: [], size: 0}
-  """
-  @spec new() :: t()
-  def new, do: %__MODULE__{}
-
-  @doc group: "Building"
-  @doc """
-  The number of ops the caller added.
-
-  ## Examples
-
-      iex> fig = %Poser.Figure{internal: "figure 1", name: "Figure 1"}
-      iex> hip = %Poser.Actor{figure: fig, internal: "hip", name: "hip"}
-      iex> p = %Poser.Parameter{actor: hip, internal: "xtran", name: "xTran"}
-      iex> Poser.Batch.new() |> Poser.Batch.get(p) |> Poser.Batch.set(p, 1.0) |> Poser.Batch.size()
-      2
-  """
-  @spec size(t()) :: non_neg_integer()
-  def size(%__MODULE__{size: size}), do: size
-
-  @doc group: "Building"
-  @doc """
-  Reads a parameter's value. Its result is the float value.
-
-  Options: `:frame`, the frame to read at (default: the batch's original frame).
-
-  ## Examples
-
-      Poser.Batch.new() |> Poser.Batch.get(bend, frame: 12)
-  """
-  @spec get(t(), Parameter.t(), keyword()) :: t()
-  def get(b, %Parameter{} = parm, opts \\ []) do
-    push(b, parm, "Value", [], frame_opt(opts), :value)
-  end
-
-  @doc group: "Building"
-  @doc """
-  Sets a parameter's value. Integers are sent as floats. Its result is `:ok`.
-
-  Poser keys the value at the frame it is set at. Options: `:frame`, the
-  frame to set at (default: the batch's original frame).
-
-  ## Examples
-
-      Poser.Batch.new() |> Poser.Batch.set(bend, 30, frame: 5)
-  """
-  @spec set(t(), Parameter.t(), number(), keyword()) :: t()
-  def set(b, %Parameter{} = parm, value, opts \\ []) when is_number(value) do
-    push(b, parm, "SetValue", [value * 1.0], frame_opt(opts), :ok)
-  end
-
-  @doc group: "Building"
-  @doc """
   Adds a keyframe at `frame` without moving the scene's frame. Its result is `:ok`.
 
   ## Examples
@@ -125,19 +67,6 @@ defmodule Poser.Batch do
   @spec add_keyframe(t(), Parameter.t(), non_neg_integer()) :: t()
   def add_keyframe(b, %Parameter{} = parm, frame) when is_integer(frame) and frame >= 0 do
     push(b, parm, "AddKeyFrame", [frame], nil, :ok)
-  end
-
-  @doc group: "Building"
-  @doc """
-  Deletes the keyframe at `frame` without moving the scene's frame. Its result is `:ok`.
-
-  ## Examples
-
-      Poser.Batch.new() |> Poser.Batch.delete_keyframe(bend, 7)
-  """
-  @spec delete_keyframe(t(), Parameter.t(), non_neg_integer()) :: t()
-  def delete_keyframe(b, %Parameter{} = parm, frame) when is_integer(frame) and frame >= 0 do
-    push(b, parm, "DeleteKeyFrame", [frame], nil, :ok)
   end
 
   @doc group: "Building"
@@ -156,6 +85,52 @@ defmodule Poser.Batch do
   def call(b, ref, method, args \\ [], opts \\ []) when is_binary(method) and is_list(args) do
     push(b, ref, method, args, frame_opt(opts), :value)
   end
+
+  @doc false
+  # Returns `[{wire_ops, roles}]`, one per chunk; see Poser.Batch.Compiler.
+  @spec compile(t(), keyword()) :: [{list(), %{non_neg_integer() => role()}}]
+  def compile(%__MODULE__{} = b, opts),
+    do: b |> ops() |> Compiler.compile(Keyword.get(opts, :chunk, @default_chunk))
+
+  @doc group: "Building"
+  @doc """
+  Deletes the keyframe at `frame` without moving the scene's frame. Its result is `:ok`.
+
+  ## Examples
+
+      Poser.Batch.new() |> Poser.Batch.delete_keyframe(bend, 7)
+  """
+  @spec delete_keyframe(t(), Parameter.t(), non_neg_integer()) :: t()
+  def delete_keyframe(b, %Parameter{} = parm, frame) when is_integer(frame) and frame >= 0 do
+    push(b, parm, "DeleteKeyFrame", [frame], nil, :ok)
+  end
+
+  @doc group: "Building"
+  @doc """
+  Reads a parameter's value. Its result is the float value.
+
+  Options: `:frame`, the frame to read at (default: the batch's original frame).
+
+  ## Examples
+
+      Poser.Batch.new() |> Poser.Batch.get(bend, frame: 12)
+  """
+  @spec get(t(), Parameter.t(), keyword()) :: t()
+  def get(b, %Parameter{} = parm, opts \\ []) do
+    push(b, parm, "Value", [], frame_opt(opts), :value)
+  end
+
+  @doc group: "Building"
+  @doc """
+  An empty batch.
+
+  ## Examples
+
+      iex> Poser.Batch.new()
+      %Poser.Batch{ops: [], size: 0}
+  """
+  @spec new() :: t()
+  def new, do: %__MODULE__{}
 
   @doc group: "Running"
   @doc """
@@ -229,27 +204,43 @@ defmodule Poser.Batch do
   @spec run!(t(), keyword()) :: [term()]
   def run!(b, opts \\ []), do: b |> run(opts) |> Ref.unwrap!()
 
-  @doc false
-  # Returns `[{wire_ops, roles}]`, one per chunk; see Poser.Batch.Compiler.
-  @spec compile(t(), keyword()) :: [{list(), %{non_neg_integer() => role()}}]
-  def compile(%__MODULE__{} = b, opts),
-    do: b |> ops() |> Compiler.compile(Keyword.get(opts, :chunk, @default_chunk))
+  @doc group: "Building"
+  @doc """
+  Sets a parameter's value. Integers are sent as floats. Its result is `:ok`.
 
-  # --- Building ---
+  Poser keys the value at the frame it is set at. Options: `:frame`, the
+  frame to set at (default: the batch's original frame).
 
-  defp push(%__MODULE__{ops: ops, size: size} = b, ref, method, args, frame, result) do
-    op = %{ref: ref, method: method, args: args, frame: frame, result: result}
-    %{b | ops: [op | ops], size: size + 1}
+  ## Examples
+
+      Poser.Batch.new() |> Poser.Batch.set(bend, 30, frame: 5)
+  """
+  @spec set(t(), Parameter.t(), number(), keyword()) :: t()
+  def set(b, %Parameter{} = parm, value, opts \\ []) when is_number(value) do
+    push(b, parm, "SetValue", [value * 1.0], frame_opt(opts), :ok)
   end
 
-  defp ops(%__MODULE__{ops: ops}), do: Enum.reverse(ops)
+  @doc group: "Building"
+  @doc """
+  The number of ops the caller added.
 
-  defp run_opts(opts) do
-    opts = Keyword.validate!(opts, [:server, :timeout, chunk: @default_chunk])
+  ## Examples
 
-    case opts[:chunk] do
-      chunk when is_integer(chunk) and chunk > 0 -> opts
-      other -> raise ArgumentError, "chunk must be a positive integer, got #{inspect(other)}"
+      iex> fig = %Poser.Figure{internal: "figure 1", name: "Figure 1"}
+      iex> hip = %Poser.Actor{figure: fig, internal: "hip", name: "hip"}
+      iex> p = %Poser.Parameter{actor: hip, internal: "xtran", name: "xTran"}
+      iex> Poser.Batch.new() |> Poser.Batch.get(p) |> Poser.Batch.set(p, 1.0) |> Poser.Batch.size()
+      2
+  """
+  @spec size(t()) :: non_neg_integer()
+  def size(%__MODULE__{size: size}), do: size
+
+  # Caller results of chunks that already ran; the caller never receives them.
+  defp acc_handles(st), do: st.acc |> Enum.concat() |> Codec.handles_in()
+
+  defp caller_results(results, roles, kinds) do
+    for {result, i} <- Enum.with_index(results), {:caller, k} <- [roles[i]] do
+      if elem(kinds, k) == :ok, do: :ok, else: result
     end
   end
 
@@ -260,7 +251,76 @@ defmodule Poser.Batch do
     end
   end
 
-  # --- Running ---
+  defp lookup_handles(results, roles) do
+    results
+    |> Enum.with_index()
+    |> Enum.filter(fn {_, i} -> match?({:lookup, _, _}, roles[i]) end)
+    |> Enum.map(&elem(&1, 0))
+    |> Codec.handles_in()
+  end
+
+  defp map_error(i, cause, partial, wire, roles) do
+    case roles[i] do
+      {:lookup, [_ | _] = prefix, k} ->
+        not_found(prefix, k, cause)
+
+      {:lookup, [], k} ->
+        with_index(cause, k)
+
+      {_, k} ->
+        case wire |> Enum.at(i) |> target() do
+          {:result, j} when is_map_key(roles, j) ->
+            case {roles[j], Enum.at(partial, j)} do
+              {{:lookup, [_ | _] = prefix, _}, nil} -> not_found(prefix, k, cause)
+              _ -> with_index(cause, k)
+            end
+
+          _ ->
+            with_index(cause, k)
+        end
+    end
+  end
+
+  defp moves?(wire, roles) do
+    wire
+    |> Enum.with_index()
+    |> Enum.any?(fn {op, i} ->
+      match?({:invoke, _, "SetFrame", _}, op) and match?({:frame, _}, roles[i])
+    end)
+  end
+
+  defp not_found(path, k, cause), do: Error.not_found(path, k, cause)
+
+  defp ops(%__MODULE__{ops: ops}), do: Enum.reverse(ops)
+
+  # The first chunk of a framed batch reads the original frame at wire op 1.
+  defp orig(nil, [_, @read_frame | _], [_, frame | _]), do: frame
+  defp orig(orig, _wire, _results), do: orig
+
+  defp push(%__MODULE__{ops: ops, size: size} = b, ref, method, args, frame, result) do
+    op = %{ref: ref, method: method, args: args, frame: frame, result: result}
+    %{b | ops: [op | ops], size: size + 1}
+  end
+
+  defp release([], _opts), do: :ok
+  defp release(handles, opts), do: Client.release(handles, opts)
+
+  defp restore(nil, _opts), do: :ok
+
+  defp restore(orig, opts) do
+    ops = [@scene, {:invoke, {:result, 0}, "SetFrame", [orig]}]
+
+    case Client.batch(ops, opts) do
+      {:ok, results} ->
+        release(Codec.handles_in(results), opts)
+
+      {:error, %Error{kind: :batch_failed, details: %{partial: p}}} ->
+        release(Codec.handles_in(p), opts)
+
+      {:error, _} ->
+        :ok
+    end
+  end
 
   defp run_chunks([], _kinds, _opts, st), do: {:ok, st.acc |> Enum.reverse() |> Enum.concat()}
 
@@ -290,8 +350,14 @@ defmodule Poser.Batch do
     end
   end
 
-  # Caller results of chunks that already ran; the caller never receives them.
-  defp acc_handles(st), do: st.acc |> Enum.concat() |> Codec.handles_in()
+  defp run_opts(opts) do
+    opts = Keyword.validate!(opts, [:server, :timeout, chunk: @default_chunk])
+
+    case opts[:chunk] do
+      chunk when is_integer(chunk) and chunk > 0 -> opts
+      other -> raise ArgumentError, "chunk must be a positive integer, got #{inspect(other)}"
+    end
+  end
 
   defp substitute(wire, nil), do: wire
 
@@ -302,78 +368,8 @@ defmodule Poser.Batch do
     end)
   end
 
-  # The first chunk of a framed batch reads the original frame at wire op 1.
-  defp orig(nil, [_, @read_frame | _], [_, frame | _]), do: frame
-  defp orig(orig, _wire, _results), do: orig
-
-  defp moves?(wire, roles) do
-    wire
-    |> Enum.with_index()
-    |> Enum.any?(fn {op, i} ->
-      match?({:invoke, _, "SetFrame", _}, op) and match?({:frame, _}, roles[i])
-    end)
-  end
-
-  defp lookup_handles(results, roles) do
-    results
-    |> Enum.with_index()
-    |> Enum.filter(fn {_, i} -> match?({:lookup, _, _}, roles[i]) end)
-    |> Enum.map(&elem(&1, 0))
-    |> Codec.handles_in()
-  end
-
-  defp caller_results(results, roles, kinds) do
-    for {result, i} <- Enum.with_index(results), {:caller, k} <- [roles[i]] do
-      if elem(kinds, k) == :ok, do: :ok, else: result
-    end
-  end
-
-  defp release([], _opts), do: :ok
-  defp release(handles, opts), do: Client.release(handles, opts)
-
-  defp restore(nil, _opts), do: :ok
-
-  defp restore(orig, opts) do
-    ops = [@scene, {:invoke, {:result, 0}, "SetFrame", [orig]}]
-
-    case Client.batch(ops, opts) do
-      {:ok, results} ->
-        release(Codec.handles_in(results), opts)
-
-      {:error, %Error{kind: :batch_failed, details: %{partial: p}}} ->
-        release(Codec.handles_in(p), opts)
-
-      {:error, _} ->
-        :ok
-    end
-  end
-
-  defp map_error(i, cause, partial, wire, roles) do
-    case roles[i] do
-      {:lookup, [_ | _] = prefix, k} ->
-        not_found(prefix, k, cause)
-
-      {:lookup, [], k} ->
-        with_index(cause, k)
-
-      {_, k} ->
-        case wire |> Enum.at(i) |> target() do
-          {:result, j} when is_map_key(roles, j) ->
-            case {roles[j], Enum.at(partial, j)} do
-              {{:lookup, [_ | _] = prefix, _}, nil} -> not_found(prefix, k, cause)
-              _ -> with_index(cause, k)
-            end
-
-          _ ->
-            with_index(cause, k)
-        end
-    end
-  end
-
   defp target({:invoke, target, _method, _args}), do: target
   defp target(_), do: nil
-
-  defp not_found(path, k, cause), do: Error.not_found(path, k, cause)
 
   defp with_index(%Error{details: details} = cause, k),
     do: %{cause | details: Map.merge(details || %{}, %{index: k})}
