@@ -266,6 +266,14 @@ defmodule Poser.LivePoserTest do
               "#{by_display.internal == arm.internal}; Bend: #{inspect(match?({:ok, _}, bend))}; " <>
               "bend: #{inspect(match?({:ok, _}, bend_lc))}"
           )
+
+          # The docs say "Twist" labels both xrot and twistx on a forearm.
+          if match?({:ok, _}, Actor.parameter(arm, "twistx", server: c)) do
+            assert {:error, %Error{kind: :ambiguous}} =
+                     Actor.parameter(arm, "Twist", server: c)
+          else
+            IO.puts("lForeArm:1 has no twistx dial; \"Twist\" ambiguity not asserted")
+          end
       end
 
       assert_no_handles(c)
