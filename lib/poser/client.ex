@@ -33,6 +33,9 @@ defmodule Poser.Client do
     backoff_max: 10_000
   ]
 
+  # ms between status checks in await_connected/1
+  @await_poll 50
+
   # --- Public API ---
 
   @doc """
@@ -110,30 +113,6 @@ defmodule Poser.Client do
     deadline = System.monotonic_time(:millisecond) + opts[:timeout]
     poll_connected(opts, deadline)
   end
-
-  defp request(req, opts) do
-    GenServer.call(server(opts), {:request, req, Keyword.get(opts, :timeout)}, :infinity)
-  end
-
-  defp server(opts), do: Keyword.get(opts, :server, __MODULE__)
-
-  @await_poll 50
-
-  defp poll_connected(opts, deadline) do
-    cond do
-      status(opts) == :connected ->
-        :ok
-
-      System.monotonic_time(:millisecond) >= deadline ->
-        {:error, %Error{kind: :timeout, message: "not connected after #{opts[:timeout]} ms"}}
-
-      true ->
-        Process.sleep(@await_poll)
-        poll_connected(opts, deadline)
-    end
-  end
-
-  defp kw(opts), do: Keyword.get(opts, :kw, [])
 
   # --- Callbacks ---
 
@@ -262,6 +241,30 @@ defmodule Poser.Client do
   end
 
   def handle_info(_msg, state), do: {:noreply, state}
+
+  # --- Public API helpers ---
+
+  defp request(req, opts) do
+    GenServer.call(server(opts), {:request, req, Keyword.get(opts, :timeout)}, :infinity)
+  end
+
+  defp server(opts), do: Keyword.get(opts, :server, __MODULE__)
+
+  defp poll_connected(opts, deadline) do
+    cond do
+      status(opts) == :connected ->
+        :ok
+
+      System.monotonic_time(:millisecond) >= deadline ->
+        {:error, %Error{kind: :timeout, message: "not connected after #{opts[:timeout]} ms"}}
+
+      true ->
+        Process.sleep(@await_poll)
+        poll_connected(opts, deadline)
+    end
+  end
+
+  defp kw(opts), do: Keyword.get(opts, :kw, [])
 
   # --- Connecting ---
 
