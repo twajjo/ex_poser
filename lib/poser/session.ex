@@ -12,6 +12,19 @@ defmodule Poser.Session do
           hosts: [String.t()]
         }
 
+  @doc """
+  Where to find the session file: `POSERX_SESSION`, else `%APPDATA%\\PoserBridge`
+  (through `/mnt/c` when running in WSL), else `~/.config/PoserBridge`.
+  """
+  @spec default_path() :: Path.t()
+  def default_path do
+    System.get_env("POSERX_SESSION") || Path.join([appdata(), "PoserBridge", "session.json"])
+  end
+
+  @doc "The address to connect to: the WSL adapter when listed, else loopback."
+  @spec pick_host([String.t()]) :: String.t()
+  def pick_host(hosts), do: Enum.find(hosts, "127.0.0.1", &(&1 != "127.0.0.1"))
+
   @spec read(Path.t()) :: {:ok, t()} | {:error, {:session, atom()}}
   def read(path) do
     with {:ok, body} <- read_file(path),
@@ -20,10 +33,11 @@ defmodule Poser.Session do
     end
   end
 
-  defp read_file(path) do
-    case File.read(path) do
-      {:ok, body} -> {:ok, body}
-      {:error, reason} -> {:error, {:session, reason}}
+  defp appdata do
+    cond do
+      wsl?() -> wsl_appdata() || Path.expand("~/.config")
+      appdata = System.get_env("APPDATA") -> appdata
+      true -> Path.expand("~/.config")
     end
   end
 
@@ -40,20 +54,10 @@ defmodule Poser.Session do
 
   defp parse(_), do: {:error, {:session, :invalid}}
 
-  @doc """
-  Where to find the session file: `POSERX_SESSION`, else `%APPDATA%\\PoserBridge`
-  (through `/mnt/c` when running in WSL), else `~/.config/PoserBridge`.
-  """
-  @spec default_path() :: Path.t()
-  def default_path do
-    System.get_env("POSERX_SESSION") || Path.join([appdata(), "PoserBridge", "session.json"])
-  end
-
-  defp appdata do
-    cond do
-      wsl?() -> wsl_appdata() || Path.expand("~/.config")
-      appdata = System.get_env("APPDATA") -> appdata
-      true -> Path.expand("~/.config")
+  defp read_file(path) do
+    case File.read(path) do
+      {:ok, body} -> {:ok, body}
+      {:error, reason} -> {:error, {:session, reason}}
     end
   end
 
@@ -75,8 +79,4 @@ defmodule Poser.Session do
   rescue
     ErlangError -> nil
   end
-
-  @doc "The address to connect to: the WSL adapter when listed, else loopback."
-  @spec pick_host([String.t()]) :: String.t()
-  def pick_host(hosts), do: Enum.find(hosts, "127.0.0.1", &(&1 != "127.0.0.1"))
 end
