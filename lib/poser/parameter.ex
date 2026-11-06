@@ -50,123 +50,6 @@ defmodule Poser.Parameter do
 
   @type t :: %__MODULE__{actor: Poser.Actor.t(), internal: String.t(), name: String.t()}
 
-  @doc group: "Values"
-  @doc """
-  Reads the value, as a float. Options: `:frame` (default: the current
-  frame), `:server`, `:timeout`.
-
-  ## Examples
-
-      Poser.Parameter.value(bend)
-      #=> {:ok, 0.0}
-      Poser.Parameter.value(bend, frame: 12)
-      #=> {:ok, 30.0}
-  """
-  @spec value(t(), keyword()) :: {:ok, Poser.Actor.value()} | {:error, Error.t()}
-  def value(%__MODULE__{} = p, opts \\ []) do
-    {op, run} = split(opts)
-    with {:ok, [v]} <- Batch.new() |> Batch.get(p, op) |> Batch.run(run), do: {:ok, v}
-  end
-
-  @doc group: "Values"
-  @doc """
-  Like `value/2`, but returns the float and raises `Poser.Error` on failure.
-
-  ## Examples
-
-      Poser.Parameter.value!(bend)
-      #=> 0.0
-  """
-  @spec value!(t(), keyword()) :: Poser.Actor.value()
-  def value!(p, opts \\ []), do: p |> value(opts) |> Ref.unwrap!()
-
-  @doc group: "Values"
-  @doc """
-  Reads the value at `frame`, like `value/2` with `frame:`.
-
-  ## Examples
-
-      Poser.Parameter.value_at(bend, 12)
-      #=> {:ok, 30.0}
-  """
-  @spec value_at(t(), non_neg_integer(), keyword()) ::
-          {:ok, Poser.Actor.value()} | {:error, Error.t()}
-  def value_at(p, frame, opts \\ []), do: value(p, Keyword.put(opts, :frame, frame))
-
-  @doc group: "Values"
-  @doc """
-  Like `value_at/3`, but returns the float and raises `Poser.Error` on failure.
-
-  ## Examples
-
-      Poser.Parameter.value_at!(bend, 12)
-      #=> 30.0
-  """
-  @spec value_at!(t(), non_neg_integer(), keyword()) :: Poser.Actor.value()
-  def value_at!(p, frame, opts \\ []), do: p |> value_at(frame, opts) |> Ref.unwrap!()
-
-  @doc group: "Values"
-  @doc """
-  Sets the value. Integers are sent as floats. Poser keys the value at the
-  frame it is set at. Frames between keys follow Poser's interpolation, and
-  after the last key the value holds. Options: `:frame` (default: the current frame), `:server`, `:timeout`.
-
-  ## Examples
-
-      Poser.Parameter.set_value(bend, 30)
-      #=> {:ok, :ok}
-      Poser.Parameter.set_value(bend, 45.0, frame: 11)   # GUI frame 12
-      #=> {:ok, :ok}
-  """
-  @spec set_value(t(), number(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
-  def set_value(%__MODULE__{} = p, number, opts \\ []) when is_number(number) do
-    {op, run} = split(opts)
-    with {:ok, [:ok]} <- Batch.new() |> Batch.set(p, number, op) |> Batch.run(run), do: {:ok, :ok}
-  end
-
-  @doc group: "Values"
-  @doc """
-  Like `set_value/3`, but returns `:ok` and raises `Poser.Error` on failure.
-
-  ## Examples
-
-      Poser.Parameter.set_value!(bend, 30)
-      #=> :ok
-  """
-  @spec set_value!(t(), number(), keyword()) :: :ok
-  def set_value!(p, number, opts \\ []), do: p |> set_value(number, opts) |> Ref.unwrap!()
-
-  @doc group: "Values"
-  @doc """
-  The dial's limits as `{min, max}` floats. Options: `:server`, `:timeout`.
-
-  ## Examples
-
-      Poser.Parameter.min_max(bend)
-      #=> {:ok, {-180.0, 180.0}}
-  """
-  @spec min_max(t(), keyword()) :: {:ok, {float(), float()}} | {:error, Error.t()}
-  def min_max(%__MODULE__{} = p, opts \\ []) do
-    {_op, run} = split(opts)
-
-    batch =
-      Batch.new() |> Batch.call(p, "MinValue", []) |> Batch.call(p, "MaxValue", [])
-
-    with {:ok, [min, max]} <- Batch.run(batch, run), do: {:ok, {min, max}}
-  end
-
-  @doc group: "Values"
-  @doc """
-  Like `min_max/2`, but returns the tuple and raises `Poser.Error` on failure.
-
-  ## Examples
-
-      Poser.Parameter.min_max!(bend)
-      #=> {-180.0, 180.0}
-  """
-  @spec min_max!(t(), keyword()) :: {float(), float()}
-  def min_max!(p, opts \\ []), do: p |> min_max(opts) |> Ref.unwrap!()
-
   @doc group: "Keyframes"
   @doc """
   Adds a keyframe at `frame` (from 0: `7` is GUI frame 8), keeping the value
@@ -230,56 +113,6 @@ defmodule Poser.Parameter do
   def delete_keyframe!(p, frame, opts \\ []),
     do: p |> delete_keyframe(frame, opts) |> Ref.unwrap!()
 
-  @doc group: "Keyframes"
-  @doc """
-  The frames that hold a keyframe, sorted, counting from 0 (`[0, 3, 7]` is
-  GUI frames 1, 4 and 8). Every dial starts with a key at frame 0.
-
-  PoserPython walks keys one at a time, so this takes one round trip per key
-  (plus one for frame 0). It is not a snapshot: keys added or deleted during
-  the walk may or may not appear. Options: `:server`, `:timeout`.
-
-  ## Examples
-
-      Poser.Parameter.keyframes(bend)
-      #=> {:ok, [0, 3, 7]}
-  """
-  @spec keyframes(t(), keyword()) :: {:ok, [non_neg_integer()]} | {:error, Error.t()}
-  def keyframes(%__MODULE__{} = p, opts \\ []) do
-    {_op, run} = split(opts)
-
-    # PrevKeyFrame looks strictly before the current frame, so from frame 1 it
-    # finds a key at 0. NextKeyFrame then walks strictly forward from there.
-    with {:ok, [prev]} <-
-           Batch.new() |> Batch.call(p, "PrevKeyFrame", [], frame: 1) |> Batch.run(run),
-         start = if(prev == nil, do: [], else: [0]),
-         {:ok, rest} <- walk_keys(p, 0, run, []) do
-      {:ok, start ++ rest}
-    end
-  end
-
-  defp walk_keys(p, k, run, acc) do
-    batch = Batch.new() |> Batch.call(p, "NextKeyFrame", [], frame: k)
-
-    case Batch.run(batch, run) do
-      {:ok, [nil]} -> {:ok, Enum.reverse(acc)}
-      {:ok, [next]} -> walk_keys(p, trunc(next), run, [trunc(next) | acc])
-      {:error, _} = error -> error
-    end
-  end
-
-  @doc group: "Keyframes"
-  @doc """
-  Like `keyframes/2`, but returns the list and raises `Poser.Error` on failure.
-
-  ## Examples
-
-      Poser.Parameter.keyframes!(bend)
-      #=> [0, 3, 7]
-  """
-  @spec keyframes!(t(), keyword()) :: [non_neg_integer()]
-  def keyframes!(p, opts \\ []), do: p |> keyframes(opts) |> Ref.unwrap!()
-
   @doc group: "Escape hatch"
   @doc """
   The dial's `%Poser.Handle{}`, for calls this library doesn't wrap.
@@ -328,10 +161,177 @@ defmodule Poser.Parameter do
   @spec handle!(t(), keyword()) :: Poser.Handle.t()
   def handle!(p, opts \\ []), do: p |> handle(opts) |> Ref.unwrap!()
 
+  @doc group: "Keyframes"
+  @doc """
+  The frames that hold a keyframe, sorted, counting from 0 (`[0, 3, 7]` is
+  GUI frames 1, 4 and 8). Every dial starts with a key at frame 0.
+
+  PoserPython walks keys one at a time, so this takes one round trip per key
+  (plus one for frame 0). It is not a snapshot: keys added or deleted during
+  the walk may or may not appear. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      Poser.Parameter.keyframes(bend)
+      #=> {:ok, [0, 3, 7]}
+  """
+  @spec keyframes(t(), keyword()) :: {:ok, [non_neg_integer()]} | {:error, Error.t()}
+  def keyframes(%__MODULE__{} = p, opts \\ []) do
+    {_op, run} = split(opts)
+
+    # PrevKeyFrame looks strictly before the current frame, so from frame 1 it
+    # finds a key at 0. NextKeyFrame then walks strictly forward from there.
+    with {:ok, [prev]} <-
+           Batch.new() |> Batch.call(p, "PrevKeyFrame", [], frame: 1) |> Batch.run(run),
+         start = if(prev == nil, do: [], else: [0]),
+         {:ok, rest} <- walk_keys(p, 0, run, []) do
+      {:ok, start ++ rest}
+    end
+  end
+
+  @doc group: "Keyframes"
+  @doc """
+  Like `keyframes/2`, but returns the list and raises `Poser.Error` on failure.
+
+  ## Examples
+
+      Poser.Parameter.keyframes!(bend)
+      #=> [0, 3, 7]
+  """
+  @spec keyframes!(t(), keyword()) :: [non_neg_integer()]
+  def keyframes!(p, opts \\ []), do: p |> keyframes(opts) |> Ref.unwrap!()
+
+  @doc group: "Values"
+  @doc """
+  The dial's limits as `{min, max}` floats. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      Poser.Parameter.min_max(bend)
+      #=> {:ok, {-180.0, 180.0}}
+  """
+  @spec min_max(t(), keyword()) :: {:ok, {float(), float()}} | {:error, Error.t()}
+  def min_max(%__MODULE__{} = p, opts \\ []) do
+    {_op, run} = split(opts)
+
+    batch =
+      Batch.new() |> Batch.call(p, "MinValue", []) |> Batch.call(p, "MaxValue", [])
+
+    with {:ok, [min, max]} <- Batch.run(batch, run), do: {:ok, {min, max}}
+  end
+
+  @doc group: "Values"
+  @doc """
+  Like `min_max/2`, but returns the tuple and raises `Poser.Error` on failure.
+
+  ## Examples
+
+      Poser.Parameter.min_max!(bend)
+      #=> {-180.0, 180.0}
+  """
+  @spec min_max!(t(), keyword()) :: {float(), float()}
+  def min_max!(p, opts \\ []), do: p |> min_max(opts) |> Ref.unwrap!()
+
+  @doc group: "Values"
+  @doc """
+  Sets the value. Integers are sent as floats. Poser keys the value at the
+  frame it is set at. Frames between keys follow Poser's interpolation, and
+  after the last key the value holds. Options: `:frame` (default: the current frame), `:server`, `:timeout`.
+
+  ## Examples
+
+      Poser.Parameter.set_value(bend, 30)
+      #=> {:ok, :ok}
+      Poser.Parameter.set_value(bend, 45.0, frame: 11)   # GUI frame 12
+      #=> {:ok, :ok}
+  """
+  @spec set_value(t(), number(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
+  def set_value(%__MODULE__{} = p, number, opts \\ []) when is_number(number) do
+    {op, run} = split(opts)
+    with {:ok, [:ok]} <- Batch.new() |> Batch.set(p, number, op) |> Batch.run(run), do: {:ok, :ok}
+  end
+
+  @doc group: "Values"
+  @doc """
+  Like `set_value/3`, but returns `:ok` and raises `Poser.Error` on failure.
+
+  ## Examples
+
+      Poser.Parameter.set_value!(bend, 30)
+      #=> :ok
+  """
+  @spec set_value!(t(), number(), keyword()) :: :ok
+  def set_value!(p, number, opts \\ []), do: p |> set_value(number, opts) |> Ref.unwrap!()
+
+  @doc group: "Values"
+  @doc """
+  Reads the value, as a float. Options: `:frame` (default: the current
+  frame), `:server`, `:timeout`.
+
+  ## Examples
+
+      Poser.Parameter.value(bend)
+      #=> {:ok, 0.0}
+      Poser.Parameter.value(bend, frame: 12)
+      #=> {:ok, 30.0}
+  """
+  @spec value(t(), keyword()) :: {:ok, Poser.Actor.value()} | {:error, Error.t()}
+  def value(%__MODULE__{} = p, opts \\ []) do
+    {op, run} = split(opts)
+    with {:ok, [v]} <- Batch.new() |> Batch.get(p, op) |> Batch.run(run), do: {:ok, v}
+  end
+
+  @doc group: "Values"
+  @doc """
+  Like `value/2`, but returns the float and raises `Poser.Error` on failure.
+
+  ## Examples
+
+      Poser.Parameter.value!(bend)
+      #=> 0.0
+  """
+  @spec value!(t(), keyword()) :: Poser.Actor.value()
+  def value!(p, opts \\ []), do: p |> value(opts) |> Ref.unwrap!()
+
+  @doc group: "Values"
+  @doc """
+  Reads the value at `frame`, like `value/2` with `frame:`.
+
+  ## Examples
+
+      Poser.Parameter.value_at(bend, 12)
+      #=> {:ok, 30.0}
+  """
+  @spec value_at(t(), non_neg_integer(), keyword()) ::
+          {:ok, Poser.Actor.value()} | {:error, Error.t()}
+  def value_at(p, frame, opts \\ []), do: value(p, Keyword.put(opts, :frame, frame))
+
+  @doc group: "Values"
+  @doc """
+  Like `value_at/3`, but returns the float and raises `Poser.Error` on failure.
+
+  ## Examples
+
+      Poser.Parameter.value_at!(bend, 12)
+      #=> 30.0
+  """
+  @spec value_at!(t(), non_neg_integer(), keyword()) :: Poser.Actor.value()
+  def value_at!(p, frame, opts \\ []), do: p |> value_at(frame, opts) |> Ref.unwrap!()
+
   # :frame goes to the op builder; :server and :timeout go to Batch.run/2.
   defp split(opts) do
     opts = Keyword.validate!(opts, [:frame, :server, :timeout])
     {Keyword.take(opts, [:frame]), Keyword.take(opts, [:server, :timeout])}
+  end
+
+  defp walk_keys(p, k, run, acc) do
+    batch = Batch.new() |> Batch.call(p, "NextKeyFrame", [], frame: k)
+
+    case Batch.run(batch, run) do
+      {:ok, [nil]} -> {:ok, Enum.reverse(acc)}
+      {:ok, [next]} -> walk_keys(p, trunc(next), run, [trunc(next) | acc])
+      {:error, _} = error -> error
+    end
   end
 
   defimpl Inspect do
