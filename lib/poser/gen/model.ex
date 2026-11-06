@@ -80,7 +80,51 @@ defmodule Poser.Gen.Model do
   def kernel_clashes(name, arities),
     do: for({^name, a} <- @kernel, a in arities, uniq: true, do: {name, a})
 
-  # --- modules ---
+  @doc "snake_case for a Python name: `AlignmentRotationXYZ` → `alignment_rotation_xyz`."
+  @spec snake(String.t()) :: String.t()
+  def snake(name) do
+    name
+    |> String.replace(~r/([A-Z]+)([A-Z][a-z])/, "\\1_\\2")
+    |> String.replace(~r/([a-z0-9])([A-Z])/, "\\1_\\2")
+    |> String.downcase()
+  end
+
+  @doc false
+  def type_text(t) when is_binary(t), do: t
+  def type_text({:tuple, ts}), do: "(" <> Enum.map_join(ts, ", ", &type_text/1) <> ")"
+  def type_text({:union, ts}), do: Enum.map_join(ts, " | ", &type_text/1)
+
+  defp accepts(classes, class) do
+    descendants = for {c, _} <- classes, class in ancestors(classes, c), do: c
+    Enum.sort([class | descendants])
+  end
+
+  defp ancestors(classes, class, seen \\ []) do
+    if class in seen do
+      []
+    else
+      bases = get_in(classes, [class, "bases"]) || []
+      bases ++ Enum.flat_map(bases, &ancestors(classes, &1, [class | seen]))
+    end
+  end
+
+  defp arities(%{source: :variadic, kind: :method}), do: 1..3
+  defp arities(%{source: :variadic}), do: 0..2
+
+  defp arities(%{kind: kind, required: r}) do
+    base = length(r) + if(kind == :method, do: 1, else: 0)
+    base..(base + 1)
+  end
+
+  defp build_fun(key, py_name, doc, kind, ctx) do
+    base = %{py_name: py_name, kind: kind, name: fun_name(py_name), doc: doc || "", note: nil}
+
+    case Signature.for_entry(key, py_name, doc, ctx.overrides, ctx.constants) do
+      {:skip, reason} -> {:skip, reason}
+      {:error, reason} -> {:ok, variadic(base, reason, ctx)}
+      {:ok, sig, source} -> with_signature(base, sig, source, key, ctx)
+    end
+  end
 
   defp build_module(module, prefix, entries, kind, ctx) do
     {funs, manifest} =
@@ -106,196 +150,6 @@ defmodule Poser.Gen.Model do
        kernel_except: kernel_except
      }, manifest}
   end
-
-  defp resolve_collisions(funs) do
-    funs
-    |> Enum.group_by(& &1.name)
-    |> Enum.reduce({[], %{}}, fn {_name, group}, {keep, skipped} ->
-      [winner | losers] = Enum.sort_by(group, &{not upper?(&1.py_name), &1.py_name})
-
-      skipped =
-        Enum.reduce(losers, skipped, fn l, acc ->
-          reason =
-            if String.downcase(l.py_name) == String.downcase(winner.py_name),
-              do: "alias of #{winner.py_name}",
-              else: "snake_case name collides with #{winner.py_name}"
-
-          Map.put(acc, l.key, skip_entry(reason))
-        end)
-
-      {[winner | keep], skipped}
-    end)
-  end
-
-  defp upper?(<<c, _::binary>>), do: c in ?A..?Z
-
-  # --- functions ---
-
-  defp build_fun(key, py_name, doc, kind, ctx) do
-    base = %{py_name: py_name, kind: kind, name: fun_name(py_name), doc: doc || "", note: nil}
-
-    case Signature.for_entry(key, py_name, doc, ctx.overrides, ctx.constants) do
-      {:skip, reason} -> {:skip, reason}
-      {:error, reason} -> {:ok, variadic(base, reason, ctx)}
-      {:ok, sig, source} -> with_signature(base, sig, source, key, ctx)
-    end
-  end
-
-  defp with_signature(base, sig, source, key, ctx) do
-    {params, note} =
-      case Enum.find_index(sig.params, &String.contains?(type_text(&1.type), "FunctionType")) do
-        nil ->
-          {sig.params, nil}
-
-        i ->
-          if Enum.at(sig.params, i).optional,
-            do: {Enum.take(sig.params, i), "callback parameters dropped: Phase 4"},
-            else: {:callback, nil}
-      end
-
-    case params do
-      :callback ->
-        {:skip, "callback: Phase 4"}
-
-      params ->
-        {required, optional} = Enum.split_while(params, &(not &1.optional))
-
-        if Enum.any?(optional, &(not &1.optional)) do
-          {:ok, variadic(base, "required parameter after an optional one", ctx)}
-        else
-          fun =
-            Map.merge(base, %{
-              required: required_params(required),
-              optional: Enum.map(optional, &{String.to_atom(snake(&1.name)), &1.default}),
-              params: params,
-              returns: sig.returns,
-              source: source,
-              note: note
-            })
-
-          {:ok,
-           fun
-           |> Map.put(:spec, spec(fun, ctx))
-           |> Map.put(:getter?, getter?(fun, key, ctx))
-           |> Map.put(:follow?, not Map.has_key?(ctx.overrides["smoke_no_follow"] || %{}, key))}
-        end
-    end
-  end
-
-  defp variadic(base, reason, ctx) do
-    fun =
-      Map.merge(base, %{
-        required: [],
-        optional: [],
-        params: [],
-        returns: "object",
-        source: :variadic,
-        note: "signature not parsed (#{reason}); takes an argument list",
-        getter?: false
-      })
-
-    Map.put(fun, :spec, spec(fun, ctx))
-  end
-
-  defp required_params(params) do
-    {vars, _} =
-      Enum.map_reduce(params, MapSet.new(), fn p, seen ->
-        v = snake(p.name)
-        v = if v in @reserved or v in ["handle", "opts", "args"], do: v <> "_arg", else: v
-        v = unique(v, seen, 2)
-        {Map.merge(p, %{var: String.to_atom(v)}), MapSet.put(seen, v)}
-      end)
-
-    vars
-  end
-
-  defp unique(v, seen, n) do
-    cond do
-      not MapSet.member?(seen, v) -> v
-      not MapSet.member?(seen, "#{v}#{n}") -> "#{v}#{n}"
-      true -> unique(v, seen, n + 1)
-    end
-  end
-
-  defp fun_name(py_name) do
-    n = snake(py_name)
-    String.to_atom(if n in @reserved or n in @special_forms, do: n <> "_", else: n)
-  end
-
-  defp getter?(fun, key, ctx) do
-    fun.required == [] and fun.returns != "NoneType" and
-      not Regex.match?(@not_getter_re, fun.py_name) and
-      not Map.has_key?(ctx.overrides["smoke_skip"] || %{}, key)
-  end
-
-  defp arities(%{source: :variadic, kind: :method}), do: 1..3
-  defp arities(%{source: :variadic}), do: 0..2
-
-  defp arities(%{kind: kind, required: r}) do
-    base = length(r) + if(kind == :method, do: 1, else: 0)
-    base..(base + 1)
-  end
-
-  defp spec(fun, ctx) do
-    self_arg = if fun.kind == :method, do: [quote(do: Poser.Handle.t())], else: []
-
-    args =
-      case fun.source do
-        :variadic -> [quote(do: list())]
-        _ -> Enum.map(fun.required, &Types.spec(&1.type, :arg, ctx.class_names))
-      end
-
-    ret = Types.spec(fun.returns, :return, ctx.class_names)
-    head = {fun.name, [], self_arg ++ args ++ [quote(do: keyword())]}
-
-    quote do
-      unquote(head) :: {:ok, unquote(ret)} | {:error, Poser.Error.t()}
-    end
-  end
-
-  defp constructor(class, doc, ctx) when is_binary(doc) do
-    # e.g. "To create one pass 1 argument: <ImageType> poser.ImageType(<StringType> path)"
-    re = Regex.compile!("<[^<>]*>\\s*poser\\." <> Regex.escape(class) <> "\\(.*$", "m")
-
-    with [line | _] <- Regex.run(re, doc),
-         line = String.replace(line, "poser." <> class <> "(", class <> "("),
-         {:ok, sig} <- Signature.parse(class, line, ctx.constants),
-         base = %{
-           py_name: class,
-           kind: :function,
-           name: :new,
-           doc: doc,
-           note: nil,
-           key: "#{class}.new"
-         },
-         {:ok, fun} <- with_signature(base, sig, :docstring, "#{class}.new", ctx) do
-      %{fun | getter?: false}
-    else
-      _ -> nil
-    end
-  end
-
-  defp constructor(_class, _doc, _ctx), do: nil
-
-  # --- classes ---
-
-  defp ancestors(classes, class, seen \\ []) do
-    if class in seen do
-      []
-    else
-      bases = get_in(classes, [class, "bases"]) || []
-      bases ++ Enum.flat_map(bases, &ancestors(classes, &1, [class | seen]))
-    end
-  end
-
-  defp exception?(classes, class), do: "BaseException" in ancestors(classes, class)
-
-  defp accepts(classes, class) do
-    descendants = for {c, _} <- classes, class in ancestors(classes, c), do: c
-    Enum.sort([class | descendants])
-  end
-
-  # --- constants ---
 
   # kParmCodeXSCALE with group ParmCode -> parm_code(:xscale); the longest
   # matching group prefix wins, and ungrouped constants are fetch/1 only.
@@ -342,9 +196,31 @@ defmodule Poser.Gen.Model do
     %{module: module, groups: group_list, all: constants}
   end
 
-  # --- manifest ---
+  defp constructor(class, doc, ctx) when is_binary(doc) do
+    # e.g. "To create one pass 1 argument: <ImageType> poser.ImageType(<StringType> path)"
+    re = Regex.compile!("<[^<>]*>\\s*poser\\." <> Regex.escape(class) <> "\\(.*$", "m")
 
-  defp skip_entry(reason), do: %{"status" => "skipped", "reason" => reason}
+    with [line | _] <- Regex.run(re, doc),
+         line = String.replace(line, "poser." <> class <> "(", class <> "("),
+         {:ok, sig} <- Signature.parse(class, line, ctx.constants),
+         base = %{
+           py_name: class,
+           kind: :function,
+           name: :new,
+           doc: doc,
+           note: nil,
+           key: "#{class}.new"
+         },
+         {:ok, fun} <- with_signature(base, sig, :docstring, "#{class}.new", ctx) do
+      %{fun | getter?: false}
+    else
+      _ -> nil
+    end
+  end
+
+  defp constructor(_class, _doc, _ctx), do: nil
+
+  defp exception?(classes, class), do: "BaseException" in ancestors(classes, class)
 
   defp fun_entry(module, fun, ctx) do
     types = [fun.returns | Enum.map(fun.params, & &1.type)]
@@ -361,6 +237,28 @@ defmodule Poser.Gen.Model do
         types |> Enum.flat_map(&Types.unknowns(&1, ctx.class_names)) |> Enum.uniq()
     }
     |> then(fn e -> if fun.note, do: Map.put(e, "note", fun.note), else: e end)
+  end
+
+  defp fun_name(py_name) do
+    n = snake(py_name)
+    String.to_atom(if n in @reserved or n in @special_forms, do: n <> "_", else: n)
+  end
+
+  defp getter?(fun, key, ctx) do
+    fun.required == [] and fun.returns != "NoneType" and
+      not Regex.match?(@not_getter_re, fun.py_name) and
+      not Map.has_key?(ctx.overrides["smoke_skip"] || %{}, key)
+  end
+
+  defp getters(mod) do
+    for f <- mod.funs, f.getter? do
+      %{
+        "function" => Atom.to_string(f.name),
+        "py_name" => f.py_name,
+        "returns" => type_text(f.returns),
+        "follow" => Map.get(f, :follow?, true)
+      }
+    end
   end
 
   defp manifest(dump, namespace, functions, modules, entries) do
@@ -393,28 +291,120 @@ defmodule Poser.Gen.Model do
     }
   end
 
-  defp getters(mod) do
-    for f <- mod.funs, f.getter? do
-      %{
-        "function" => Atom.to_string(f.name),
-        "py_name" => f.py_name,
-        "returns" => type_text(f.returns),
-        "follow" => Map.get(f, :follow?, true)
-      }
+  defp required_params(params) do
+    {vars, _} =
+      Enum.map_reduce(params, MapSet.new(), fn p, seen ->
+        v = snake(p.name)
+        v = if v in @reserved or v in ["handle", "opts", "args"], do: v <> "_arg", else: v
+        v = unique(v, seen, 2)
+        {Map.merge(p, %{var: String.to_atom(v)}), MapSet.put(seen, v)}
+      end)
+
+    vars
+  end
+
+  defp resolve_collisions(funs) do
+    funs
+    |> Enum.group_by(& &1.name)
+    |> Enum.reduce({[], %{}}, fn {_name, group}, {keep, skipped} ->
+      [winner | losers] = Enum.sort_by(group, &{not upper?(&1.py_name), &1.py_name})
+
+      skipped =
+        Enum.reduce(losers, skipped, fn l, acc ->
+          reason =
+            if String.downcase(l.py_name) == String.downcase(winner.py_name),
+              do: "alias of #{winner.py_name}",
+              else: "snake_case name collides with #{winner.py_name}"
+
+          Map.put(acc, l.key, skip_entry(reason))
+        end)
+
+      {[winner | keep], skipped}
+    end)
+  end
+
+  defp skip_entry(reason), do: %{"status" => "skipped", "reason" => reason}
+
+  defp spec(fun, ctx) do
+    self_arg = if fun.kind == :method, do: [quote(do: Poser.Handle.t())], else: []
+
+    args =
+      case fun.source do
+        :variadic -> [quote(do: list())]
+        _ -> Enum.map(fun.required, &Types.spec(&1.type, :arg, ctx.class_names))
+      end
+
+    ret = Types.spec(fun.returns, :return, ctx.class_names)
+    head = {fun.name, [], self_arg ++ args ++ [quote(do: keyword())]}
+
+    quote do
+      unquote(head) :: {:ok, unquote(ret)} | {:error, Poser.Error.t()}
     end
   end
 
-  @doc false
-  def type_text(t) when is_binary(t), do: t
-  def type_text({:tuple, ts}), do: "(" <> Enum.map_join(ts, ", ", &type_text/1) <> ")"
-  def type_text({:union, ts}), do: Enum.map_join(ts, " | ", &type_text/1)
+  defp unique(v, seen, n) do
+    cond do
+      not MapSet.member?(seen, v) -> v
+      not MapSet.member?(seen, "#{v}#{n}") -> "#{v}#{n}"
+      true -> unique(v, seen, n + 1)
+    end
+  end
 
-  @doc "snake_case for a Python name: `AlignmentRotationXYZ` → `alignment_rotation_xyz`."
-  @spec snake(String.t()) :: String.t()
-  def snake(name) do
-    name
-    |> String.replace(~r/([A-Z]+)([A-Z][a-z])/, "\\1_\\2")
-    |> String.replace(~r/([a-z0-9])([A-Z])/, "\\1_\\2")
-    |> String.downcase()
+  defp upper?(<<c, _::binary>>), do: c in ?A..?Z
+
+  defp variadic(base, reason, ctx) do
+    fun =
+      Map.merge(base, %{
+        required: [],
+        optional: [],
+        params: [],
+        returns: "object",
+        source: :variadic,
+        note: "signature not parsed (#{reason}); takes an argument list",
+        getter?: false
+      })
+
+    Map.put(fun, :spec, spec(fun, ctx))
+  end
+
+  defp with_signature(base, sig, source, key, ctx) do
+    {params, note} =
+      case Enum.find_index(sig.params, &String.contains?(type_text(&1.type), "FunctionType")) do
+        nil ->
+          {sig.params, nil}
+
+        i ->
+          if Enum.at(sig.params, i).optional,
+            do: {Enum.take(sig.params, i), "callback parameters dropped: Phase 4"},
+            else: {:callback, nil}
+      end
+
+    case params do
+      :callback ->
+        {:skip, "callback: Phase 4"}
+
+      params ->
+        {required, optional} = Enum.split_while(params, &(not &1.optional))
+
+        if Enum.any?(optional, &(not &1.optional)) do
+          {:ok, variadic(base, "required parameter after an optional one", ctx)}
+        else
+          fun =
+            Map.merge(base, %{
+              required: required_params(required),
+              optional: Enum.map(optional, &{String.to_atom(snake(&1.name)), &1.default}),
+              params: params,
+              returns: sig.returns,
+              source: source,
+              note: note
+            })
+
+          {:ok,
+           fun
+           |> Map.put(:spec, spec(fun, ctx))
+           |> Map.put(:getter?, getter?(fun, key, ctx))
+           |> Map.put(:follow?, not Map.has_key?(ctx.overrides["smoke_no_follow"] || %{}, key))}
+        end
+    end
   end
 end
