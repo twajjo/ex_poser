@@ -46,34 +46,74 @@ defmodule Poser.Actor do
   @typedoc "A dial value as Poser reports it; NaN and infinities arrive as atoms."
   @type value :: float() | :nan | :infinity | :neg_infinity
 
-  @doc group: "Parameters"
+  @doc group: "Values"
   @doc """
-  Lists the actor's dials, in Poser's order. Options: `:server`, `:timeout`.
+  Reads one dial's value by internal name. The value is a `t:value/0`.
+  Options: `:server`, `:timeout`.
 
   ## Examples
 
-      Poser.Actor.parameters(hip)
-      #=> {:ok, [#Poser.Parameter<figure 1/hip/xtran>, ...]}
+      Poser.Actor.get(hip, "xtran")
+      #=> {:ok, 0.0}
   """
-  @spec parameters(t(), keyword()) :: {:ok, [Parameter.t()]} | {:error, Error.t()}
-  def parameters(%__MODULE__{} = a, opts \\ []) do
-    opts = run_opts(opts)
-
-    with {:ok, rows} <- Ref.children(a, "Parameters", [], opts),
-         do: {:ok, Enum.map(rows, &build_parameter(a, &1))}
+  @spec get(t(), String.t(), keyword()) :: {:ok, value()} | {:error, Error.t()}
+  def get(%__MODULE__{} = a, internal, opts \\ []) when is_binary(internal) do
+    with {:ok, [v]} <- Batch.new() |> Batch.get(parm(a, internal)) |> Batch.run(run_opts(opts)),
+         do: {:ok, v}
   end
 
-  @doc group: "Parameters"
+  @doc group: "Values"
   @doc """
-  Like `parameters/2`, but returns the list and raises `Poser.Error` on failure.
+  Like `get/3`, but returns the value and raises `Poser.Error` on failure.
 
   ## Examples
 
-      Poser.Actor.parameters!(hip)
-      #=> [#Poser.Parameter<figure 1/hip/xtran>, ...]
+      Poser.Actor.get!(hip, "xtran")
+      #=> 0.0
   """
-  @spec parameters!(t(), keyword()) :: [Parameter.t()]
-  def parameters!(a, opts \\ []), do: a |> parameters(opts) |> Ref.unwrap!()
+  @spec get!(t(), String.t(), keyword()) :: value()
+  def get!(a, internal, opts \\ []), do: a |> get(internal, opts) |> Ref.unwrap!()
+
+  @doc group: "Escape hatch"
+  @doc """
+  The actor's `%Poser.Handle{}`, for calls this library doesn't wrap.
+
+  The handle belongs to the caller: release it with `Poser.Client.release/2`.
+  A path that doesn't resolve gives `:not_found` with `details.path` and
+  `details.index` nil. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      {:ok, h} = Poser.Actor.handle(hip)
+      Poser.Client.invoke(h, "Name")
+      #=> {:ok, "hip"}
+      Poser.Client.release([h])
+  """
+  @spec handle(t(), keyword()) :: {:ok, Poser.Handle.t()} | {:error, Error.t()}
+  def handle(%__MODULE__{} = a, opts \\ []) do
+    # The first op makes a missing actor :not_found; the second fetches the handle
+    # from the actor's parent, since a ref can't hand out its own handle.
+    parent = a.figure || :scene
+
+    batch =
+      Batch.new()
+      |> Batch.call(a, "InternalName", [])
+      |> Batch.call(parent, "ActorByInternalName", [a.internal])
+
+    batch |> Batch.run(run_opts(opts)) |> to_handle(a)
+  end
+
+  @doc group: "Escape hatch"
+  @doc """
+  Like `handle/2`, but returns the handle and raises `Poser.Error` on failure.
+
+  ## Examples
+
+      h = Poser.Actor.handle!(hip)
+      Poser.Client.release([h])
+  """
+  @spec handle!(t(), keyword()) :: Poser.Handle.t()
+  def handle!(a, opts \\ []), do: a |> handle(opts) |> Ref.unwrap!()
 
   @doc group: "Parameters"
   @doc """
@@ -114,33 +154,34 @@ defmodule Poser.Actor do
   @spec parameter!(t(), String.t(), keyword()) :: Parameter.t()
   def parameter!(a, name, opts \\ []), do: a |> parameter(name, opts) |> Ref.unwrap!()
 
-  @doc group: "Values"
+  @doc group: "Parameters"
   @doc """
-  Reads one dial's value by internal name. The value is a `t:value/0`.
-  Options: `:server`, `:timeout`.
+  Lists the actor's dials, in Poser's order. Options: `:server`, `:timeout`.
 
   ## Examples
 
-      Poser.Actor.get(hip, "xtran")
-      #=> {:ok, 0.0}
+      Poser.Actor.parameters(hip)
+      #=> {:ok, [#Poser.Parameter<figure 1/hip/xtran>, ...]}
   """
-  @spec get(t(), String.t(), keyword()) :: {:ok, value()} | {:error, Error.t()}
-  def get(%__MODULE__{} = a, internal, opts \\ []) when is_binary(internal) do
-    with {:ok, [v]} <- Batch.new() |> Batch.get(parm(a, internal)) |> Batch.run(run_opts(opts)),
-         do: {:ok, v}
+  @spec parameters(t(), keyword()) :: {:ok, [Parameter.t()]} | {:error, Error.t()}
+  def parameters(%__MODULE__{} = a, opts \\ []) do
+    opts = run_opts(opts)
+
+    with {:ok, rows} <- Ref.children(a, "Parameters", [], opts),
+         do: {:ok, Enum.map(rows, &build_parameter(a, &1))}
   end
 
-  @doc group: "Values"
+  @doc group: "Parameters"
   @doc """
-  Like `get/3`, but returns the value and raises `Poser.Error` on failure.
+  Like `parameters/2`, but returns the list and raises `Poser.Error` on failure.
 
   ## Examples
 
-      Poser.Actor.get!(hip, "xtran")
-      #=> 0.0
+      Poser.Actor.parameters!(hip)
+      #=> [#Poser.Parameter<figure 1/hip/xtran>, ...]
   """
-  @spec get!(t(), String.t(), keyword()) :: value()
-  def get!(a, internal, opts \\ []), do: a |> get(internal, opts) |> Ref.unwrap!()
+  @spec parameters!(t(), keyword()) :: [Parameter.t()]
+  def parameters!(a, opts \\ []), do: a |> parameters(opts) |> Ref.unwrap!()
 
   @doc group: "Values"
   @doc """
@@ -205,10 +246,16 @@ defmodule Poser.Actor do
   @spec set!(t(), String.t(), number(), keyword()) :: :ok
   def set!(a, internal, value, opts), do: a |> set(internal, value, opts) |> Ref.unwrap!()
 
-  defp set_all(a, pairs, opts) do
-    batch = Enum.reduce(pairs, Batch.new(), fn {k, v}, b -> Batch.set(b, parm(a, k), v) end)
-    with {:ok, _} <- Batch.run(batch, run_opts(opts)), do: {:ok, :ok}
-  end
+  @doc false
+  @spec to_handle({:ok, list()} | {:error, Error.t()}, t()) ::
+          {:ok, Poser.Handle.t()} | {:error, Error.t()}
+  def to_handle({:ok, [_, %Poser.Handle{} = h]}, _a), do: {:ok, h}
+  def to_handle({:ok, [_, nil]}, a), do: {:error, Error.not_found(Ref.path(a))}
+
+  def to_handle({:error, %Error{kind: :not_found} = e}, _a),
+    do: {:error, %{e | details: %{e.details | index: nil}}}
+
+  def to_handle({:error, _} = error, _a), do: error
 
   @doc group: "Values"
   @doc """
@@ -240,64 +287,17 @@ defmodule Poser.Actor do
   @spec values!(t(), keyword()) :: %{String.t() => value()}
   def values!(a, opts \\ []), do: a |> values(opts) |> Ref.unwrap!()
 
-  @doc group: "Escape hatch"
-  @doc """
-  The actor's `%Poser.Handle{}`, for calls this library doesn't wrap.
-
-  The handle belongs to the caller: release it with `Poser.Client.release/2`.
-  A path that doesn't resolve gives `:not_found` with `details.path` and
-  `details.index` nil. Options: `:server`, `:timeout`.
-
-  ## Examples
-
-      {:ok, h} = Poser.Actor.handle(hip)
-      Poser.Client.invoke(h, "Name")
-      #=> {:ok, "hip"}
-      Poser.Client.release([h])
-  """
-  @spec handle(t(), keyword()) :: {:ok, Poser.Handle.t()} | {:error, Error.t()}
-  def handle(%__MODULE__{} = a, opts \\ []) do
-    # The first op makes a missing actor :not_found; the second fetches the handle
-    # from the actor's parent, since a ref can't hand out its own handle.
-    parent = a.figure || :scene
-
-    batch =
-      Batch.new()
-      |> Batch.call(a, "InternalName", [])
-      |> Batch.call(parent, "ActorByInternalName", [a.internal])
-
-    batch |> Batch.run(run_opts(opts)) |> to_handle(a)
-  end
-
-  @doc false
-  @spec to_handle({:ok, list()} | {:error, Error.t()}, t()) ::
-          {:ok, Poser.Handle.t()} | {:error, Error.t()}
-  def to_handle({:ok, [_, %Poser.Handle{} = h]}, _a), do: {:ok, h}
-  def to_handle({:ok, [_, nil]}, a), do: {:error, Error.not_found(Ref.path(a))}
-
-  def to_handle({:error, %Error{kind: :not_found} = e}, _a),
-    do: {:error, %{e | details: %{e.details | index: nil}}}
-
-  def to_handle({:error, _} = error, _a), do: error
-
-  @doc group: "Escape hatch"
-  @doc """
-  Like `handle/2`, but returns the handle and raises `Poser.Error` on failure.
-
-  ## Examples
-
-      h = Poser.Actor.handle!(hip)
-      Poser.Client.release([h])
-  """
-  @spec handle!(t(), keyword()) :: Poser.Handle.t()
-  def handle!(a, opts \\ []), do: a |> handle(opts) |> Ref.unwrap!()
-
-  defp parm(a, internal), do: %Parameter{actor: a, internal: internal, name: internal}
-
   defp build_parameter(a, row),
     do: %Parameter{actor: a, internal: row["InternalName"], name: row["Name"]}
 
+  defp parm(a, internal), do: %Parameter{actor: a, internal: internal, name: internal}
+
   defp run_opts(opts), do: Keyword.validate!(opts, [:server, :timeout])
+
+  defp set_all(a, pairs, opts) do
+    batch = Enum.reduce(pairs, Batch.new(), fn {k, v}, b -> Batch.set(b, parm(a, k), v) end)
+    with {:ok, _} <- Batch.run(batch, run_opts(opts)), do: {:ok, :ok}
+  end
 
   defimpl Inspect do
     def inspect(actor, _opts), do: "#Poser.Actor<#{Poser.Ref.path_string(actor)}>"
