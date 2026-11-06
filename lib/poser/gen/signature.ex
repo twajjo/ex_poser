@@ -18,26 +18,6 @@ defmodule Poser.Gen.Signature do
   @type t :: %{returns: type, params: [param]}
 
   @doc """
-  Parses the signature of `name` from `doc`. `constants` resolves
-  `poser.kName` defaults.
-  """
-  @spec parse(String.t(), String.t() | nil, %{String.t() => term()}) ::
-          {:ok, t} | {:error, String.t()}
-  def parse(_name, nil, _constants), do: {:error, "no docstring"}
-
-  def parse(name, doc, constants) when is_binary(doc) do
-    re = Regex.compile!("^(.*?)(?<![\\w.])" <> Regex.escape(name) <> "\\s*(\\(.*)$")
-
-    case doc
-         |> String.split("\n")
-         |> Enum.filter(&String.contains?(&1, "<"))
-         |> Enum.flat_map(&split_line(re, &1)) do
-      [] -> {:error, "no signature line"}
-      lines -> lines |> Enum.map(&parse_line(&1, constants)) |> combine()
-    end
-  end
-
-  @doc """
   The signature for one dump entry: a skip from the overrides, an
   override line, or the docstring, in that order. `key` is
   `"Class.Method"` or `"poser.Function"`.
@@ -60,10 +40,23 @@ defmodule Poser.Gen.Signature do
     end
   end
 
-  defp split_line(re, line) do
-    case Regex.run(re, line, capture: :all_but_first) do
-      [before, rest] -> [{before, rest}]
-      nil -> []
+  @doc """
+  Parses the signature of `name` from `doc`. `constants` resolves
+  `poser.kName` defaults.
+  """
+  @spec parse(String.t(), String.t() | nil, %{String.t() => term()}) ::
+          {:ok, t} | {:error, String.t()}
+  def parse(_name, nil, _constants), do: {:error, "no docstring"}
+
+  def parse(name, doc, constants) when is_binary(doc) do
+    re = Regex.compile!("^(.*?)(?<![\\w.])" <> Regex.escape(name) <> "\\s*(\\(.*)$")
+
+    case doc
+         |> String.split("\n")
+         |> Enum.filter(&String.contains?(&1, "<"))
+         |> Enum.flat_map(&split_line(re, &1)) do
+      [] -> {:error, "no signature line"}
+      lines -> lines |> Enum.map(&parse_line(&1, constants)) |> combine()
     end
   end
 
@@ -91,6 +84,57 @@ defmodule Poser.Gen.Signature do
     end
   end
 
+  defp drop_ident([{:ident, _} | rest]), do: rest
+  defp drop_ident(rest), do: rest
+
+  defp literal({:lit, v}, _c), do: {:ok, {:default, v}}
+  defp literal({:ident, b}, _c) when b in ["true", "True"], do: {:ok, {:default, true}}
+  defp literal({:ident, b}, _c) when b in ["false", "False"], do: {:ok, {:default, false}}
+  defp literal({:ident, "None"}, _c), do: {:ok, {:default, nil}}
+
+  defp literal({:ident, "poser." <> k}, c) do
+    case Map.fetch(c, k) do
+      {:ok, v} -> {:ok, {:default, v}}
+      :error -> {:error, "unknown constant poser.#{k}"}
+    end
+  end
+
+  defp literal(tok, _c), do: {:error, "bad default #{inspect(tok)}"}
+
+  defp params([")" | rest], 0, _sep_ok, acc, _c) do
+    case rest do
+      [] -> {:ok, Enum.reverse(acc)}
+      ["."] -> {:ok, Enum.reverse(acc)}
+      _ -> {:error, "text after the closing parenthesis"}
+    end
+  end
+
+  defp params([")" | _], _depth, _, _, _), do: {:error, "unbalanced {"}
+  defp params(["{" | rest], d, _, acc, c), do: params(rest, d + 1, true, acc, c)
+  defp params(["}" | _], 0, _, _, _), do: {:error, "unbalanced }"}
+  defp params(["}" | rest], d, _, acc, c), do: params(rest, d - 1, true, acc, c)
+  defp params(["," | rest], d, _, acc, c), do: params(rest, d, true, acc, c)
+
+  defp params([{:type, t}, {:ident, name} | rest], d, true, acc, c) do
+    {default, rest} =
+      case rest do
+        ["=", lit | rest] -> {literal(lit, c), rest}
+        rest -> {{:ok, :none}, rest}
+      end
+
+    case default do
+      {:ok, default} ->
+        p = %{name: name, type: t, optional: d > 0, default: default}
+        params(rest, d, false, [p | acc], c)
+
+      e ->
+        e
+    end
+  end
+
+  defp params([], _, _, _, _), do: {:error, "missing )"}
+  defp params([tok | _], _, _, _, _), do: {:error, "unexpected #{inspect(tok)} in parameters"}
+
   defp parse_line({before, after_name}, constants) do
     with {:ok, ret_tokens} <- tokenize(String.trim(before)),
          {:ok, returns} <- parse_return(ret_tokens),
@@ -100,7 +144,29 @@ defmodule Poser.Gen.Signature do
     end
   end
 
-  # --- tokenizer ---
+  defp parse_params(["(" | rest], constants), do: params(rest, 0, true, [], constants)
+
+  defp parse_return([]), do: {:ok, "object"}
+
+  defp parse_return(tokens) do
+    case parse_type_expr(tokens) do
+      {:ok, t, []} -> {:ok, t}
+      {:ok, _, rest} -> {:error, "unexpected #{inspect(hd(rest))} in return type"}
+      e -> e
+    end
+  end
+
+  defp parse_type_expr([{:type, t} | rest]), do: {:ok, t, rest}
+  defp parse_type_expr(["(" | rest]), do: tuple_items(rest, [])
+  defp parse_type_expr([tok | _]), do: {:error, "unexpected #{inspect(tok)} in type"}
+  defp parse_type_expr([]), do: {:error, "missing type"}
+
+  defp split_line(re, line) do
+    case Regex.run(re, line, capture: :all_but_first) do
+      [before, rest] -> [{before, rest}]
+      nil -> []
+    end
+  end
 
   defp tokenize(s), do: tokenize(s, [])
 
@@ -149,23 +215,6 @@ defmodule Poser.Gen.Signature do
     end
   end
 
-  # --- return types ---
-
-  defp parse_return([]), do: {:ok, "object"}
-
-  defp parse_return(tokens) do
-    case parse_type_expr(tokens) do
-      {:ok, t, []} -> {:ok, t}
-      {:ok, _, rest} -> {:error, "unexpected #{inspect(hd(rest))} in return type"}
-      e -> e
-    end
-  end
-
-  defp parse_type_expr([{:type, t} | rest]), do: {:ok, t, rest}
-  defp parse_type_expr(["(" | rest]), do: tuple_items(rest, [])
-  defp parse_type_expr([tok | _]), do: {:error, "unexpected #{inspect(tok)} in type"}
-  defp parse_type_expr([]), do: {:error, "missing type"}
-
   defp tuple_items(tokens, acc) do
     with {:ok, t, rest} <- parse_type_expr(tokens) do
       rest = drop_ident(rest)
@@ -177,59 +226,4 @@ defmodule Poser.Gen.Signature do
       end
     end
   end
-
-  defp drop_ident([{:ident, _} | rest]), do: rest
-  defp drop_ident(rest), do: rest
-
-  # --- parameters ---
-
-  defp parse_params(["(" | rest], constants), do: params(rest, 0, true, [], constants)
-
-  defp params([")" | rest], 0, _sep_ok, acc, _c) do
-    case rest do
-      [] -> {:ok, Enum.reverse(acc)}
-      ["."] -> {:ok, Enum.reverse(acc)}
-      _ -> {:error, "text after the closing parenthesis"}
-    end
-  end
-
-  defp params([")" | _], _depth, _, _, _), do: {:error, "unbalanced {"}
-  defp params(["{" | rest], d, _, acc, c), do: params(rest, d + 1, true, acc, c)
-  defp params(["}" | _], 0, _, _, _), do: {:error, "unbalanced }"}
-  defp params(["}" | rest], d, _, acc, c), do: params(rest, d - 1, true, acc, c)
-  defp params(["," | rest], d, _, acc, c), do: params(rest, d, true, acc, c)
-
-  defp params([{:type, t}, {:ident, name} | rest], d, true, acc, c) do
-    {default, rest} =
-      case rest do
-        ["=", lit | rest] -> {literal(lit, c), rest}
-        rest -> {{:ok, :none}, rest}
-      end
-
-    case default do
-      {:ok, default} ->
-        p = %{name: name, type: t, optional: d > 0, default: default}
-        params(rest, d, false, [p | acc], c)
-
-      e ->
-        e
-    end
-  end
-
-  defp params([], _, _, _, _), do: {:error, "missing )"}
-  defp params([tok | _], _, _, _, _), do: {:error, "unexpected #{inspect(tok)} in parameters"}
-
-  defp literal({:lit, v}, _c), do: {:ok, {:default, v}}
-  defp literal({:ident, b}, _c) when b in ["true", "True"], do: {:ok, {:default, true}}
-  defp literal({:ident, b}, _c) when b in ["false", "False"], do: {:ok, {:default, false}}
-  defp literal({:ident, "None"}, _c), do: {:ok, {:default, nil}}
-
-  defp literal({:ident, "poser." <> k}, c) do
-    case Map.fetch(c, k) do
-      {:ok, v} -> {:ok, {:default, v}}
-      :error -> {:error, "unknown constant poser.#{k}"}
-    end
-  end
-
-  defp literal(tok, _c), do: {:error, "bad default #{inspect(tok)}"}
 end
