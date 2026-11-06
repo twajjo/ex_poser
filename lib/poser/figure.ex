@@ -36,37 +36,6 @@ defmodule Poser.Figure do
 
   @doc group: "Lookup"
   @doc """
-  Lists the figure's body parts, in Poser's order. Props, cameras and lights
-  belong to the scene, not the figure; see `Poser.Scene.actors/1`.
-  Options: `:server`, `:timeout`.
-
-  ## Examples
-
-      Poser.Figure.actors(figure)
-      #=> {:ok, [#Poser.Actor<figure 1/hip>, ...]}
-  """
-  @spec actors(t(), keyword()) :: {:ok, [Actor.t()]} | {:error, Error.t()}
-  def actors(%__MODULE__{} = f, opts \\ []) do
-    opts = run_opts(opts)
-
-    with {:ok, rows} <- Ref.children(f, "Actors", [], opts),
-         do: {:ok, Enum.map(rows, &build(f, &1))}
-  end
-
-  @doc group: "Lookup"
-  @doc """
-  Like `actors/2`, but returns the list and raises `Poser.Error` on failure.
-
-  ## Examples
-
-      Poser.Figure.actors!(figure)
-      #=> [#Poser.Actor<figure 1/hip>, ...]
-  """
-  @spec actors!(t(), keyword()) :: [Actor.t()]
-  def actors!(f, opts \\ []), do: f |> actors(opts) |> Ref.unwrap!()
-
-  @doc group: "Lookup"
-  @doc """
   Finds a body part by internal name (`"hip"`) or by display name (`"Hip"`).
 
   The internal name is tried first and costs one round trip, and a hit always
@@ -102,34 +71,34 @@ defmodule Poser.Figure do
 
   @doc group: "Lookup"
   @doc """
-  Finds a dial on one of the figure's body parts, each by internal or display
-  name; see `actor/3` and `Poser.Actor.parameter/3`. Options: `:server`, `:timeout`.
+  Lists the figure's body parts, in Poser's order. Props, cameras and lights
+  belong to the scene, not the figure; see `Poser.Scene.actors/1`.
+  Options: `:server`, `:timeout`.
 
   ## Examples
 
-      Poser.Figure.parameter(figure, "hip", "xtran")
-      #=> {:ok, #Poser.Parameter<figure 1/hip/xtran>}
+      Poser.Figure.actors(figure)
+      #=> {:ok, [#Poser.Actor<figure 1/hip>, ...]}
   """
-  @spec parameter(t(), String.t(), String.t(), keyword()) ::
-          {:ok, Parameter.t()} | {:error, Error.t()}
-  def parameter(%__MODULE__{} = f, actor_name, parm_name, opts \\ [])
-      when is_binary(actor_name) and is_binary(parm_name) do
+  @spec actors(t(), keyword()) :: {:ok, [Actor.t()]} | {:error, Error.t()}
+  def actors(%__MODULE__{} = f, opts \\ []) do
     opts = run_opts(opts)
-    with {:ok, a} <- actor(f, actor_name, opts), do: Actor.parameter(a, parm_name, opts)
+
+    with {:ok, rows} <- Ref.children(f, "Actors", [], opts),
+         do: {:ok, Enum.map(rows, &build(f, &1))}
   end
 
   @doc group: "Lookup"
   @doc """
-  Like `parameter/4`, but returns the struct and raises `Poser.Error` on failure.
+  Like `actors/2`, but returns the list and raises `Poser.Error` on failure.
 
   ## Examples
 
-      Poser.Figure.parameter!(figure, "hip", "xtran")
-      #=> #Poser.Parameter<figure 1/hip/xtran>
+      Poser.Figure.actors!(figure)
+      #=> [#Poser.Actor<figure 1/hip>, ...]
   """
-  @spec parameter!(t(), String.t(), String.t(), keyword()) :: Parameter.t()
-  def parameter!(f, actor_name, parm_name, opts \\ []),
-    do: f |> parameter(actor_name, parm_name, opts) |> Ref.unwrap!()
+  @spec actors!(t(), keyword()) :: [Actor.t()]
+  def actors!(f, opts \\ []), do: f |> actors(opts) |> Ref.unwrap!()
 
   @doc group: "Escape hatch"
   @doc """
@@ -165,6 +134,37 @@ defmodule Poser.Figure do
   """
   @spec handle!(t(), keyword()) :: Poser.Handle.t()
   def handle!(f, opts \\ []), do: f |> handle(opts) |> Ref.unwrap!()
+
+  @doc group: "Lookup"
+  @doc """
+  Finds a dial on one of the figure's body parts, each by internal or display
+  name; see `actor/3` and `Poser.Actor.parameter/3`. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      Poser.Figure.parameter(figure, "hip", "xtran")
+      #=> {:ok, #Poser.Parameter<figure 1/hip/xtran>}
+  """
+  @spec parameter(t(), String.t(), String.t(), keyword()) ::
+          {:ok, Parameter.t()} | {:error, Error.t()}
+  def parameter(%__MODULE__{} = f, actor_name, parm_name, opts \\ [])
+      when is_binary(actor_name) and is_binary(parm_name) do
+    opts = run_opts(opts)
+    with {:ok, a} <- actor(f, actor_name, opts), do: Actor.parameter(a, parm_name, opts)
+  end
+
+  @doc group: "Lookup"
+  @doc """
+  Like `parameter/4`, but returns the struct and raises `Poser.Error` on failure.
+
+  ## Examples
+
+      Poser.Figure.parameter!(figure, "hip", "xtran")
+      #=> #Poser.Parameter<figure 1/hip/xtran>
+  """
+  @spec parameter!(t(), String.t(), String.t(), keyword()) :: Parameter.t()
+  def parameter!(f, actor_name, parm_name, opts \\ []),
+    do: f |> parameter(actor_name, parm_name, opts) |> Ref.unwrap!()
 
   defp build(f, row), do: %Actor{figure: f, internal: row["InternalName"], name: row["Name"]}
 
