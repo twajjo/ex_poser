@@ -42,6 +42,14 @@ defmodule Poser.Gen.Types do
     end
   end
 
+  defp collect_unknown({:unknown, t}, acc), do: [t | acc]
+  defp collect_unknown({:list, t}, acc), do: collect_unknown(t, acc)
+
+  defp collect_unknown({k, ts}, acc) when k in [:tuple, :union],
+    do: Enum.reduce(ts, acc, &collect_unknown/2)
+
+  defp collect_unknown(_, acc), do: acc
+
   defp to_ast(:integer, _), do: quote(do: integer())
   defp to_ast(:float, :arg), do: quote(do: number())
   defp to_ast(:float, :return), do: quote(do: float())
@@ -62,12 +70,4 @@ defmodule Poser.Gen.Types do
   defp to_ast({:union, ts}, d) do
     ts |> Enum.map(&to_ast(&1, d)) |> Enum.reduce(fn t, acc -> {:|, [], [acc, t]} end)
   end
-
-  defp collect_unknown({:unknown, t}, acc), do: [t | acc]
-  defp collect_unknown({:list, t}, acc), do: collect_unknown(t, acc)
-
-  defp collect_unknown({k, ts}, acc) when k in [:tuple, :union],
-    do: Enum.reduce(ts, acc, &collect_unknown/2)
-
-  defp collect_unknown(_, acc), do: acc
 end
