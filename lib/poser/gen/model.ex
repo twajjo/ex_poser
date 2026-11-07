@@ -40,26 +40,8 @@ defmodule Poser.Gen.Model do
       classes
       |> Enum.sort_by(&elem(&1, 0))
       |> Enum.map_reduce(%{}, fn {class, spec}, acc ->
-        if exception?(classes, class) do
-          skipped =
-            for m <- spec["methods"],
-                into: %{},
-                do: {"#{class}.#{m["name"]}", skip_entry("exception class, not a Poser object")}
-
-          {nil, Map.merge(acc, skipped)}
-        else
-          {mod, entries} =
-            build_module(Module.concat(namespace, class), class, spec["methods"], :method, ctx)
-
-          mod =
-            Map.merge(mod, %{
-              accepts: accepts(classes, class),
-              class_doc: spec["doc"],
-              constructor: constructor(class, spec["doc"], ctx)
-            })
-
-          {mod, Map.merge(acc, entries)}
-        end
+        {mod, entries} = class_module(classes, class, spec, namespace, ctx)
+        {mod, Map.merge(acc, entries)}
       end)
 
     modules = Enum.reject(modules, &is_nil/1)
@@ -149,6 +131,30 @@ defmodule Poser.Gen.Model do
        funs: Enum.sort_by(funs, & &1.name),
        kernel_except: kernel_except
      }, manifest}
+  end
+
+  # An exception class gets no module, and its methods are skipped in the manifest.
+  defp class_module(classes, class, spec, namespace, ctx) do
+    if exception?(classes, class) do
+      skipped =
+        for m <- spec["methods"],
+            into: %{},
+            do: {"#{class}.#{m["name"]}", skip_entry("exception class, not a Poser object")}
+
+      {nil, skipped}
+    else
+      {mod, entries} =
+        build_module(Module.concat(namespace, class), class, spec["methods"], :method, ctx)
+
+      mod =
+        Map.merge(mod, %{
+          accepts: accepts(classes, class),
+          class_doc: spec["doc"],
+          constructor: constructor(class, spec["doc"], ctx)
+        })
+
+      {mod, entries}
+    end
   end
 
   # kParmCodeXSCALE with group ParmCode -> parm_code(:xscale); the longest
