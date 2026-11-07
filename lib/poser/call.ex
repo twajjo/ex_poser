@@ -15,22 +15,6 @@ defmodule Poser.Call do
   @typedoc "Ordered optional Python parameters with their defaults, if known."
   @type optional :: [{atom(), {:default, term()} | :none}]
 
-  @doc "Calls the module-level `poser` function `py_name`."
-  @spec function(String.t(), list(), optional(), keyword()) ::
-          {:ok, term()} | {:error, Poser.Error.t()}
-  def function(py_name, args, optional, opts) do
-    {args, client_opts} = build_args(args, optional, opts)
-    Client.call(py_name, args, client_opts)
-  end
-
-  @doc "Calls the method `py_name` on `handle`."
-  @spec method(Handle.t(), String.t(), list(), optional(), keyword()) ::
-          {:ok, term()} | {:error, Poser.Error.t()}
-  def method(%Handle{} = handle, py_name, args, optional, opts) do
-    {args, client_opts} = build_args(args, optional, opts)
-    Client.invoke(handle, py_name, args, client_opts)
-  end
-
   @doc false
   # Returns {positional_args, client_opts}. Trailing omitted optionals are
   # dropped so Python applies its own defaults; a gap before a given option
@@ -68,6 +52,22 @@ defmodule Poser.Call do
       end
 
     {args ++ extra, client_opts}
+  end
+
+  @doc "Calls the module-level `poser` function `py_name`."
+  @spec function(String.t(), list(), optional(), keyword()) ::
+          {:ok, term()} | {:error, Poser.Error.t()}
+  def function(py_name, args, optional, opts) do
+    {args, client_opts} = build_args(args, optional, opts)
+    Client.call(py_name, args, client_opts)
+  end
+
+  @doc "Calls the method `py_name` on `handle`."
+  @spec method(Handle.t(), String.t(), list(), optional(), keyword()) ::
+          {:ok, term()} | {:error, Poser.Error.t()}
+  def method(%Handle{} = handle, py_name, args, optional, opts) do
+    {args, client_opts} = build_args(args, optional, opts)
+    Client.invoke(handle, py_name, args, client_opts)
   end
 
   defp fill(name, default, py_opts, optional, last_index) do
