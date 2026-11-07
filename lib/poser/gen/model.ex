@@ -157,6 +157,12 @@ defmodule Poser.Gen.Model do
     end
   end
 
+  defp collision_reason(loser, winner) do
+    if String.downcase(loser.py_name) == String.downcase(winner.py_name),
+      do: "alias of #{winner.py_name}",
+      else: "snake_case name collides with #{winner.py_name}"
+  end
+
   # Same key and same value (kSkinTypePOSER, kSkinTypePoser) is an
   # alias and becomes one key; different values are a real conflict.
   defp const_key(group, {key, dups}) do
@@ -319,12 +325,7 @@ defmodule Poser.Gen.Model do
 
       skipped =
         Enum.reduce(losers, skipped, fn l, acc ->
-          reason =
-            if String.downcase(l.py_name) == String.downcase(winner.py_name),
-              do: "alias of #{winner.py_name}",
-              else: "snake_case name collides with #{winner.py_name}"
-
-          Map.put(acc, l.key, skip_entry(reason))
+          Map.put(acc, l.key, skip_entry(collision_reason(l, winner)))
         end)
 
       {[winner | keep], skipped}
