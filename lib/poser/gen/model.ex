@@ -157,6 +157,21 @@ defmodule Poser.Gen.Model do
     end
   end
 
+  # Same key and same value (kSkinTypePOSER, kSkinTypePoser) is an
+  # alias and becomes one key; different values are a real conflict.
+  defp const_key(group, {key, dups}) do
+    case dups |> Enum.map(&elem(&1, 3)) |> Enum.uniq() do
+      [value] ->
+        {String.to_atom(key), value,
+         dups |> Enum.map(&elem(&1, 2)) |> Enum.sort() |> Enum.join(", ")}
+
+      _ ->
+        raise ArgumentError,
+              "constants #{dups |> Enum.map(&elem(&1, 2)) |> Enum.sort() |> Enum.join(" and ")} " <>
+                "both map to #{group} key :#{key} with different values"
+    end
+  end
+
   # kParmCodeXSCALE with group ParmCode -> parm_code(:xscale); the longest
   # matching group prefix wins, and ungrouped constants are fetch/1 only.
   defp const_model(constants, groups, namespace) do
@@ -178,23 +193,10 @@ defmodule Poser.Gen.Model do
       |> Enum.group_by(&elem(&1, 0))
       |> Enum.sort()
       |> Enum.map(fn {group, items} ->
-        # Same key and same value (kSkinTypePOSER, kSkinTypePoser) is an
-        # alias and becomes one key; different values are a real conflict.
         keys =
           items
           |> Enum.group_by(&elem(&1, 1))
-          |> Enum.map(fn {key, dups} ->
-            case dups |> Enum.map(&elem(&1, 3)) |> Enum.uniq() do
-              [value] ->
-                {String.to_atom(key), value,
-                 dups |> Enum.map(&elem(&1, 2)) |> Enum.sort() |> Enum.join(", ")}
-
-              _ ->
-                raise ArgumentError,
-                      "constants #{dups |> Enum.map(&elem(&1, 2)) |> Enum.sort() |> Enum.join(" and ")} " <>
-                        "both map to #{group} key :#{key} with different values"
-            end
-          end)
+          |> Enum.map(&const_key(group, &1))
 
         %{name: String.to_atom(group |> snake() |> String.trim("_")), keys: Enum.sort(keys)}
       end)
