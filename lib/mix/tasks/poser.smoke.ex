@@ -49,21 +49,6 @@ defmodule Mix.Tasks.Poser.Smoke do
     print(report, out, div(us, 1000))
   end
 
-  defp wait_connected(name, 0),
-    do:
-      Mix.raise(
-        "poser.smoke: cannot connect to Poser: #{inspect(Poser.Client.ping(server: name))}"
-      )
-
-  defp wait_connected(name, n) do
-    if Poser.Client.status(server: name) == :connected do
-      :ok
-    else
-      Process.sleep(200)
-      wait_connected(name, n - 1)
-    end
-  end
-
   defp print(report, out, ms) do
     s = report["summary"]
     getters = report["getters"]
@@ -93,5 +78,20 @@ defmodule Mix.Tasks.Poser.Smoke do
     problems:
     #{if problems == [], do: "  none", else: Enum.join(problems, "\n")}
     """)
+  end
+
+  defp wait_connected(name, 0),
+    do:
+      Mix.raise(
+        "poser.smoke: cannot connect to Poser: #{inspect(Poser.Client.ping(server: name))}"
+      )
+
+  defp wait_connected(name, n) do
+    if Poser.Client.status(server: name) == :connected do
+      :ok
+    else
+      Process.sleep(200)
+      wait_connected(name, n - 1)
+    end
   end
 end
