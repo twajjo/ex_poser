@@ -90,7 +90,8 @@ defmodule Poserx.MixProject do
   defp deps do
     [
       {:nx, "~> 1.0", optional: true},
-      {:ex_doc, "~> 0.40", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.40", only: :dev, runtime: false},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 end
