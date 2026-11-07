@@ -524,10 +524,6 @@ defmodule Poser.Const do
     "kStoreRenderosity" => 2
   }
 
-  @doc ~S|A constant by its Python name, e.g. `fetch("kParmCodeXSCALE")`.|
-  @spec fetch(String.t()) :: {:ok, integer() | String.t()} | :error
-  def fetch(name), do: Map.fetch(@all, name)
-
   @doc "Every constant, by Python name."
   @spec all() :: %{String.t() => integer() | String.t()}
   def all, do: @all
@@ -913,6 +909,10 @@ defmodule Poser.Const do
       :usewavelettextures,
       :weldseams
     ]
+
+  @doc ~S|A constant by its Python name, e.g. `fetch("kParmCodeXSCALE")`.|
+  @spec fetch(String.t()) :: {:ok, integer() | String.t()} | :error
+  def fetch(name), do: Map.fetch(@all, name)
 
   @doc "Grouped constants by key. See `gimbal_keys/0` for the keys."
   @spec gimbal(atom()) :: integer() | String.t()
@@ -1343,85 +1343,6 @@ defmodule Poser.Const do
   # kNodeTypeCodeWOOD
   def node_type_code(:wood), do: "wood"
 
-  @doc "The keys `node_type_code/1` accepts."
-  @spec node_type_code_keys() :: [atom()]
-  def node_type_code_keys,
-    do: [
-      :ambientocclusion,
-      :anisotropic,
-      :atmosphere,
-      :background,
-      :blender,
-      :blinn,
-      :brick,
-      :cellular,
-      :clay,
-      :clouds,
-      :colormath,
-      :colorramp,
-      :comp,
-      :compound,
-      :custom_scatter,
-      :customscatter,
-      :diffuse,
-      :dndu,
-      :dndv,
-      :dpdu,
-      :dpdv,
-      :du,
-      :dv,
-      :edgeblend,
-      :fastscatter,
-      :fbm,
-      :fractalsum,
-      :frame,
-      :fresnel,
-      :fresnelblend,
-      :gamma,
-      :gather,
-      :glossy,
-      :granite,
-      :hair,
-      :hsv,
-      :hsv2,
-      :imagemap,
-      :light,
-      :marble,
-      :math,
-      :microfacet,
-      :movie,
-      :n,
-      :noise,
-      :p,
-      :phong,
-      :physicalsurface,
-      :polygonhair,
-      :posersurface,
-      :posterize,
-      :probelight,
-      :reflect,
-      :refract,
-      :scatter,
-      :scatterskin,
-      :simplecolor,
-      :skin,
-      :specular,
-      :spheremap,
-      :spots,
-      :tile,
-      :toon,
-      :turbulence,
-      :u,
-      :userdefined,
-      :v,
-      :velvet,
-      :volume,
-      :wave2_d,
-      :wave3_d,
-      :weave,
-      :wood
-    ]
-
   @doc "Grouped constants by key. See `node_type_code_cycles_keys/0` for the keys."
   @spec node_type_code_cycles(atom()) :: integer() | String.t()
   # kNodeTypeCodeCyclesABSORPTIONVOLUME
@@ -1618,6 +1539,85 @@ defmodule Poser.Const do
       :wavelength,
       :wavetexture,
       :wireframe
+    ]
+
+  @doc "The keys `node_type_code/1` accepts."
+  @spec node_type_code_keys() :: [atom()]
+  def node_type_code_keys,
+    do: [
+      :ambientocclusion,
+      :anisotropic,
+      :atmosphere,
+      :background,
+      :blender,
+      :blinn,
+      :brick,
+      :cellular,
+      :clay,
+      :clouds,
+      :colormath,
+      :colorramp,
+      :comp,
+      :compound,
+      :custom_scatter,
+      :customscatter,
+      :diffuse,
+      :dndu,
+      :dndv,
+      :dpdu,
+      :dpdv,
+      :du,
+      :dv,
+      :edgeblend,
+      :fastscatter,
+      :fbm,
+      :fractalsum,
+      :frame,
+      :fresnel,
+      :fresnelblend,
+      :gamma,
+      :gather,
+      :glossy,
+      :granite,
+      :hair,
+      :hsv,
+      :hsv2,
+      :imagemap,
+      :light,
+      :marble,
+      :math,
+      :microfacet,
+      :movie,
+      :n,
+      :noise,
+      :p,
+      :phong,
+      :physicalsurface,
+      :polygonhair,
+      :posersurface,
+      :posterize,
+      :probelight,
+      :reflect,
+      :refract,
+      :scatter,
+      :scatterskin,
+      :simplecolor,
+      :skin,
+      :specular,
+      :spheremap,
+      :spots,
+      :tile,
+      :toon,
+      :turbulence,
+      :u,
+      :userdefined,
+      :v,
+      :velvet,
+      :volume,
+      :wave2_d,
+      :wave3_d,
+      :weave,
+      :wood
     ]
 
   @doc "Grouped constants by key. See `outline_code_keys/0` for the keys."
@@ -2138,6 +2138,17 @@ defmodule Poser.Const do
   @spec store_keys() :: [atom()]
   def store_keys, do: [:included, :poser_software, :renderosity]
 
+  @doc "Grouped constants by key. See `texture_compressor_code_keys/0` for the keys."
+  @spec texture_compressor_code(atom()) :: integer() | String.t()
+  # kTextureCompressorCodeRLE
+  def texture_compressor_code(:rle), do: 0
+  # kTextureCompressorCodeZIP
+  def texture_compressor_code(:zip), do: 1
+
+  @doc "The keys `texture_compressor_code/1` accepts."
+  @spec texture_compressor_code_keys() :: [atom()]
+  def texture_compressor_code_keys, do: [:rle, :zip]
+
   @doc "Grouped constants by key. See `tiff_keys/0` for the keys."
   @spec tiff(atom()) :: integer() | String.t()
   # kTIFF_ADOBE_DEFLATE
@@ -2158,17 +2169,6 @@ defmodule Poser.Const do
   @doc "The keys `tiff/1` accepts."
   @spec tiff_keys() :: [atom()]
   def tiff_keys, do: [:adobe_deflate, :default, :deflate, :jpeg, :lzw, :none, :packbits]
-
-  @doc "Grouped constants by key. See `texture_compressor_code_keys/0` for the keys."
-  @spec texture_compressor_code(atom()) :: integer() | String.t()
-  # kTextureCompressorCodeRLE
-  def texture_compressor_code(:rle), do: 0
-  # kTextureCompressorCodeZIP
-  def texture_compressor_code(:zip), do: 1
-
-  @doc "The keys `texture_compressor_code/1` accepts."
-  @spec texture_compressor_code_keys() :: [atom()]
-  def texture_compressor_code_keys, do: [:rle, :zip]
 
   @doc "Grouped constants by key. See `value_op_type_code_keys/0` for the keys."
   @spec value_op_type_code(atom()) :: integer() | String.t()
