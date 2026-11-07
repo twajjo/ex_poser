@@ -56,8 +56,12 @@ defmodule Poser.Codec do
     :api_hash
   ]
 
-  @spec known_atoms() :: [atom()]
-  def known_atoms, do: @known_atoms
+  @spec decode(binary()) :: {:ok, term()} | {:error, :undecodable}
+  def decode(bin) when is_binary(bin) do
+    {:ok, :erlang.binary_to_term(bin, [:safe])}
+  rescue
+    ArgumentError -> {:error, :undecodable}
+  end
 
   @doc """
   Serializes a frame as is. Request tags and hello keys must stay atoms, so
@@ -66,12 +70,29 @@ defmodule Poser.Codec do
   @spec encode(term()) :: binary()
   def encode(frame), do: :erlang.term_to_binary(frame)
 
-  @spec decode(binary()) :: {:ok, term()} | {:error, :undecodable}
-  def decode(bin) when is_binary(bin) do
-    {:ok, :erlang.binary_to_term(bin, [:safe])}
-  rescue
-    ArgumentError -> {:error, :undecodable}
-  end
+  @spec from_wire(term(), non_neg_integer() | nil) :: term()
+  def from_wire({:poser_obj, class, id, generation, label}, epoch),
+    do: %Handle{class: class, id: id, generation: generation, label: label, epoch: epoch}
+
+  def from_wire({:ndarray, dtype, shape, data}, _epoch),
+    do: %NDArray{dtype: dtype, shape: shape, data: data}
+
+  def from_wire(v, epoch) when is_list(v), do: Enum.map(v, &from_wire(&1, epoch))
+
+  def from_wire(v, epoch) when is_tuple(v),
+    do: v |> Tuple.to_list() |> Enum.map(&from_wire(&1, epoch)) |> List.to_tuple()
+
+  def from_wire(v, epoch) when is_map(v) and not is_struct(v),
+    do: Map.new(v, fn {k, x} -> {k, from_wire(x, epoch)} end)
+
+  def from_wire(v, _epoch), do: v
+
+  @doc "Every `%Poser.Handle{}` inside a term."
+  @spec handles_in(term()) :: [Handle.t()]
+  def handles_in(term), do: term |> collect([]) |> Enum.reverse()
+
+  @spec known_atoms() :: [atom()]
+  def known_atoms, do: @known_atoms
 
   @doc """
   Converts an outbound value. Raises `ArgumentError` for values Python cannot
@@ -108,27 +129,6 @@ defmodule Poser.Codec do
 
   def to_wire(v) when is_map(v), do: Map.new(v, fn {k, x} -> {to_wire(k), to_wire(x)} end)
   def to_wire(v), do: raise(ArgumentError, "cannot send #{inspect(v)} to Poser")
-
-  @spec from_wire(term(), non_neg_integer() | nil) :: term()
-  def from_wire({:poser_obj, class, id, generation, label}, epoch),
-    do: %Handle{class: class, id: id, generation: generation, label: label, epoch: epoch}
-
-  def from_wire({:ndarray, dtype, shape, data}, _epoch),
-    do: %NDArray{dtype: dtype, shape: shape, data: data}
-
-  def from_wire(v, epoch) when is_list(v), do: Enum.map(v, &from_wire(&1, epoch))
-
-  def from_wire(v, epoch) when is_tuple(v),
-    do: v |> Tuple.to_list() |> Enum.map(&from_wire(&1, epoch)) |> List.to_tuple()
-
-  def from_wire(v, epoch) when is_map(v) and not is_struct(v),
-    do: Map.new(v, fn {k, x} -> {k, from_wire(x, epoch)} end)
-
-  def from_wire(v, _epoch), do: v
-
-  @doc "Every `%Poser.Handle{}` inside a term."
-  @spec handles_in(term()) :: [Handle.t()]
-  def handles_in(term), do: term |> collect([]) |> Enum.reverse()
 
   defp collect(%Handle{} = h, acc), do: [h | acc]
   defp collect(v, acc) when is_list(v), do: Enum.reduce(v, acc, &collect/2)
