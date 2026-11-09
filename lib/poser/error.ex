@@ -56,19 +56,6 @@ defmodule Poser.Error do
         }
 
   @doc """
-  Builds a `:not_found` error for a path of `Poser.Ref.path/1` steps, with
-  the caller's op `index` and the Python error, if any, that caused it.
-
-  ## Examples
-
-      iex> Poser.Error.not_found([actor: "ball"]).details
-      %{path: [actor: "ball"], index: nil, cause: nil}
-  """
-  @spec not_found([tuple()], non_neg_integer() | nil, t() | nil) :: t()
-  def not_found(path, index \\ nil, cause \\ nil),
-    do: %__MODULE__{kind: :not_found, details: %{path: path, index: index, cause: cause}}
-
-  @doc """
   Builds an error from a wire-level `{:e, id, reason}` reason term.
 
   ## Examples
@@ -98,6 +85,19 @@ defmodule Poser.Error do
     do: %__MODULE__{kind: :protocol_mismatch, details: %{ours: ours, theirs: theirs}}
 
   def from_wire(other), do: %__MODULE__{kind: :bad_request, message: inspect(other)}
+
+  @doc """
+  Builds a `:not_found` error for a path of `Poser.Ref.path/1` steps, with
+  the caller's op `index` and the Python error, if any, that caused it.
+
+  ## Examples
+
+      iex> Poser.Error.not_found([actor: "ball"]).details
+      %{path: [actor: "ball"], index: nil, cause: nil}
+  """
+  @spec not_found([tuple()], non_neg_integer() | nil, t() | nil) :: t()
+  def not_found(path, index \\ nil, cause \\ nil),
+    do: %__MODULE__{kind: :not_found, details: %{path: path, index: index, cause: cause}}
 
   @impl true
   def message(%__MODULE__{kind: :not_found, details: %{path: path}}) do
