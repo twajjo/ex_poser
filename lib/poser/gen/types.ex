@@ -8,6 +8,28 @@ defmodule Poser.Gen.Types do
   # Types that are deliberately term(): not reported as unknown.
   @any ~w(object ObjectType PointerType FunctionType)
 
+  # Exact type names and the kind each one classifies as.
+  @names Map.merge(
+           for(
+             {kind, names} <- [
+               integer: @integer,
+               float: @float,
+               string: @string,
+               bool: @bool,
+               any: @any
+             ],
+             name <- names,
+             into: %{},
+             do: {name, kind}
+           ),
+           %{
+             "NoneType" => nil,
+             "DictType" => :map,
+             "ListType" => :list_any,
+             "TupleType" => :tuple_any
+           }
+         )
+
   @doc "The typespec AST for `type` as an argument (`:arg`) or a return value (`:return`)."
   @spec spec(Poser.Gen.Signature.type(), :arg | :return, Enumerable.t()) :: Macro.t()
   def spec(type, dir, classes), do: type |> classify(classes) |> to_ast(dir)
@@ -17,6 +39,13 @@ defmodule Poser.Gen.Types do
   def unknowns(type, classes),
     do: type |> classify(classes) |> collect_unknown([]) |> Enum.reverse()
 
+  defp base(t, c) do
+    case Map.fetch(@names, t) do
+      {:ok, kind} -> kind
+      :error -> if t in c, do: :handle, else: {:unknown, t}
+    end
+  end
+
   defp classify({:tuple, ts}, c), do: {:tuple, Enum.map(ts, &classify(&1, c))}
   defp classify({:union, ts}, c), do: {:union, Enum.map(ts, &classify(&1, c))}
 
@@ -24,21 +53,10 @@ defmodule Poser.Gen.Types do
     t = String.trim(t)
 
     cond do
-      m = Regex.run(~r/^List of (.+)$/, t) -> {:list, classify(Enum.at(m, 1), c)}
-      m = Regex.run(~r/^(.+?)\s+[Ll]ists?$/, t) -> {:list, classify(Enum.at(m, 1), c)}
-      m = Regex.run(~r/^list\s+(.+)$/, t) -> {:list, classify(Enum.at(m, 1), c)}
+      element = list_element(t) -> {:list, classify(element, c)}
       String.ends_with?(t, "Numeric.Array") -> :ndarray
-      String.ends_with?(t, "Tuple") or t == "TupleType" -> :tuple_any
-      t in @integer -> :integer
-      t in @float -> :float
-      t in @string -> :string
-      t in @bool -> :bool
-      t == "NoneType" -> nil
-      t == "DictType" -> :map
-      t == "ListType" -> :list_any
-      t in @any -> :any
-      t in c -> :handle
-      true -> {:unknown, t}
+      String.ends_with?(t, "Tuple") -> :tuple_any
+      true -> base(t, c)
     end
   end
 
@@ -49,6 +67,16 @@ defmodule Poser.Gen.Types do
     do: Enum.reduce(ts, acc, &collect_unknown/2)
 
   defp collect_unknown(_, acc), do: acc
+
+  # The element type of a list type ("List of X", "X list", "list X"), or nil.
+  defp list_element(t) do
+    Enum.find_value([~r/^List of (.+)$/, ~r/^(.+?)\s+[Ll]ists?$/, ~r/^list\s+(.+)$/], fn re ->
+      case Regex.run(re, t, capture: :all_but_first) do
+        [element] -> element
+        nil -> nil
+      end
+    end)
+  end
 
   defp to_ast(:integer, _), do: quote(do: integer())
   defp to_ast(:float, :arg), do: quote(do: number())
