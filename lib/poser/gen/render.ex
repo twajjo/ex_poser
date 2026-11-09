@@ -27,23 +27,49 @@ defmodule Poser.Gen.Render do
   def manifest_json(model), do: json(model.manifest)
 
   defp const_source(const, header) do
-    groups =
-      Enum.map_join(const.groups, "\n\n", fn g ->
+    fixed = [
+      {"all",
+       """
+       @doc "Every constant, by Python name."
+       @spec all() :: %{String.t() => integer() | String.t()}
+       def all, do: @all
+       """},
+      {"fetch",
+       """
+       @doc ~S|A constant by its Python name, e.g. `fetch("kParmCodeXSCALE")`.|
+       @spec fetch(String.t()) :: {:ok, integer() | String.t()} | :error
+       def fetch(name), do: Map.fetch(@all, name)
+       """}
+    ]
+
+    grouped =
+      Enum.flat_map(const.groups, fn g ->
         clauses =
           Enum.map_join(g.keys, "\n", fn {k, v, py} ->
             "def #{g.name}(#{inspect(k)}), do: #{inspect(v)} # #{py}"
           end)
 
-        """
-        @doc "Grouped constants by key. See `#{g.name}_keys/0` for the keys."
-        @spec #{g.name}(atom()) :: integer() | String.t()
-        #{clauses}
-
-        @doc "The keys `#{g.name}/1` accepts."
-        @spec #{g.name}_keys() :: [atom()]
-        def #{g.name}_keys, do: #{inspect(Enum.map(g.keys, &elem(&1, 0)), limit: :infinity)}
-        """
+        [
+          {"#{g.name}",
+           """
+           @doc "Grouped constants by key. See `#{g.name}_keys/0` for the keys."
+           @spec #{g.name}(atom()) :: integer() | String.t()
+           #{clauses}
+           """},
+          {"#{g.name}_keys",
+           """
+           @doc "The keys `#{g.name}/1` accepts."
+           @spec #{g.name}_keys() :: [atom()]
+           def #{g.name}_keys, do: #{inspect(Enum.map(g.keys, &elem(&1, 0)), limit: :infinity)}
+           """}
+        ]
       end)
+
+    # Every function, sorted by name, so the module reads A to Z.
+    funs =
+      (fixed ++ grouped)
+      |> Enum.sort_by(&elem(&1, 0))
+      |> Enum.map_join("\n", &elem(&1, 1))
 
     """
     defmodule #{inspect(const.module)} do
@@ -51,15 +77,7 @@ defmodule Poser.Gen.Render do
 
       @all #{inspect(const.all, limit: :infinity, printable_limit: :infinity)}
 
-      @doc ~S|A constant by its Python name, e.g. `fetch("kParmCodeXSCALE")`.|
-      @spec fetch(String.t()) :: {:ok, integer() | String.t()} | :error
-      def fetch(name), do: Map.fetch(@all, name)
-
-      @doc "Every constant, by Python name."
-      @spec all() :: %{String.t() => integer() | String.t()}
-      def all, do: @all
-
-      #{groups}
+      #{funs}
     end
     """
   end
@@ -148,6 +166,12 @@ defmodule Poser.Gen.Render do
 
     class_doc = python_doc(Map.get(mod, :class_doc))
 
+    # The constructor (`new`) sorts in with the other functions by name.
+    funs =
+      [Map.get(mod, :constructor) | mod.funs]
+      |> Enum.reject(&is_nil/1)
+      |> Enum.sort_by(& &1.name)
+
     """
     defmodule #{inspect(mod.module)} do
       @moduledoc #{heredoc(Enum.join(Enum.reject([title, class_doc, header], &(&1 == "")), "\n\n"))}
@@ -156,8 +180,7 @@ defmodule Poser.Gen.Render do
       #{if methods?, do: "@accepts #{inspect(mod.accepts)}", else: ""}
       #{if Map.has_key?(mod, :accepts), do: "@type t :: Poser.Handle.t()", else: ""}
 
-      #{if c = Map.get(mod, :constructor), do: fun_source(c, mod.py_class), else: ""}
-      #{Enum.map_join(mod.funs, "\n\n", &fun_source(&1, mod.py_class))}
+      #{Enum.map_join(funs, "\n\n", &fun_source(&1, mod.py_class))}
     end
     """
   end

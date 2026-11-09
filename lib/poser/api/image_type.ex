@@ -25,29 +25,6 @@ defmodule Poser.Api.ImageType do
   @type t :: Poser.Handle.t()
 
   @doc ~S"""
-  Python: `poser.ImageType`
-
-  ```text
-  Used for loading images from from Poser's Python interface.
-
-  CONSTRUCTOR:
-  To create an ImageType instance you must pass in 1 argument, the full path: <ImageType> poser.ImageType(<StringType> fullImagePath)
-
-  EXAMPLE USAGE:
-  img = poser.ImageType("C:/Users/furroy/ Desktop/Ultra_HDR_Samples_Alpha.png")
-  pWxImg = wx.Image(img.GetWidth(), img.GetHeight(), img.GetData())
-  pWxImg.SetAlpha(img.GetAlpha()) # optional if you want the alpha channel
-  img = 0 # dispose of object and data buffers
-  pWxImg.SaveFile("c:/app_dev/bloop.png", wx.BITMAP_TYPE_PNG)
-  mybmp = wx.Bitmap(pWxImg.Scale(400, 200)) # example of how to convert to wx.Bitmap and optionally down scale the image
-  mybmp.SaveFile("c:/app_dev/small.png", wx.BITMAP_TYPE_PNG)
-  ```
-  """
-  @spec new(String.t(), keyword()) :: {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
-  def new(full_image_path, opts \\ []),
-    do: Poser.Call.function("ImageType", [full_image_path], [], opts)
-
-  @doc ~S"""
   Python: `ImageType.GetAlpha`
 
   ```text
@@ -94,4 +71,27 @@ defmodule Poser.Api.ImageType do
   @spec get_width(Poser.Handle.t(), keyword()) :: {:ok, integer()} | {:error, Poser.Error.t()}
   def get_width(%Poser.Handle{class: c} = handle, opts \\ []) when c in @accepts,
     do: Poser.Call.method(handle, "GetWidth", [], [], opts)
+
+  @doc ~S"""
+  Python: `poser.ImageType`
+
+  ```text
+  Used for loading images from from Poser's Python interface.
+
+  CONSTRUCTOR:
+  To create an ImageType instance you must pass in 1 argument, the full path: <ImageType> poser.ImageType(<StringType> fullImagePath)
+
+  EXAMPLE USAGE:
+  img = poser.ImageType("C:/Users/furroy/ Desktop/Ultra_HDR_Samples_Alpha.png")
+  pWxImg = wx.Image(img.GetWidth(), img.GetHeight(), img.GetData())
+  pWxImg.SetAlpha(img.GetAlpha()) # optional if you want the alpha channel
+  img = 0 # dispose of object and data buffers
+  pWxImg.SaveFile("c:/app_dev/bloop.png", wx.BITMAP_TYPE_PNG)
+  mybmp = wx.Bitmap(pWxImg.Scale(400, 200)) # example of how to convert to wx.Bitmap and optionally down scale the image
+  mybmp.SaveFile("c:/app_dev/small.png", wx.BITMAP_TYPE_PNG)
+  ```
+  """
+  @spec new(String.t(), keyword()) :: {:ok, Poser.Handle.t()} | {:error, Poser.Error.t()}
+  def new(full_image_path, opts \\ []),
+    do: Poser.Call.function("ImageType", [full_image_path], [], opts)
 end
