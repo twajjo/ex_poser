@@ -6,22 +6,19 @@ defmodule Poser.Transport.TCP do
   @max_frame 64 * 1024 * 1024
 
   @impl true
+  def activate(sock), do: :inet.setopts(sock, active: :once)
+
+  @impl true
+  def close(sock), do: :gen_tcp.close(sock)
+
+  @impl true
   def connect(host, port, timeout) do
     opts = [:binary, packet: 4, packet_size: @max_frame, active: false, nodelay: true]
     :gen_tcp.connect(String.to_charlist(host), port, opts, timeout)
   end
 
   @impl true
-  def send_frame(sock, data), do: :gen_tcp.send(sock, data)
-
-  @impl true
-  def recv_frame(sock, timeout), do: :gen_tcp.recv(sock, 0, timeout)
-
-  @impl true
   def controlling_process(sock, pid), do: :gen_tcp.controlling_process(sock, pid)
-
-  @impl true
-  def activate(sock), do: :inet.setopts(sock, active: :once)
 
   @impl true
   def handle_message(sock, {:tcp, sock, data}) do
@@ -34,5 +31,8 @@ defmodule Poser.Transport.TCP do
   def handle_message(_sock, _msg), do: :ignore
 
   @impl true
-  def close(sock), do: :gen_tcp.close(sock)
+  def recv_frame(sock, timeout), do: :gen_tcp.recv(sock, 0, timeout)
+
+  @impl true
+  def send_frame(sock, data), do: :gen_tcp.send(sock, data)
 end
