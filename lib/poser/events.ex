@@ -9,6 +9,13 @@ defmodule Poser.Events do
 
   @registry Poser.Events.Registry
 
+  @spec dispatch(atom(), term()) :: :ok
+  def dispatch(event, payload) do
+    Registry.dispatch(@registry, event, fn entries ->
+      for {pid, _} <- entries, do: send(pid, {:poser_event, event, payload})
+    end)
+  end
+
   @spec subscribe(atom()) :: :ok
   def subscribe(event) when is_atom(event) do
     {:ok, _} = Registry.register(@registry, event, nil)
@@ -17,11 +24,4 @@ defmodule Poser.Events do
 
   @spec unsubscribe(atom()) :: :ok
   def unsubscribe(event) when is_atom(event), do: Registry.unregister(@registry, event)
-
-  @spec dispatch(atom(), term()) :: :ok
-  def dispatch(event, payload) do
-    Registry.dispatch(@registry, event, fn entries ->
-      for {pid, _} <- entries, do: send(pid, {:poser_event, event, payload})
-    end)
-  end
 end
