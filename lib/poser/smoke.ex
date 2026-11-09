@@ -49,23 +49,6 @@ defmodule Poser.Smoke do
     report(st)
   end
 
-  defp drain(st) do
-    case :queue.out(st.queue) do
-      {:empty, _} -> st
-      {{:value, h}, queue} -> %{st | queue: queue} |> explore(h) |> drain()
-    end
-  end
-
-  defp explore(st, %Handle{class: class} = h) do
-    st = %{st | explored: Map.update(st.explored, class, 1, &(&1 + 1))}
-    info = st.manifest["classes"][class]
-    module = Module.concat([info["module"]])
-
-    Enum.reduce(info["getters"], st, fn g, st ->
-      call(st, "#{class}.#{g["py_name"]}", module, g, [h])
-    end)
-  end
-
   defp call(st, key, module, g, receiver) do
     entry =
       Map.get(st.getters, key, %{
@@ -120,16 +103,6 @@ defmodule Poser.Smoke do
     end
   end
 
-  defp invoke(module, function, args) do
-    # load first: the function-name atoms exist only once the module is loaded
-    Code.ensure_loaded!(module)
-    apply(module, String.to_existing_atom(function), args)
-  rescue
-    e -> {:raised, Exception.message(e)}
-  end
-
-  defp put_entry(st, key, entry), do: %{st | getters: Map.put(st.getters, key, entry)}
-
   defp count(outcomes, {:ok, _}), do: Map.update(outcomes, "ok", 1, &(&1 + 1))
 
   defp count(outcomes, {:error, %Error{kind: :python, class: class}}),
@@ -144,6 +117,31 @@ defmodule Poser.Smoke do
     outcomes
     |> Map.update("other", 1, &(&1 + 1))
     |> Map.put_new("other_example", inspect(other, limit: 5, printable_limit: 200))
+  end
+
+  defp drain(st) do
+    case :queue.out(st.queue) do
+      {:empty, _} -> st
+      {{:value, h}, queue} -> %{st | queue: queue} |> explore(h) |> drain()
+    end
+  end
+
+  defp explore(st, %Handle{class: class} = h) do
+    st = %{st | explored: Map.update(st.explored, class, 1, &(&1 + 1))}
+    info = st.manifest["classes"][class]
+    module = Module.concat([info["module"]])
+
+    Enum.reduce(info["getters"], st, fn g, st ->
+      call(st, "#{class}.#{g["py_name"]}", module, g, [h])
+    end)
+  end
+
+  defp invoke(module, function, args) do
+    # load first: the function-name atoms exist only once the module is loaded
+    Code.ensure_loaded!(module)
+    apply(module, String.to_existing_atom(function), args)
+  rescue
+    e -> {:raised, Exception.message(e)}
   end
 
   # Enqueue handles whose class still has room; release the rest now.
@@ -173,6 +171,12 @@ defmodule Poser.Smoke do
     st
   end
 
+  defp outcome_total(nil), do: 0
+  defp outcome_total(n) when is_integer(n), do: n
+  defp outcome_total(%{} = by_class), do: by_class |> Map.values() |> Enum.sum()
+
+  defp put_entry(st, key, entry), do: %{st | getters: Map.put(st.getters, key, entry)}
+
   defp release([], _st), do: :ok
   defp release(handles, st), do: Client.release(handles, st.client)
 
@@ -198,8 +202,4 @@ defmodule Poser.Smoke do
       }
     }
   end
-
-  defp outcome_total(nil), do: 0
-  defp outcome_total(n) when is_integer(n), do: n
-  defp outcome_total(%{} = by_class), do: by_class |> Map.values() |> Enum.sum()
 end
