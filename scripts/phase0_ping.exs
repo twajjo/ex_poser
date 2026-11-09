@@ -11,7 +11,7 @@ defmodule Phase0Ping do
   # Atoms the bridge may send; they must exist for binary_to_term(..., [:safe]).
   @known_atoms [:r, :e, :M, :pong, :frame_changed, :python, :obj, :bytes, :bad_request] ++
                  [:protocol_mismatch, :protocol, :mode, :dev, :strict] ++
-                 [:poser_version, :python_version]
+                 [:poser_version, :python_version, :api_hash, :client, :poser_obj]
 
   def main(argv) do
     {opts, _rest, _invalid} =

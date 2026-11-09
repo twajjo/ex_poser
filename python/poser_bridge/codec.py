@@ -5,10 +5,12 @@ Frames are a 4-byte big-endian length followed by an Erlang external term
 
 Conventions:
   outbound  str -> binary, None -> nil, bool -> true/false, dict -> map,
+            nan / +inf / -inf -> nan / infinity / neg_infinity atoms,
             non-plain objects -> {:obj, class_name, repr}
   inbound   binary -> str, {:bytes, bin} -> bytes, nil -> None
 """
 
+import math
 import numbers
 import struct
 
@@ -21,6 +23,9 @@ _len = struct.Struct(">I")
 NIL = Atom(b"nil")
 OBJ = Atom(b"obj")
 BYTES = Atom(b"bytes")
+NAN = Atom(b"nan")
+INFINITY = Atom(b"infinity")
+NEG_INFINITY = Atom(b"neg_infinity")
 
 
 def atom(name):
@@ -31,7 +36,9 @@ def to_wire(v):
     if v is None:
         return NIL
     t = type(v)
-    if t is Atom or t is bool or t is int or t is float or t is bytes:
+    if t is float:
+        return _float(v)
+    if t is Atom or t is bool or t is int or t is bytes:
         return v
     if t is str:
         return v.encode("utf-8")
@@ -45,8 +52,17 @@ def to_wire(v):
     if isinstance(v, numbers.Integral):
         return int(v)
     if isinstance(v, numbers.Real):
-        return float(v)
+        return _float(float(v))
     return (OBJ, type(v).__name__.encode("utf-8"), _safe_repr(v).encode("utf-8"))
+
+
+def _float(v):
+    # Erlang has no NaN or infinity; binary_to_term rejects them.
+    if math.isnan(v):
+        return NAN
+    if math.isinf(v):
+        return INFINITY if v > 0 else NEG_INFINITY
+    return v
 
 
 def from_wire(v):
@@ -87,11 +103,16 @@ def _recv_exact(sock, n):
     return bytes(buf)
 
 
-def read_frame(sock):
+def read_raw(sock):
+    """Read one frame's bytes without decoding them."""
     (n,) = _len.unpack(_recv_exact(sock, 4))
     if n > MAX_FRAME:
         raise ValueError("frame too large: %d bytes" % n)
-    return decode(_recv_exact(sock, n))
+    return _recv_exact(sock, n)
+
+
+def read_frame(sock):
+    return decode(read_raw(sock))
 
 
 def write_frame(sock, term):

@@ -1,0 +1,16 @@
+{
+  "signatures": {},
+  "skip": {},
+  "smoke_skip": {
+    "SceneType.NumFrames": "test: skipped by override"
+  },
+  "smoke_no_follow": {
+    "SceneType.Figures": "test: results not explored"
+  },
+  "constant_groups": [
+    "ParmCode",
+    "NodeTypeCode",
+    "NodeTypeCodeCycles",
+    "TIFF_"
+  ]
+}

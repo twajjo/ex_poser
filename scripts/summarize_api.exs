@@ -35,3 +35,23 @@ case Enum.filter(callables, & &1["callback"]) do
   [] -> :ok
   cbs -> IO.puts("\ncallback-flagged: " <> Enum.map_join(cbs, ", ", & &1["name"]))
 end
+
+manifest_path = Path.join(Path.dirname(path), "poser_api_manifest.json")
+
+if File.exists?(manifest_path) do
+  m = manifest_path |> File.read!() |> JSON.decode!()
+  s = m["summary"]
+
+  IO.puts("""
+
+  generated API (#{manifest_path}, #{m["namespace"]})
+  generated          #{s["generated"]} of #{s["total"]} (#{s["docstring"]} from docstrings, #{s["override"]} overridden, #{s["variadic"]} variadic)
+  skipped            #{s["skipped"]}
+  getters            #{s["getters"]}
+  constructors       #{Enum.join(s["constructors"], ", ")}
+  unknown types      #{Enum.join(s["unknown_types"], "; ")}
+  """)
+
+  for {key, %{"status" => "skipped", "reason" => reason}} <- Enum.sort(m["entries"]),
+      do: IO.puts("  skipped #{key}: #{reason}")
+end

@@ -1,5 +1,6 @@
 """The Poser add-on: starts the bridge server on load and forwards scene events."""
 
+import os
 import secrets
 import sys
 
@@ -8,6 +9,7 @@ import poseraddon
 import wx
 
 from . import net
+from .policy import Policy
 from .server import PROTOCOL, Server
 
 ADDON_ID = "com.geekware.poserBridge"
@@ -37,8 +39,16 @@ class Bridge(poseraddon.Addon, poseraddon.SceneObserver):
             hosts.append(wsl)
         else:
             print("poser_bridge: no WSL adapter found; listening on loopback only")
+        mode = net.read_config().get("mode", "dev")
+        api_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "poser_api.json")
+        try:
+            policy = Policy.load(mode, api_path)
+        except (OSError, ValueError) as e:
+            print("poser_bridge: strict mode needs poser_api.json: %s" % (e,))
+            return
         info = {"poser_version": _poser_version(), "python_version": sys.version.split()[0]}
-        server = Server(hosts, net.DEV_PORT, secrets.token_hex(16), wx.CallAfter, info)
+        server = Server(hosts, net.DEV_PORT, secrets.token_hex(16), wx.CallAfter, info,
+                        poser=poser, policy=policy)
         try:
             server.start()
         except OSError as e:
@@ -48,12 +58,20 @@ class Bridge(poseraddon.Addon, poseraddon.SceneObserver):
         self.server = server
         path = net.write_session({"port": net.DEV_PORT, "token": server.token,
                                   "protocol": PROTOCOL, "hosts": hosts})
-        print("poser_bridge: loaded, session file %s" % path)
+        print("poser_bridge: loaded (%s mode), session file %s" % (policy.mode, path))
 
     def unload(self):
         if self.server:
             self.server.stop()
             self.server = None
+
+    def sceneCreated(self, scene):
+        if self.server:
+            self.server.new_generation()
+
+    def sceneDeleting(self, scene):
+        if self.server:
+            self.server.new_generation()
 
     def frameChanged(self):
         if self.server:

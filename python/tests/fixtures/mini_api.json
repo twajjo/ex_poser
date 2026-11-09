@@ -1,0 +1,77 @@
+{
+  "meta": {
+    "api_hash": "mini",
+    "poser_version": "fake-14",
+    "python_version": "3.7.9"
+  },
+  "functions": [
+    {
+      "name": "Scene"
+    },
+    {
+      "name": "AppVersion"
+    }
+  ],
+  "classes": {
+    "SceneObjectType": {
+      "bases": [],
+      "methods": [
+        {
+          "name": "Name"
+        },
+        {
+          "name": "InternalName"
+        }
+      ],
+      "attributes": []
+    },
+    "ActorType": {
+      "bases": [
+        "SceneObjectType"
+      ],
+      "methods": [
+        {
+          "name": "Parameter"
+        }
+      ],
+      "attributes": []
+    },
+    "SceneType": {
+      "bases": [],
+      "methods": [
+        {
+          "name": "Frame"
+        },
+        {
+          "name": "NumFrames"
+        },
+        {
+          "name": "Figures"
+        },
+        {
+          "name": "Actors"
+        },
+        {
+          "name": "Actor"
+        }
+      ],
+      "attributes": []
+    },
+    "ParmType": {
+      "bases": [],
+      "methods": [
+        {
+          "name": "Value"
+        }
+      ],
+      "attributes": []
+    },
+    "ImageType": {
+      "bases": [],
+      "doc": "Images.\nTo create an ImageType instance you must pass in 1 argument, the full path: <ImageType> poser.ImageType(<StringType> fullImagePath)",
+      "methods": [],
+      "attributes": []
+    }
+  },
+  "constants": {}
+}
