@@ -238,6 +238,17 @@ defmodule Poser.Batch do
   # Caller results of chunks that already ran; the caller never receives them.
   defp acc_handles(st), do: st.acc |> Enum.concat() |> Codec.handles_in()
 
+  # A caller op whose receiver is a lookup that found nothing is a not_found
+  # for that lookup's path; any other failure keeps the caller's index.
+  defp caller_error(i, k, cause, partial, wire, roles) do
+    with {:result, j} when is_map_key(roles, j) <- wire |> Enum.at(i) |> target(),
+         {{:lookup, [_ | _] = prefix, _}, nil} <- {roles[j], Enum.at(partial, j)} do
+      not_found(prefix, k, cause)
+    else
+      _ -> with_index(cause, k)
+    end
+  end
+
   defp caller_results(results, roles, kinds) do
     for {result, i} <- Enum.with_index(results), {:caller, k} <- [roles[i]] do
       if elem(kinds, k) == :ok, do: :ok, else: result
@@ -268,16 +279,7 @@ defmodule Poser.Batch do
         with_index(cause, k)
 
       {_, k} ->
-        case wire |> Enum.at(i) |> target() do
-          {:result, j} when is_map_key(roles, j) ->
-            case {roles[j], Enum.at(partial, j)} do
-              {{:lookup, [_ | _] = prefix, _}, nil} -> not_found(prefix, k, cause)
-              _ -> with_index(cause, k)
-            end
-
-          _ ->
-            with_index(cause, k)
-        end
+        caller_error(i, k, cause, partial, wire, roles)
     end
   end
 
