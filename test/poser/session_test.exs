@@ -15,7 +15,7 @@ defmodule Poser.SessionTest do
 
       assert Session.read(path) ==
                {:ok,
-                %{port: 47800, token: "abc", protocol: 1, hosts: ["127.0.0.1", "172.22.192.1"]}}
+                %{port: 47_800, token: "abc", protocol: 1, hosts: ["127.0.0.1", "172.22.192.1"]}}
     end
 
     test "reports a missing file" do
