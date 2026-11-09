@@ -39,6 +39,44 @@ defmodule Poser.Batch.Compiler do
     end
   end
 
+  defp chunk_out(chunk), do: {Enum.reverse(chunk.wire), chunk.roles}
+
+  # Wire ops `op` needs in `chunk`: missing lookups, a SetFrame, itself, and
+  # the final restore when it is the batch's last op.
+  defp cost(st, chunk, op, last?) do
+    target = target_frame(op)
+    moves = if target != st.frame, do: 1, else: 0
+    restore = if last? and (st.moved or moves == 1), do: 1, else: 0
+    length(missing(chunk, op.ref)) + moves + 1 + restore
+  end
+
+  defp emit(chunk, wire, role) do
+    %{
+      chunk
+      | wire: [wire | chunk.wire],
+        roles: Map.put(chunk.roles, chunk.n, role),
+        n: chunk.n + 1
+    }
+  end
+
+  defp emit_lookup(chunk, prefix, k) do
+    {parent_path, [step]} = Enum.split(prefix, -1)
+    op = Ref.lookup_op(step, {:result, chunk.memo[parent_path]}, scope(parent_path))
+    chunk |> emit(op, {:lookup, prefix, k}) |> put_in([:memo, prefix], chunk.n)
+  end
+
+  defp finish(%{cur: nil, done: done}), do: done |> Enum.reverse() |> Enum.map(&chunk_out/1)
+  defp finish(%{cur: cur, done: done} = st), do: finish(%{st | cur: nil, done: [cur | done]})
+
+  defp missing(chunk, ref) do
+    path = Ref.path(ref)
+
+    for i <- 1..length(path)//1,
+        prefix = Enum.take(path, i),
+        not Map.has_key?(chunk.memo, prefix),
+        do: prefix
+  end
+
   defp open(st, k) do
     chunk = %{wire: [@scene], n: 1, roles: %{0 => {:lookup, [], k}}, memo: %{[] => 0}}
 
@@ -49,15 +87,6 @@ defmodule Poser.Batch.Compiler do
       _ ->
         %{st | cur: Map.put(chunk, :orig, :original_frame)}
     end
-  end
-
-  # Wire ops `op` needs in `chunk`: missing lookups, a SetFrame, itself, and
-  # the final restore when it is the batch's last op.
-  defp cost(st, chunk, op, last?) do
-    target = target_frame(op)
-    moves = if target != st.frame, do: 1, else: 0
-    restore = if last? and (st.moved or moves == 1), do: 1, else: 0
-    length(missing(chunk, op.ref)) + moves + 1 + restore
   end
 
   defp place(st, op, k, last?) do
@@ -86,27 +115,6 @@ defmodule Poser.Batch.Compiler do
     %{st | cur: chunk}
   end
 
-  defp target_frame(%{frame: nil}), do: :orig
-  defp target_frame(%{frame: frame}), do: frame
-
-  defp set_frame(chunk, :orig), do: {:invoke, {:result, 0}, "SetFrame", [chunk.orig]}
-  defp set_frame(_chunk, n), do: {:invoke, {:result, 0}, "SetFrame", [n]}
-
-  defp missing(chunk, ref) do
-    path = Ref.path(ref)
-
-    for i <- 1..length(path)//1,
-        prefix = Enum.take(path, i),
-        not Map.has_key?(chunk.memo, prefix),
-        do: prefix
-  end
-
-  defp emit_lookup(chunk, prefix, k) do
-    {parent_path, [step]} = Enum.split(prefix, -1)
-    op = Ref.lookup_op(step, {:result, chunk.memo[parent_path]}, scope(parent_path))
-    chunk |> emit(op, {:lookup, prefix, k}) |> put_in([:memo, prefix], chunk.n)
-  end
-
   # What the parent of a lookup is: an actor step under a figure uses the
   # figure's lookup, one directly under the scene uses the scene's.
   defp scope(parent_path) do
@@ -116,17 +124,9 @@ defmodule Poser.Batch.Compiler do
     end
   end
 
-  defp emit(chunk, wire, role) do
-    %{
-      chunk
-      | wire: [wire | chunk.wire],
-        roles: Map.put(chunk.roles, chunk.n, role),
-        n: chunk.n + 1
-    }
-  end
+  defp set_frame(chunk, :orig), do: {:invoke, {:result, 0}, "SetFrame", [chunk.orig]}
+  defp set_frame(_chunk, n), do: {:invoke, {:result, 0}, "SetFrame", [n]}
 
-  defp finish(%{cur: nil, done: done}), do: done |> Enum.reverse() |> Enum.map(&chunk_out/1)
-  defp finish(%{cur: cur, done: done} = st), do: finish(%{st | cur: nil, done: [cur | done]})
-
-  defp chunk_out(chunk), do: {Enum.reverse(chunk.wire), chunk.roles}
+  defp target_frame(%{frame: nil}), do: :orig
+  defp target_frame(%{frame: frame}), do: frame
 end
