@@ -526,29 +526,24 @@ defmodule Poser.Client do
   end
 
   defp target(opts) do
-    session =
-      case Session.read(opts[:session] || Session.default_path()) do
-        {:ok, s} -> s
-        {:error, _} = error -> error
-      end
-
-    case {session, opts[:host], opts[:port], opts[:token]} do
-      {%{} = s, host, port, token} ->
-        {:ok,
-         %{
-           host: host || Session.pick_host(s.hosts),
-           port: port || s.port,
-           token: token || s.token
-         }}
-
-      {_error, host, port, token}
-      when is_binary(host) and is_integer(port) and is_binary(token) ->
-        {:ok, %{host: host, port: port, token: token}}
-
-      {error, _, _, _} ->
-        error
-    end
+    session = Session.read(opts[:session] || Session.default_path())
+    target(session, opts[:host], opts[:port], opts[:token])
   end
+
+  defp target({:ok, s}, host, port, token) do
+    {:ok,
+     %{
+       host: host || Session.pick_host(s.hosts),
+       port: port || s.port,
+       token: token || s.token
+     }}
+  end
+
+  defp target(_error, host, port, token)
+       when is_binary(host) and is_integer(port) and is_binary(token),
+       do: {:ok, %{host: host, port: port, token: token}}
+
+  defp target(error, _host, _port, _token), do: error
 
   defp valid_timeout(t) when is_nil(t) or t == :infinity or (is_integer(t) and t >= 0), do: :ok
 
