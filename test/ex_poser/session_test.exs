@@ -38,14 +38,14 @@ defmodule ExPoser.SessionTest do
   end
 
   describe "default_path/0" do
-    test "POSERX_SESSION overrides" do
-      old = System.get_env("POSERX_SESSION")
-      System.put_env("POSERX_SESSION", "/tmp/x/session.json")
+    test "EX_POSER_SESSION overrides" do
+      old = System.get_env("EX_POSER_SESSION")
+      System.put_env("EX_POSER_SESSION", "/tmp/x/session.json")
 
       on_exit(fn ->
         if old,
-          do: System.put_env("POSERX_SESSION", old),
-          else: System.delete_env("POSERX_SESSION")
+          do: System.put_env("EX_POSER_SESSION", old),
+          else: System.delete_env("EX_POSER_SESSION")
       end)
 
       assert Session.default_path() == "/tmp/x/session.json"
