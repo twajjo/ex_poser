@@ -1,6 +1,6 @@
 # Limitations
 
-Poserx aims to cover the whole PoserPython API, meaning everything the
+ExPoser aims to cover the whole PoserPython API, meaning everything the
 `poser` module exposes inside Poser 14. This guide lists what it can't
 cover, or can only cover differently from Python, and what to do instead.
 
@@ -83,7 +83,7 @@ ExPoser.Client.call("poser.DialogFileChooser", [...])   # don't do this
 
 Some PoserPython methods take a Python function and call it later, for
 example an update or event callback on a parameter or the scene. A Python
-function can't be passed across the bridge, so poserx will register a Python
+function can't be passed across the bridge, so ExPoser will register a Python
 stub that sends the callback's arguments to Elixir as an event.
 
 ```elixir
