@@ -209,7 +209,7 @@ add-on and the allowlist explicitly.
 
 ## 8. Environment
 
-- **Poser must be running.** PoserPython only exists inside `ExPoser.exe`, and
+- **Poser must be running.** PoserPython only exists inside `Poser.exe`, and
   Poser has no headless or command-line scripting mode. `ExPoser.Launcher`
   (planned) can start it and wait for the bridge.
 - **One Poser per bridge port.** A second Poser instance can't bind the same

@@ -33,7 +33,7 @@ silently drops inbound connections on it, so connecting from WSL times out.
 Run this once in an **administrator** PowerShell:
 
 ```
-New-NetFirewallRule -DisplayName "Poser bridge (WSL only)" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 47800 -InterfaceAlias "vEthernet (WSL)" -Program "D:\Program Files\Poser Software\Poser 14\ExPoser.exe"
+New-NetFirewallRule -DisplayName "Poser bridge (WSL only)" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 47800 -InterfaceAlias "vEthernet (WSL)" -Program "D:\Program Files\Poser Software\Poser 14\Poser.exe"
 ```
 
 Adjust `-Program` if Poser is installed elsewhere. If Windows created a
