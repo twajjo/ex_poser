@@ -9,8 +9,8 @@ defmodule ExPoser.MixProject do
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
-      name: "Poserx",
-      source_url: "https://github.com/twajjo/poserx",
+      name: "ExPoser",
+      source_url: "https://github.com/twajjo/ex_poser",
       docs: docs()
     ]
   end

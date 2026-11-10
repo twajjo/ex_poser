@@ -1,6 +1,6 @@
 # Getting started
 
-Poserx drives Poser 14 from Elixir. A small add-on inside Poser serves the
+ExPoser drives Poser 14 from Elixir. A small add-on inside Poser serves the
 PoserPython `poser` module over a socket, and this library calls it. This
 page connects to a running Poser, finds a figure and bends its left forearm.
 

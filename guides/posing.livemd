@@ -1,16 +1,16 @@
-# Posing with Poserx
+# Posing with ExPoser
 
 ```elixir
-poserx_path = Path.expand("~/src/elixir/poserx")
+ex_poser_path = Path.expand("~/src/elixir/poserx")
 
-Mix.install([{:ex_poser, path: poserx_path}])
+Mix.install([{:ex_poser, path: ex_poser_path}])
 ```
 
 ## Before you start
 
 This notebook drives a live Poser 14: Poser must be running with the Poser
 Bridge add-on deployed (see [Setup](setup.md)) and a scene with at least one
-figure loaded. Set `poserx_path` above to your checkout of the repo.
+figure loaded. Set `ex_poser_path` above to your checkout of the repo.
 
 Every cell that changes the scene puts it back by the end, so the scene is
 left as you found it.

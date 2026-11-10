@@ -1,7 +1,7 @@
-# Poserx
+# ExPoser
 
 An Elixir client for Poser 14's Python API. A small add-on inside Poser serves
-the `poser` module over a socket (ErlPort's term format), and Poserx calls it.
+the `poser` module over a socket (ErlPort's term format), and ExPoser calls it.
 
 Figures, body parts and dials are plain structs that name a path through the
 scene, so they survive a Poser restart. Each call resolves its path in the

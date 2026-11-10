@@ -1,6 +1,6 @@
 # Setup
 
-Poserx talks to Poser 14 through the Poser Bridge add-on. Poser runs on
+ExPoser talks to Poser 14 through the Poser Bridge add-on. Poser runs on
 Windows; Elixir can run on the same machine or in WSL 2.
 
 ## 1. Deploy the add-on
