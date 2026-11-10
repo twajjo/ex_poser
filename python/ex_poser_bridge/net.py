@@ -34,7 +34,7 @@ def wsl_adapter_ip():
 
 
 def session_dir():
-    return os.path.join(os.environ.get("APPDATA") or os.path.expanduser("~"), "PoserBridge")
+    return os.path.join(os.environ.get("APPDATA") or os.path.expanduser("~"), "ExPoserBridge")
 
 
 def write_session(data, path=None):

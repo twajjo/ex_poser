@@ -23,7 +23,7 @@ When the add-on starts, Poser's Python output shows:
 ```
 ex_poser_bridge: listening on 127.0.0.1:47800
 ex_poser_bridge: listening on 172.22.192.1:47800
-ex_poser_bridge: loaded (dev mode), session file C:\Users\<you>\AppData\Roaming\PoserBridge\session.json
+ex_poser_bridge: loaded (dev mode), session file C:\Users\<you>\AppData\Roaming\ExPoserBridge\session.json
 ```
 
 ## 2. Allow WSL through the Windows Firewall (once)
@@ -62,7 +62,7 @@ finds the session file on its own (through `/mnt/c` in WSL); set
 
 Dev mode allows raw Python calls and any public method. Strict mode only
 allows what `poser_api.json` lists and refuses raw calls. To turn it on,
-create `%APPDATA%\PoserBridge\config.json` containing:
+create `%APPDATA%\ExPoserBridge\config.json` containing:
 
 ```
 {"mode": "strict"}

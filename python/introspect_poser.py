@@ -2,7 +2,7 @@
 
 Run inside Poser with File > Run Python Script, ideally with a scene that has
 a figure, a few materials and lights loaded so live discovery finds more
-classes. Writes %APPDATA%\\PoserBridge\\poser_api.json and prints a summary.
+classes. Writes %APPDATA%\\ExPoserBridge\\poser_api.json and prints a summary.
 
 Classes are found two ways:
   module  type objects exposed as attributes of the poser module
@@ -193,7 +193,7 @@ def main(path=None):
         "summary": summary,
         "discovery_errors": errors,
     })
-    path = path or os.path.join(os.environ.get("APPDATA", "."), "PoserBridge", "poser_api.json")
+    path = path or os.path.join(os.environ.get("APPDATA", "."), "ExPoserBridge", "poser_api.json")
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=1, sort_keys=True)
