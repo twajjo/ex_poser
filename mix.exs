@@ -1,9 +1,9 @@
-defmodule Poserx.MixProject do
+defmodule ExPoser.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :poserx,
+      app: :ex_poser,
       version: "0.1.0",
       elixir: "~> 1.20",
       start_permanent: Mix.env() == :prod,
@@ -19,7 +19,7 @@ defmodule Poserx.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {Poserx.Application, []}
+      mod: {ExPoser.Application, []}
     ]
   end
 

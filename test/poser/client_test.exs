@@ -190,7 +190,7 @@ defmodule Poser.ClientTest do
         end)
       end)
 
-    assert log =~ "poserx: cannot connect"
+    assert log =~ "ex_poser: cannot connect"
   end
 
   @tag :capture_log

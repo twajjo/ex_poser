@@ -34,7 +34,7 @@ defmodule PoserTest.Standalone do
   end
 
   defp tmp_session do
-    dir = Path.join(System.tmp_dir!(), "poserx-test-#{System.unique_integer([:positive])}")
+    dir = Path.join(System.tmp_dir!(), "ex_poser-test-#{System.unique_integer([:positive])}")
     Path.join(dir, "session.json")
   end
 

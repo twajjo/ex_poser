@@ -9,7 +9,7 @@ defmodule PoserTest.ScriptedServer do
       :gen_tcp.listen(0, [:binary, packet: 4, active: false, reuseaddr: true, ip: {127, 0, 0, 1}])
 
     {:ok, port} = :inet.port(listen)
-    dir = Path.join(System.tmp_dir!(), "poserx-scripted-#{System.unique_integer([:positive])}")
+    dir = Path.join(System.tmp_dir!(), "ex_poser-scripted-#{System.unique_integer([:positive])}")
     File.mkdir_p!(dir)
     session = Path.join(dir, "session.json")
 

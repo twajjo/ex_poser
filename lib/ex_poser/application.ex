@@ -1,4 +1,4 @@
-defmodule Poserx.Application do
+defmodule ExPoser.Application do
   @moduledoc false
   use Application
 
@@ -9,6 +9,6 @@ defmodule Poserx.Application do
       {Task.Supervisor, name: Poser.TaskSupervisor}
     ]
 
-    Supervisor.start_link(children, strategy: :one_for_one, name: Poserx.Supervisor)
+    Supervisor.start_link(children, strategy: :one_for_one, name: ExPoser.Supervisor)
   end
 end

@@ -15,7 +15,7 @@ defmodule PoserTest.GenFixture do
 
   @doc "Generates into a temp dir and compiles; returns the compiler diagnostics."
   def compile! do
-    dir = Path.join(System.tmp_dir!(), "poserx_gen_#{System.unique_integer([:positive])}")
+    dir = Path.join(System.tmp_dir!(), "ex_poser_gen_#{System.unique_integer([:positive])}")
     files = Poser.Gen.Render.files(model())
 
     paths =
