@@ -2,7 +2,7 @@ import os
 import unittest
 
 import fake_poser
-from poser_bridge.policy import NotAllowed, Policy
+from ex_poser_bridge.policy import NotAllowed, Policy
 
 MINI = os.path.join(os.path.dirname(__file__), "fixtures", "mini_api.json")
 

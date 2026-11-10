@@ -61,8 +61,8 @@ class Server(object):
             srv.listen(4)
             self.listeners.append(srv)
             threading.Thread(target=self._accept, args=(srv,), daemon=True,
-                             name="poser_bridge accept %s" % host).start()
-            self.log("poser_bridge: listening on %s:%d" % (host, self.port))
+                             name="ex_poser_bridge accept %s" % host).start()
+            self.log("ex_poser_bridge: listening on %s:%d" % (host, self.port))
 
     def stop(self):
         with self.lock:
@@ -110,7 +110,7 @@ class Server(object):
             with self.lock:
                 self.conns.append(conn)
             threading.Thread(target=conn.run, daemon=True,
-                             name="poser_bridge reader %s:%d" % addr).start()
+                             name="ex_poser_bridge reader %s:%d" % addr).start()
 
     def _forget(self, conn):
         with self.lock:
@@ -141,7 +141,7 @@ class Connection(object):
         except (EOFError, OSError):
             pass
         except Exception as e:
-            log("poser_bridge: dropping %s:%d: %r" % (self.addr + (e,)))
+            log("ex_poser_bridge: dropping %s:%d: %r" % (self.addr + (e,)))
         finally:
             self.authed = False
             self.server._forget(self)
@@ -149,18 +149,18 @@ class Connection(object):
                 self.sock.close()
             except OSError:
                 pass
-            log("poser_bridge: client %s:%d disconnected" % self.addr)
+            log("ex_poser_bridge: client %s:%d disconnected" % self.addr)
 
     def _handshake(self, msg):
         server = self.server
         if not (type(msg) is tuple and len(msg) == 2 and msg[0] == A_HELLO
                 and isinstance(msg[1], dict)):
-            server.log("poser_bridge: rejected %s:%d (no hello)" % self.addr)
+            server.log("ex_poser_bridge: rejected %s:%d (no hello)" % self.addr)
             return False
         token = msg[1].get(atom("token"))
         if not (isinstance(token, str)
                 and hmac.compare_digest(token.encode("utf-8"), server.token.encode("utf-8"))):
-            server.log("poser_bridge: rejected %s:%d (bad token)" % self.addr)
+            server.log("ex_poser_bridge: rejected %s:%d (bad token)" % self.addr)
             return False
         theirs = msg[1].get(atom("protocol"))
         if theirs != PROTOCOL:
@@ -174,7 +174,7 @@ class Connection(object):
         reply[atom("api_hash")] = server.policy.api_hash
         self.authed = True
         self.send((A_R, 0, reply))
-        server.log("poser_bridge: client %s:%d connected (%s)"
+        server.log("ex_poser_bridge: client %s:%d connected (%s)"
                    % (self.addr + (msg[1].get(atom("client")) or "unknown client",)))
         return True
 
@@ -187,7 +187,7 @@ class Connection(object):
         if type(raw) is tuple and len(raw) > 1 and type(raw[1]) is int:
             self.send((A_E, raw[1], (atom("bad_request"), "cannot decode request: %s" % (error,))))
         else:
-            self.server.log("poser_bridge: dropped undecodable frame from %s:%d: %s"
+            self.server.log("ex_poser_bridge: dropped undecodable frame from %s:%d: %s"
                             % (self.addr + (error,)))
 
     def _dispatch(self, msg):
@@ -211,7 +211,7 @@ class Connection(object):
         except OSError:
             pass  # reader thread notices the dead socket and cleans up
         except Exception as e:
-            self.server.log("poser_bridge: cannot encode reply: %r" % (e,))
+            self.server.log("ex_poser_bridge: cannot encode reply: %r" % (e,))
             self.send((A_E, term[1], (A_PYTHON, "EncodeError", str(e), [])))
 
     def send(self, term):
@@ -221,4 +221,4 @@ class Connection(object):
         except OSError:
             pass  # reader thread notices the dead socket and cleans up
         except Exception as e:
-            self.server.log("poser_bridge: cannot encode frame: %r" % (e,))
+            self.server.log("ex_poser_bridge: cannot encode frame: %r" % (e,))

@@ -8,10 +8,10 @@ import unittest
 import struct
 
 import fake_poser
-from poser_bridge import codec, erlterms
-from poser_bridge.codec import atom
-from poser_bridge.policy import Policy
-from poser_bridge.server import Server
+from ex_poser_bridge import codec, erlterms
+from ex_poser_bridge.codec import atom
+from ex_poser_bridge.policy import Policy
+from ex_poser_bridge.server import Server
 
 MINI = os.path.join(os.path.dirname(__file__), "fixtures", "mini_api.json")
 A_R, A_E, A_M = atom("r"), atom("e"), atom("M")

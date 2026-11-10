@@ -12,7 +12,7 @@ from . import net
 from .policy import Policy
 from .server import PROTOCOL, Server
 
-ADDON_ID = "com.geekware.poserBridge"
+ADDON_ID = "com.geekware.exPoserBridge"
 
 
 class Bridge(poseraddon.Addon, poseraddon.SceneObserver):
@@ -23,7 +23,7 @@ class Bridge(poseraddon.Addon, poseraddon.SceneObserver):
             "id": ADDON_ID,
             "author": "Jeff Osborn",
             "copyright": "(c) 2026 Jeff Osborn",
-            "name": "Poser Bridge",
+            "name": "ExPoser Bridge",
             "version": "0.1",
             "observer": 1,
             "scenedata": 0,
@@ -38,13 +38,13 @@ class Bridge(poseraddon.Addon, poseraddon.SceneObserver):
         if wsl:
             hosts.append(wsl)
         else:
-            print("poser_bridge: no WSL adapter found; listening on loopback only")
+            print("ex_poser_bridge: no WSL adapter found; listening on loopback only")
         mode = net.read_config().get("mode", "dev")
         api_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "poser_api.json")
         try:
             policy = Policy.load(mode, api_path)
         except (OSError, ValueError) as e:
-            print("poser_bridge: strict mode needs poser_api.json: %s" % (e,))
+            print("ex_poser_bridge: strict mode needs poser_api.json: %s" % (e,))
             return
         info = {"poser_version": _poser_version(), "python_version": sys.version.split()[0]}
         server = Server(hosts, net.DEV_PORT, secrets.token_hex(16), wx.CallAfter, info,
@@ -53,12 +53,12 @@ class Bridge(poseraddon.Addon, poseraddon.SceneObserver):
             server.start()
         except OSError as e:
             server.stop()
-            print("poser_bridge: cannot listen on port %d: %s" % (net.DEV_PORT, e))
+            print("ex_poser_bridge: cannot listen on port %d: %s" % (net.DEV_PORT, e))
             return
         self.server = server
         path = net.write_session({"port": net.DEV_PORT, "token": server.token,
                                   "protocol": PROTOCOL, "hosts": hosts})
-        print("poser_bridge: loaded (%s mode), session file %s" % (policy.mode, path))
+        print("ex_poser_bridge: loaded (%s mode), session file %s" % (policy.mode, path))
 
     def unload(self):
         if self.server:
@@ -78,7 +78,7 @@ class Bridge(poseraddon.Addon, poseraddon.SceneObserver):
             try:
                 self.server.send_event("frame_changed", poser.Scene().Frame())
             except Exception as e:
-                print("poser_bridge: frameChanged: %r" % (e,))
+                print("ex_poser_bridge: frameChanged: %r" % (e,))
 
 
 def _poser_version():

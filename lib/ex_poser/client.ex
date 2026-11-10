@@ -1,6 +1,6 @@
 defmodule ExPoser.Client do
   @moduledoc """
-  The connection to the Poser bridge add-on.
+  The connection to the ExPoser bridge add-on.
 
   Owns one transport connection, matches replies to requests by id, enforces
   per-request timeouts, and reconnects with backoff. Every public function
