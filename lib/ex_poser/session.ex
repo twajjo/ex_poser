@@ -13,12 +13,12 @@ defmodule ExPoser.Session do
         }
 
   @doc """
-  Where to find the session file: `POSERX_SESSION`, else `%APPDATA%\\PoserBridge`
+  Where to find the session file: `EX_POSER_SESSION`, else `%APPDATA%\\PoserBridge`
   (through `/mnt/c` when running in WSL), else `~/.config/PoserBridge`.
   """
   @spec default_path() :: Path.t()
   def default_path do
-    System.get_env("POSERX_SESSION") || Path.join([appdata(), "PoserBridge", "session.json"])
+    System.get_env("EX_POSER_SESSION") || Path.join([appdata(), "PoserBridge", "session.json"])
   end
 
   @doc "The address to connect to: the WSL adapter when listed, else loopback."

@@ -56,7 +56,7 @@ Get-NetFirewallApplicationFilter | ? Program -like '*Poser*' | Get-NetFirewallRu
 `ExPoser.Client.await_connected/1` waits for the handshake, which runs in the
 background, so the first call doesn't fail with `:disconnected`. The client
 finds the session file on its own (through `/mnt/c` in WSL); set
-`POSERX_SESSION` to point somewhere else.
+`EX_POSER_SESSION` to point somewhere else.
 
 ## 4. Strict mode (optional)
 

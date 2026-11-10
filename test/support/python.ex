@@ -5,11 +5,11 @@ defmodule PoserTest.Python do
 
   def root, do: @root
 
-  @doc "The Python 3.7 interpreter: POSERX_PYTHON, else mise's python for this project."
+  @doc "The Python 3.7 interpreter: EX_POSER_PYTHON, else mise's python for this project."
   def path do
     case :persistent_term.get({__MODULE__, :path}, nil) do
       nil ->
-        p = System.get_env("POSERX_PYTHON") || mise_python()
+        p = System.get_env("EX_POSER_PYTHON") || mise_python()
         :persistent_term.put({__MODULE__, :path}, p)
         p
 
