@@ -57,30 +57,30 @@ defmodule ExPoser.MixProject do
       ],
       groups_for_modules: [
         "Idiomatic API": [
-          Poser,
-          Poser.Scene,
-          Poser.Figure,
-          Poser.Actor,
-          Poser.Parameter,
-          Poser.Batch
+          ExPoser,
+          ExPoser.Scene,
+          ExPoser.Figure,
+          ExPoser.Actor,
+          ExPoser.Parameter,
+          ExPoser.Batch
         ],
-        Errors: [Poser.Error],
-        "Generated API": [~r/^Poser\.Api/, Poser.Const],
+        Errors: [ExPoser.Error],
+        "Generated API": [~r/^ExPoser\.Api/, ExPoser.Const],
         Connection: [
-          Poser.Client,
-          Poser.Session,
-          Poser.Transport,
-          Poser.Transport.TCP,
-          Poser.Events,
-          Poser.Handle
+          ExPoser.Client,
+          ExPoser.Session,
+          ExPoser.Transport,
+          ExPoser.Transport.TCP,
+          ExPoser.Events,
+          ExPoser.Handle
         ],
         Internals: [
-          Poser.Ref,
-          Poser.Codec,
-          Poser.Call,
-          ~r/^Poser\.Gen\./,
-          Poser.Smoke,
-          Poser.NDArray
+          ExPoser.Ref,
+          ExPoser.Codec,
+          ExPoser.Call,
+          ~r/^ExPoser\.Gen\./,
+          ExPoser.Smoke,
+          ExPoser.NDArray
         ]
       ]
     ]

@@ -18,16 +18,16 @@ left as you found it.
 ## Connect
 
 ```elixir
-{:ok, _} = Poser.Client.start_link()
+{:ok, _} = ExPoser.Client.start_link()
 ```
 
 The handshake runs in the background, so wait for it before the first call.
-`Poser.Client.await_connected/1` returns `:ok` once the client is connected,
+`ExPoser.Client.await_connected/1` returns `:ok` once the client is connected,
 or a `:timeout` error after five seconds.
 
 ```elixir
-:ok = Poser.Client.await_connected()
-Poser.Client.info()
+:ok = ExPoser.Client.await_connected()
+ExPoser.Client.info()
 ```
 
 ## The scene
@@ -36,10 +36,10 @@ Frames count from 0 here and from 1 in the GUI: `frame: 0` is GUI frame 1.
 
 ```elixir
 %{
-  frame: Poser.Scene.frame!(),
-  num_frames: Poser.Scene.num_frames!(),
-  fps: Poser.Scene.fps!(),
-  figures: Poser.Scene.figures!()
+  frame: ExPoser.Scene.frame!(),
+  num_frames: ExPoser.Scene.num_frames!(),
+  fps: ExPoser.Scene.fps!(),
+  figures: ExPoser.Scene.figures!()
 }
 ```
 
@@ -47,7 +47,7 @@ Pick a figure. The inspect output shows its internal name; `name` is the GUI
 label.
 
 ```elixir
-fig = Poser.Scene.figures!() |> hd()
+fig = ExPoser.Scene.figures!() |> hd()
 {fig.internal, fig.name}
 ```
 
@@ -56,7 +56,7 @@ fig = Poser.Scene.figures!() |> hd()
 A listing takes two requests however long it is.
 
 ```elixir
-actors = Poser.Figure.actors!(fig)
+actors = ExPoser.Figure.actors!(fig)
 Enum.map(actors, &{&1.internal, &1.name})
 ```
 
@@ -65,13 +65,13 @@ the list above.
 
 ```elixir
 actor_name = "BODY:1"
-actor = Poser.Figure.actor!(fig, actor_name)
+actor = ExPoser.Figure.actor!(fig, actor_name)
 ```
 
 Every dial on it, with its value, in two requests:
 
 ```elixir
-Poser.Actor.values!(actor)
+ExPoser.Actor.values!(actor)
 ```
 
 Pick a dial. The idiomatic structs are plain data: they name the dial and
@@ -79,8 +79,8 @@ hold nothing live.
 
 ```elixir
 parm_name = "yrot"
-parm = Poser.Actor.parameter!(actor, parm_name)
-{parm, Poser.Ref.path(parm), Poser.Parameter.min_max!(parm)}
+parm = ExPoser.Actor.parameter!(actor, parm_name)
+{parm, ExPoser.Ref.path(parm), ExPoser.Parameter.min_max!(parm)}
 ```
 
 ## Set a dial at a frame
@@ -90,25 +90,25 @@ Poser keys the value at frame 4, and every dial already has a key at frame 0
 (GUI frame 1). The current frame doesn't move.
 
 ```elixir
-before = Poser.Parameter.value!(parm, frame: 4)
-keys_before = Poser.Parameter.keyframes!(parm)
-start_frame = Poser.Scene.frame!()
+before = ExPoser.Parameter.value!(parm, frame: 4)
+keys_before = ExPoser.Parameter.keyframes!(parm)
+start_frame = ExPoser.Scene.frame!()
 
 try do
-  Poser.Parameter.set_value!(parm, 30.0, frame: 4)
+  ExPoser.Parameter.set_value!(parm, 30.0, frame: 4)
 
   %{
-    keyframes: Poser.Parameter.keyframes!(parm),
-    at_0: Poser.Parameter.value_at!(parm, 0),
-    at_2: Poser.Parameter.value_at!(parm, 2),
-    at_4: Poser.Parameter.value_at!(parm, 4),
-    frame_unchanged?: Poser.Scene.frame!() == start_frame
+    keyframes: ExPoser.Parameter.keyframes!(parm),
+    at_0: ExPoser.Parameter.value_at!(parm, 0),
+    at_2: ExPoser.Parameter.value_at!(parm, 2),
+    at_4: ExPoser.Parameter.value_at!(parm, 4),
+    frame_unchanged?: ExPoser.Scene.frame!() == start_frame
   }
 after
   # Put the scene back, even if a read raised: the old value, and no key at
   # frame 4 unless one was there.
-  Poser.Parameter.set_value!(parm, before, frame: 4)
-  if 4 not in keys_before, do: Poser.Parameter.delete_keyframe!(parm, 4)
+  ExPoser.Parameter.set_value!(parm, before, frame: 4)
+  if 4 not in keys_before, do: ExPoser.Parameter.delete_keyframe!(parm, 4)
 end
 ```
 
@@ -117,11 +117,11 @@ end
 One request: three reads at three frames. Results come back in op order.
 
 ```elixir
-Poser.batch!(fn b ->
+ExPoser.batch!(fn b ->
   b
-  |> Poser.Batch.get(parm, frame: 0)
-  |> Poser.Batch.get(parm, frame: 10)
-  |> Poser.Batch.get(parm, frame: 20)
+  |> ExPoser.Batch.get(parm, frame: 0)
+  |> ExPoser.Batch.get(parm, frame: 10)
+  |> ExPoser.Batch.get(parm, frame: 20)
 end)
 ```
 
@@ -129,34 +129,34 @@ Errors are values. A missing dial gives `:not_found` with the path and the
 index of the op that failed:
 
 ```elixir
-missing = %Poser.Parameter{actor: actor, internal: "no_such_dial", name: "no_such_dial"}
+missing = %ExPoser.Parameter{actor: actor, internal: "no_such_dial", name: "no_such_dial"}
 
-Poser.batch(fn b ->
+ExPoser.batch(fn b ->
   b
-  |> Poser.Batch.get(parm)
-  |> Poser.Batch.get(missing)
+  |> ExPoser.Batch.get(parm)
+  |> ExPoser.Batch.get(missing)
 end)
 ```
 
-## Down to Poser.Api
+## Down to ExPoser.Api
 
-`handle/2` returns a live handle for the generated `Poser.Api` modules. It is
+`handle/2` returns a live handle for the generated `ExPoser.Api` modules. It is
 yours to release.
 
 ```elixir
-h = Poser.Parameter.handle!(parm)
+h = ExPoser.Parameter.handle!(parm)
 
 try do
-  {:ok, internal} = Poser.Api.ParmType.internal_name(h)
-  {:ok, hidden} = Poser.Api.ParmType.hidden(h)
+  {:ok, internal} = ExPoser.Api.ParmType.internal_name(h)
+  {:ok, hidden} = ExPoser.Api.ParmType.hidden(h)
   %{internal_name: internal, hidden: hidden}
 after
-  Poser.Client.release([h])
+  ExPoser.Client.release([h])
 end
 ```
 
 Nothing is left behind:
 
 ```elixir
-Poser.Client.stats()
+ExPoser.Client.stats()
 ```

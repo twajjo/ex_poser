@@ -8,9 +8,9 @@
         excluded: [
           ~r"/_build/",
           ~r"/deps/",
-          "lib/poser/api/",
-          "lib/poser/api.ex",
-          "lib/poser/const.ex"
+          "lib/ex_poser/api/",
+          "lib/ex_poser/api.ex",
+          "lib/ex_poser/const.ex"
         ]
       }
     }

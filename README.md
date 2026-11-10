@@ -9,35 +9,35 @@ same request as the work, `frame:` reads or writes at a frame and puts
 Poser's timeline back, and a batch sends many operations in one request:
 
 ```elixir
-{:ok, _} = Poser.Client.start_link()
+{:ok, _} = ExPoser.Client.start_link()
 # The handshake runs in the background; wait for it before the first call.
-:ok = Poser.Client.await_connected()
-{:ok, fig} = Poser.Scene.figure("Figure 1")
-{:ok, bend} = Poser.Figure.parameter(fig, "Left Forearm", "Bend")
+:ok = ExPoser.Client.await_connected()
+{:ok, fig} = ExPoser.Scene.figure("Figure 1")
+{:ok, bend} = ExPoser.Figure.parameter(fig, "Left Forearm", "Bend")
 
-{:ok, :ok} = Poser.Parameter.set_value(bend, 30.0, frame: 4)   # GUI frame 5
+{:ok, :ok} = ExPoser.Parameter.set_value(bend, 30.0, frame: 4)   # GUI frame 5
 
-Poser.batch!(fn b ->
+ExPoser.batch!(fn b ->
   b
-  |> Poser.Batch.set(bend, 45.0, frame: 9)
-  |> Poser.Batch.get(bend, frame: 9)
+  |> ExPoser.Batch.set(bend, 45.0, frame: 9)
+  |> ExPoser.Batch.get(bend, frame: 9)
 end)
 #=> [:ok, 45.0]
 ```
 
 Every PoserPython function and method also has a generated function in
-`Poser.Api`, working on handles to live Python objects:
+`ExPoser.Api`, working on handles to live Python objects:
 
 ```elixir
-{:ok, scene} = Poser.Api.scene()
-{:ok, [figure | _]} = Poser.Api.SceneType.figures(scene)
-{:ok, actor} = Poser.Api.FigureType.actor(figure, "hip")
-{:ok, parm} = Poser.Api.ActorType.parameter(actor, "xRotate")
-{:ok, nil} = Poser.Api.ParmType.set_value(parm, 15.0, do_update: 1)
+{:ok, scene} = ExPoser.Api.scene()
+{:ok, [figure | _]} = ExPoser.Api.SceneType.figures(scene)
+{:ok, actor} = ExPoser.Api.FigureType.actor(figure, "hip")
+{:ok, parm} = ExPoser.Api.ActorType.parameter(actor, "xRotate")
+{:ok, nil} = ExPoser.Api.ParmType.set_value(parm, 15.0, do_update: 1)
 ```
 
 Optional Python arguments are keyword options; `server:` and `timeout:` go
-to the client. Constants live in `Poser.Const`, e.g. `Poser.Const.parm_code(:xrot)`.
+to the client. Constants live in `ExPoser.Const`, e.g. `ExPoser.Const.parm_code(:xrot)`.
 
 ## Guides
 

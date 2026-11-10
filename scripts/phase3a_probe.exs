@@ -2,11 +2,11 @@
 #   mix run scripts/phase3a_probe.exs
 # The `after` block always restores the value, deletes keys the probe added,
 # restores the frame and releases every handle. Exits non-zero on a leak.
-alias Poser.Client
-alias Poser.Api.{SceneType, FigureType, ActorType, ParmType}
+alias ExPoser.Client
+alias ExPoser.Api.{SceneType, FigureType, ActorType, ParmType}
 
 name = :phase3a_probe
-{:ok, _} = Client.start_link(name: name, session: Poser.Session.default_path())
+{:ok, _} = Client.start_link(name: name, session: ExPoser.Session.default_path())
 
 wait = fn wait, n ->
   cond do
@@ -48,7 +48,7 @@ end
 
 show = fn
   {:ok, nil} -> "returns None"
-  {:ok, %Poser.Handle{}} -> "returns a handle"
+  {:ok, %ExPoser.Handle{}} -> "returns a handle"
   {:ok, other} -> "returned #{inspect(other)}"
   {:error, e} -> "raises #{e.class}: #{e.message}"
 end
@@ -73,7 +73,7 @@ try do
   r2 = FigureType.actor_by_internal_name(fig, missing, o)
   r3 = SceneType.actor_by_internal_name(scene, missing, o)
   r4 = ActorType.internal_parameter(hd(actors), missing, o)
-  for r <- [r1, r2, r3, r4], match?({:ok, %Poser.Handle{}}, r), do: keep.(elem(r, 1))
+  for r <- [r1, r2, r3, r4], match?({:ok, %ExPoser.Handle{}}, r), do: keep.(elem(r, 1))
 
   fact.(1, "SceneType.FigureByInternalName: #{show.(r1)}; FigureType.ActorByInternalName: #{show.(r2)}; SceneType.ActorByInternalName: #{show.(r3)}; ActorType.InternalParameter: #{show.(r4)}")
 
@@ -87,12 +87,12 @@ try do
 
   byi = SceneType.figure_by_internal_name(scene, ti, o)
   byn = SceneType.figure_by_internal_name(scene, tn, o)
-  for r <- [byi, byn], match?({:ok, %Poser.Handle{}}, r), do: keep.(elem(r, 1))
+  for r <- [byi, byn], match?({:ok, %ExPoser.Handle{}}, r), do: keep.(elem(r, 1))
 
   desc = fn r ->
     right =
       case r do
-        {:ok, %Poser.Handle{} = h} -> if (FigureType.internal_name(h, o) |> ok!.()) == ti, do: " (the right figure)", else: " (the WRONG figure)"
+        {:ok, %ExPoser.Handle{} = h} -> if (FigureType.internal_name(h, o) |> ok!.()) == ti, do: " (the right figure)", else: " (the WRONG figure)"
         _ -> ""
       end
 
@@ -105,7 +105,7 @@ try do
   {actor, parm} =
     Enum.find_value(actors, fn a ->
       case ActorType.parameter(a, "yRotate", o) do
-        {:ok, %Poser.Handle{} = p} -> {a, keep.(p)}
+        {:ok, %ExPoser.Handle{} = p} -> {a, keep.(p)}
         _ -> nil
       end
     end) || raise "no yRotate parm"
