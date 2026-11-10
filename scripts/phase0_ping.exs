@@ -1,4 +1,4 @@
-# Phase 0 spike client for the Poser bridge.
+# Phase 0 spike client for the ExPoser bridge.
 #
 #   elixir scripts/phase0_ping.exs [--session PATH] [--host IP] [--samples N]
 #                                  [--listen SECONDS] [--bad-token]
@@ -44,7 +44,7 @@ defmodule Phase0Ping do
     report("ping      (reader thread)", time_requests(sock, :ping, samples))
     report("ping_main (wx.CallAfter) ", time_requests(sock, :ping_main, samples))
 
-    IO.puts("scene_summary: #{inspect(call(sock, {:X, "poser_bridge.spike", "scene_summary", []}))}")
+    IO.puts("scene_summary: #{inspect(call(sock, {:X, "ex_poser_bridge.spike", "scene_summary", []}))}")
 
     case call(sock, {:X, "math", "sqrt", [-1]}) do
       {:e, _id, {:python, class, msg, tb}} ->

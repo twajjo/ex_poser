@@ -1,7 +1,7 @@
 import unittest
 
 import fake_poser
-from poser_bridge.handles import (BadRequest, HandleTable, NDARRAY, POSER_OBJ,
+from ex_poser_bridge.handles import (BadRequest, HandleTable, NDARRAY, POSER_OBJ,
                                   RESULT, StaleHandle)
 
 
@@ -106,7 +106,7 @@ try:
 except ImportError:  # the add-on and these tests also run without numpy
     np = None
 
-import poser_bridge.handles as handles_mod
+import ex_poser_bridge.handles as handles_mod
 
 
 @unittest.skipUnless(np, "numpy not installed")

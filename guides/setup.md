@@ -1,6 +1,6 @@
 # Setup
 
-ExPoser talks to Poser 14 through the Poser Bridge add-on. Poser runs on
+ExPoser talks to Poser 14 through the ExPoser Bridge add-on. Poser runs on
 Windows; Elixir can run on the same machine or in WSL 2.
 
 ## 1. Deploy the add-on
@@ -11,8 +11,8 @@ From the repo root (in WSL):
 scripts/deploy_addon.sh
 ```
 
-This copies `python/poser_bridge/` and `priv/poser_api.json` into
-`Runtime/Python/addons/poser_bridge/`. Set `POSER_ADDONS` if Poser is
+This copies `python/ex_poser_bridge/` and `priv/poser_api.json` into
+`Runtime/Python/addons/ex_poser_bridge/`. Set `POSER_ADDONS` if Poser is
 installed somewhere else.
 
 **Restart Poser after every deploy.** Poser imports add-ons once, at startup,
@@ -21,9 +21,9 @@ and has no way to reload them.
 When the add-on starts, Poser's Python output shows:
 
 ```
-poser_bridge: listening on 127.0.0.1:47800
-poser_bridge: listening on 172.22.192.1:47800
-poser_bridge: loaded (dev mode), session file C:\Users\<you>\AppData\Roaming\PoserBridge\session.json
+ex_poser_bridge: listening on 127.0.0.1:47800
+ex_poser_bridge: listening on 172.22.192.1:47800
+ex_poser_bridge: loaded (dev mode), session file C:\Users\<you>\AppData\Roaming\PoserBridge\session.json
 ```
 
 ## 2. Allow WSL through the Windows Firewall (once)
@@ -33,7 +33,7 @@ silently drops inbound connections on it, so connecting from WSL times out.
 Run this once in an **administrator** PowerShell:
 
 ```
-New-NetFirewallRule -DisplayName "Poser bridge (WSL only)" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 47800 -InterfaceAlias "vEthernet (WSL)" -Program "D:\Program Files\Poser Software\Poser 14\Poser.exe"
+New-NetFirewallRule -DisplayName "ExPoser bridge (WSL only)" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 47800 -InterfaceAlias "vEthernet (WSL)" -Program "D:\Program Files\Poser Software\Poser 14\Poser.exe"
 ```
 
 Adjust `-Program` if Poser is installed elsewhere. If Windows created a

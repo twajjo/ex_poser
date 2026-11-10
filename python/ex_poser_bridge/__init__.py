@@ -1,4 +1,4 @@
-"""Poser Bridge add-on: serves the PoserPython API to Elixir over a socket.
+"""ExPoser Bridge add-on: serves the PoserPython API to Elixir over a socket.
 
 Poser's poserStartup.py imports this package from Runtime\\Python\\addons.
 Outside Poser (standalone server, tests) the add-on is not registered, so the

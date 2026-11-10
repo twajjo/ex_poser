@@ -2,8 +2,8 @@ import sys
 import unittest
 
 import fake_poser
-from poser_bridge import codec
-from poser_bridge.erlterms import Atom
+from ex_poser_bridge import codec
+from ex_poser_bridge.erlterms import Atom
 
 
 class CodecTest(unittest.TestCase):

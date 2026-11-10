@@ -2,10 +2,10 @@ import os
 import unittest
 
 import fake_poser
-from poser_bridge.codec import atom
-from poser_bridge.dispatch import Dispatcher
-from poser_bridge.handles import POSER_OBJ, RESULT, HandleTable
-from poser_bridge.policy import Policy
+from ex_poser_bridge.codec import atom
+from ex_poser_bridge.dispatch import Dispatcher
+from ex_poser_bridge.handles import POSER_OBJ, RESULT, HandleTable
+from ex_poser_bridge.policy import Policy
 
 MINI = os.path.join(os.path.dirname(__file__), "fixtures", "mini_api.json")
 C, I, G, B, R, S, X = (atom(t) for t in "CIGBRSX")

@@ -18,9 +18,9 @@ import threading
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import fake_poser  # noqa: E402
-from poser_bridge import net  # noqa: E402
-from poser_bridge.policy import Policy  # noqa: E402
-from poser_bridge.server import PROTOCOL, Server  # noqa: E402
+from ex_poser_bridge import net  # noqa: E402
+from ex_poser_bridge.policy import Policy  # noqa: E402
+from ex_poser_bridge.server import PROTOCOL, Server  # noqa: E402
 
 
 def main():
