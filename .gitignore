@@ -20,7 +20,7 @@ erl_crash.dump
 *.ez
 
 # Ignore package tarball (built via "mix hex.build").
-poserx-*.tar
+ex_poser-*.tar
 
 
 # Python bytecode from running the add-on locally.

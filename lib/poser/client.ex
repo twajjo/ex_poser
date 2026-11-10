@@ -302,7 +302,7 @@ defmodule Poser.Client do
   defp connected(state, {:error, reason}) do
     # Warn once per distinct failure, not on every retry.
     if reason != state.last_error,
-      do: Logger.warning("poserx: cannot connect to Poser: #{inspect(reason)}")
+      do: Logger.warning("ex_poser: cannot connect to Poser: #{inspect(reason)}")
 
     schedule_reconnect(%{state | last_error: reason})
   end
@@ -366,7 +366,7 @@ defmodule Poser.Client do
         handle_term(term, state)
 
       {:error, :undecodable} ->
-        Logger.warning("poserx: dropped undecodable frame (#{byte_size(bin)} bytes)")
+        Logger.warning("ex_poser: dropped undecodable frame (#{byte_size(bin)} bytes)")
         state
     end
   end
@@ -383,14 +383,14 @@ defmodule Poser.Client do
   end
 
   defp handle_term(other, state) do
-    Logger.warning("poserx: unexpected frame #{inspect(other)}")
+    Logger.warning("ex_poser: unexpected frame #{inspect(other)}")
     state
   end
 
   defp handshake(opts, transport) do
     with {:ok, target} <- target(opts),
          {:ok, conn} <- transport.connect(target.host, target.port, opts[:connect_timeout]) do
-      hello = {:hello, %{token: target.token, protocol: 1, client: "poserx #{@version}"}}
+      hello = {:hello, %{token: target.token, protocol: 1, client: "ex_poser #{@version}"}}
 
       with :ok <- transport.send_frame(conn, Codec.encode(hello)),
            {:ok, bin} <- transport.recv_frame(conn, opts[:connect_timeout]),

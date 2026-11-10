@@ -31,7 +31,7 @@ See Erlang External Term Format for details:
     http://www.erlang.org/doc/apps/erts/erl_ext_dist.html
 
 Vendored from erlport 0.11.0 (Hex), priv/python3/erlport/erlterms.py.
-Local changes are marked "poserx:":
+Local changes are marked "ex_poser:":
   - decode never unpickles opaque python objects (remote code execution);
   - encode raises on unsupported types instead of pickling them;
   - decode accepts ATOM_UTF8_EXT / SMALL_ATOM_UTF8_EXT (OTP 26+ default);
@@ -242,7 +242,7 @@ class OpaqueObject(object):
 
     @classmethod
     def decode(cls, data, language):
-        # poserx: never unpickle data that came off the wire
+        # ex_poser: never unpickle data that came off the wire
         return cls(data, language)
 
     def encode(self):
@@ -328,7 +328,7 @@ def decode_term(string,
             raise IncompleteData(string)
         return _atom(string[3:length]), string[length:]
     elif tag == 119 or tag == 118:
-        # poserx: SMALL_ATOM_UTF8_EXT, ATOM_UTF8_EXT
+        # ex_poser: SMALL_ATOM_UTF8_EXT, ATOM_UTF8_EXT
         ln = len(string)
         if tag == 119:
             if ln < 2:
@@ -513,7 +513,7 @@ def encode_term(term,
     elif t is str:
         return encode_term(list(map(ord, term)))
     elif t is Atom:
-        # poserx: SMALL_ATOM_UTF8_EXT; Atom() already caps length at 255
+        # ex_poser: SMALL_ATOM_UTF8_EXT; Atom() already caps length at 255
         return b"w" + bytes((len(term),)) + term
     elif t is bytes:
         length = len(term)
@@ -570,5 +570,5 @@ def encode_term(term,
         return (header + b"".join(map(encode_term, term))
             + encode_term(term.tail))
 
-    # poserx: never pickle; callers convert objects before encoding
+    # ex_poser: never pickle; callers convert objects before encoding
     raise ValueError("unsupported data type: %s" % type(term))

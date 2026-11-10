@@ -3,7 +3,7 @@
 ```elixir
 poserx_path = Path.expand("~/src/elixir/poserx")
 
-Mix.install([{:poserx, path: poserx_path}])
+Mix.install([{:ex_poser, path: poserx_path}])
 ```
 
 ## Before you start
