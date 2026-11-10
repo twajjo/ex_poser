@@ -2,7 +2,7 @@ defmodule Mix.Tasks.Poser.Smoke do
   @shortdoc "Calls every generated getter against the running Poser"
   @moduledoc """
   Connects to Poser, walks the open scene through every generated getter
-  (see `Poser.Smoke`), writes a JSON report and prints a summary.
+  (see `ExPoser.Smoke`), writes a JSON report and prints a summary.
 
       mix poser.smoke [--per-class N] [--include-heavy] [--timeout MS]
                       [--out PATH] [--manifest PATH] [--session PATH]
@@ -37,15 +37,15 @@ defmodule Mix.Tasks.Poser.Smoke do
 
     out = Keyword.get(opts, :out, "tmp/poser_smoke.json")
     name = :poser_smoke_client
-    session = Keyword.get(opts, :session, Poser.Session.default_path())
-    {:ok, _} = Poser.Client.start_link(name: name, session: session)
+    session = Keyword.get(opts, :session, ExPoser.Session.default_path())
+    {:ok, _} = ExPoser.Client.start_link(name: name, session: session)
     wait_connected(name, 50)
 
     smoke_opts = [server: name] ++ Keyword.take(opts, [:per_class, :include_heavy, :timeout])
-    {us, report} = :timer.tc(fn -> Poser.Smoke.run(manifest, smoke_opts) end)
+    {us, report} = :timer.tc(fn -> ExPoser.Smoke.run(manifest, smoke_opts) end)
 
     File.mkdir_p!(Path.dirname(out))
-    File.write!(out, Poser.Gen.Render.json(report))
+    File.write!(out, ExPoser.Gen.Render.json(report))
     print(report, out, div(us, 1000))
   end
 
@@ -83,11 +83,11 @@ defmodule Mix.Tasks.Poser.Smoke do
   defp wait_connected(name, 0),
     do:
       Mix.raise(
-        "poser.smoke: cannot connect to Poser: #{inspect(Poser.Client.ping(server: name))}"
+        "poser.smoke: cannot connect to Poser: #{inspect(ExPoser.Client.ping(server: name))}"
       )
 
   defp wait_connected(name, n) do
-    if Poser.Client.status(server: name) == :connected do
+    if ExPoser.Client.status(server: name) == :connected do
       :ok
     else
       Process.sleep(200)

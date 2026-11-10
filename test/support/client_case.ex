@@ -1,5 +1,5 @@
 defmodule PoserTest.ClientCase do
-  @moduledoc "Starts a standalone server and a connected Poser.Client for a test."
+  @moduledoc "Starts a standalone server and a connected ExPoser.Client for a test."
 
   import ExUnit.Assertions
   import ExUnit.Callbacks
@@ -7,8 +7,8 @@ defmodule PoserTest.ClientCase do
   @doc "Start a client on `session` and wait until it is connected; returns its name."
   def start_client(session, opts \\ []) do
     name = :"poser_client_#{System.unique_integer([:positive])}"
-    :ok = Poser.Events.subscribe(:connected)
-    start_supervised!({Poser.Client, [name: name, session: session] ++ opts}, id: name)
+    :ok = ExPoser.Events.subscribe(:connected)
+    start_supervised!({ExPoser.Client, [name: name, session: session] ++ opts}, id: name)
     assert_receive {:poser_event, :connected, %{server: ^name}}, 5_000
     name
   end

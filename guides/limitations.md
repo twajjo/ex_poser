@@ -7,8 +7,8 @@ cover, or can only cover differently from Python, and what to do instead.
 > **Status:** sections 1, 2, 5, 6, 7 and 8 describe the library as it is.
 > Callbacks (section 3) and add-on hooks (section 4) are planned for Phase 4;
 > the examples there show the planned API. Section 9 lists the limits of the
-> idiomatic modules (`Poser.Scene`, `Poser.Figure`, `Poser.Actor`,
-> `Poser.Parameter`, `Poser.Batch`).
+> idiomatic modules (`ExPoser.Scene`, `ExPoser.Figure`, `ExPoser.Actor`,
+> `ExPoser.Parameter`, `ExPoser.Batch`).
 
 ## 1. "Complete" means "found by introspection"
 
@@ -30,7 +30,7 @@ what was found and what was skipped.
 
 ```elixir
 # No generated function for this method? Call it by name.
-{:ok, value} = Poser.Client.invoke(handle, "SomeUndocumentedMethod", [1, "two"])
+{:ok, value} = ExPoser.Client.invoke(handle, "SomeUndocumentedMethod", [1, "two"])
 ```
 
 **Fix:** load a scene that contains the missing object type, run the
@@ -45,14 +45,14 @@ a plain argument list:
 
 ```elixir
 # Signature known:
-Poser.Api.ParmType.set_value(parm, 88.0)
+ExPoser.Api.ParmType.set_value(parm, 88.0)
 
 # Signature unknown: arguments go in a list, unchecked until Poser runs them
-Poser.Api.SomeType.some_method(obj, [arg1, arg2])
+ExPoser.Api.SomeType.some_method(obj, [arg1, arg2])
 ```
 
 Python raises any argument error, and it comes back as
-`{:error, %Poser.Error{class: "TypeError", ...}}` instead of failing at
+`{:error, %ExPoser.Error{class: "TypeError", ...}}` instead of failing at
 compile time.
 
 ## 2. Features that need a person at the Poser window
@@ -68,17 +68,17 @@ Some Poser features are interactive dialogs or palettes rather than API calls:
 
 ```elixir
 # Works: applying the result of an interactive tool
-Poser.Api.SceneType.load_library_pose(scene, "Runtime:Libraries:Pose:MyWalk.pz2")
+ExPoser.Api.SceneType.load_library_pose(scene, "Runtime:Libraries:Pose:MyWalk.pz2")
 
 # Blocks the bridge: a dialog waits for a person at the Poser window
-Poser.Client.call("poser.DialogFileChooser", [...])   # don't do this
+ExPoser.Client.call("poser.DialogFileChooser", [...])   # don't do this
 ```
 
 ## 3. Callbacks become events
 
 > **Planned for Phase 4.** Methods that take a Python callback, such as
 > `SetUpdateCallback`, have no generated function yet (`mix poser.gen` skips
-> them as "callback: Phase 4"), and `Poser.Events` has no callback topics.
+> them as "callback: Phase 4"), and `ExPoser.Events` has no callback topics.
 > This section describes the planned design.
 
 Some PoserPython methods take a Python function and call it later, for
@@ -89,7 +89,7 @@ stub that sends the callback's arguments to Elixir as an event.
 ```elixir
 # Python:  parm.SetUpdateCallback(my_fn)
 # Elixir (planned):  subscribe, then receive messages
-{:ok, ref} = Poser.Api.ParmType.set_update_callback(parm)
+{:ok, ref} = ExPoser.Api.ParmType.set_update_callback(parm)
 receive do
   {:poser_callback, ^ref, args} -> IO.inspect(args, label: "parameter updated")
 end
@@ -104,12 +104,12 @@ end
 - Events arrive **later than the change**, after Poser returns to idle and
   after a network hop. Use them to react, not to step in mid-change.
 
-Poser's frame changes already arrive as a `Poser.Events` topic, and the
+Poser's frame changes already arrive as a `ExPoser.Events` topic, and the
 planned `SceneObserver` notifications (such as `objectsAdded`) will arrive
 the same way:
 
 ```elixir
-Poser.Events.subscribe(:frame_changed)
+ExPoser.Events.subscribe(:frame_changed)
 receive do
   {:poser_event, :frame_changed, frame} -> IO.puts("now on frame #{frame}")
 end
@@ -139,15 +139,15 @@ slow call by call over the bridge:
 ```elixir
 # Slow: one round trip per vertex (could be tens of thousands)
 for i <- 0..(n - 1) do
-  {:ok, v} = Poser.Api.GeomType.vertex(geom, i)
-  Poser.Api.VertType.x(v)
+  {:ok, v} = ExPoser.Api.GeomType.vertex(geom, i)
+  ExPoser.Api.VertType.x(v)
 end
 
 # Better: send many operations as one batch frame (one main-thread turn)
-{:ok, verts} = Poser.Client.batch(for i <- 0..(n - 1), do: {:invoke, geom, "Vertex", [i]})
+{:ok, verts} = ExPoser.Client.batch(for i <- 0..(n - 1), do: {:invoke, geom, "Vertex", [i]})
 ```
 
-Each `Vertex` result is a handle; release them with `Poser.Client.release/2`
+Each `Vertex` result is a handle; release them with `ExPoser.Client.release/2`
 when you're done.
 
 **Heavy work belongs inside Poser.** For bulk geometry or per-frame keyframe
@@ -161,31 +161,31 @@ someone clicks it.
 
 ```elixir
 # Renders need a long or :infinity timeout; the default is 120 000 ms
-Poser.Api.SceneType.render(scene, timeout: :infinity)
+ExPoser.Api.SceneType.render(scene, timeout: :infinity)
 ```
 
-Expect `{:error, %Poser.Error{kind: :timeout}}` when Poser is stuck behind a dialog. The call may
+Expect `{:error, %ExPoser.Error{kind: :timeout}}` when Poser is stuck behind a dialog. The call may
 still run once the dialog is dismissed.
 
 ## 6. Object handles
 
 Poser objects (scenes, figures, actors, parameters and so on) never leave
-Poser. Elixir holds **handles** to them: `%Poser.Handle{class: "ActorType", ...}`.
+Poser. Elixir holds **handles** to them: `%ExPoser.Handle{class: "ActorType", ...}`.
 
 - **Handles go stale** when the scene is replaced (new scene, scene opened)
   or when the bridge reconnects. Using one returns
-  `{:error, %Poser.Error{kind: :stale_handle}}`. The idiomatic structs
-  (`Poser.Figure`, `Poser.Actor`, `Poser.Parameter`) hold no handle and
+  `{:error, %ExPoser.Error{kind: :stale_handle}}`. The idiomatic structs
+  (`ExPoser.Figure`, `ExPoser.Actor`, `ExPoser.Parameter`) hold no handle and
   resolve their path on every call, so they don't go stale:
 
   ```elixir
-  {:ok, actor} = Poser.Figure.actor(figure, "hip")  # works after a reconnect too
+  {:ok, actor} = ExPoser.Figure.actor(figure, "hip")  # works after a reconnect too
   ```
 
 - **A deleted object** can leave a handle that Poser itself rejects. That
   shows up as a Python error, never as a crash.
 - **Handles are held until released.** Release them with
-  `Poser.Client.release/2`. Handles returned to a process are also released
+  `ExPoser.Client.release/2`. Handles returned to a process are also released
   when that process exits, and the add-on drops a connection's handles when
   it closes.
 
@@ -197,11 +197,11 @@ access) allows only names in the generated allowlist, which is the full
 `poser` API and nothing else.
 
 ```elixir
-# Dev mode: works.  Strict mode: {:error, %Poser.Error{kind: :not_allowed}}
-Poser.Client.raw("os", "listdir", ["C:\\"])
+# Dev mode: works.  Strict mode: {:error, %ExPoser.Error{kind: :not_allowed}}
+ExPoser.Client.raw("os", "listdir", ["C:\\"])
 
 # Both modes: everything in the poser API
-Poser.Api.scene()
+ExPoser.Api.scene()
 ```
 
 If you rely on a Python helper of your own in strict mode, add it to the
@@ -209,8 +209,8 @@ add-on and the allowlist explicitly.
 
 ## 8. Environment
 
-- **Poser must be running.** PoserPython only exists inside `Poser.exe`, and
-  Poser has no headless or command-line scripting mode. `Poser.Launcher`
+- **Poser must be running.** PoserPython only exists inside `ExPoser.exe`, and
+  Poser has no headless or command-line scripting mode. `ExPoser.Launcher`
   (planned) can start it and wait for the bridge.
 - **One Poser per bridge port.** A second Poser instance can't bind the same
   dev port.
@@ -224,8 +224,8 @@ add-on and the allowlist explicitly.
 
 ## 9. The idiomatic modules
 
-`Poser.Scene`, `Poser.Figure`, `Poser.Actor`, `Poser.Parameter` and
-`Poser.Batch` hold names, not handles, and send every call as a batch. That
+`ExPoser.Scene`, `ExPoser.Figure`, `ExPoser.Actor`, `ExPoser.Parameter` and
+`ExPoser.Batch` hold names, not handles, and send every call as a batch. That
 design has these limits.
 
 - **No rollback.** Poser has no transactions. When an op in a batch fails,
@@ -239,7 +239,7 @@ design has these limits.
   with `frame:` ops times out or the connection drops, its reply (which holds
   the original frame) never arrives. If Poser ran the chunk anyway, the
   timeline stays at the last frame that chunk moved to.
-- **`Poser.Parameter.keyframes/2` costs a round trip per key.** PoserPython
+- **`ExPoser.Parameter.keyframes/2` costs a round trip per key.** PoserPython
   only steps from key to key (`NextKeyFrame`), so a dial with 50 keys takes
   about 50 requests.
 - **Display names are ambiguous.** Labels repeat across figures and within
@@ -247,10 +247,10 @@ design has these limits.
   A lookup that matches several objects gives `:ambiguous`; use the internal
   name instead.
 - **Names match exactly.** Internal and display names are compared as
-  written, case included: `Poser.Actor.parameter(arm, "yrot")` and
-  `Poser.Actor.parameter(arm, "Bend")` find the forearm's bend dial, and
-  `"bend"` finds nothing. `Poser.Actor.get/3`, `set/3` and `values/2` take
+  written, case included: `ExPoser.Actor.parameter(arm, "yrot")` and
+  `ExPoser.Actor.parameter(arm, "Bend")` find the forearm's bend dial, and
+  `"bend"` finds nothing. `ExPoser.Actor.get/3`, `set/3` and `values/2` take
   and return internal names only.
-- **No `frame:` on `Poser.Actor.get/3`, `set/3` and `values/2`.** They work at
-  the current frame. For another frame, use `Poser.Parameter.value/2`,
-  `Poser.Parameter.set_value/3` or `Poser.Batch` with `frame:`.
+- **No `frame:` on `ExPoser.Actor.get/3`, `set/3` and `values/2`.** They work at
+  the current frame. For another frame, use `ExPoser.Parameter.value/2`,
+  `ExPoser.Parameter.set_value/3` or `ExPoser.Batch` with `frame:`.

@@ -1,13 +1,13 @@
 defmodule Mix.Tasks.Poser.Gen do
-  @shortdoc "Generates Poser.Api modules from priv/poser_api.json"
+  @shortdoc "Generates ExPoser.Api modules from priv/poser_api.json"
   @moduledoc """
   Generates one Elixir module per PoserPython class, the module-level
-  functions, `Poser.Const`, and a coverage manifest.
+  functions, `ExPoser.Const`, and a coverage manifest.
 
       mix poser.gen [DUMP] [--out DIR] [--namespace MOD] [--manifest PATH]
                     [--overrides PATH] [--check]
 
-  Defaults: `priv/poser_api.json`, `lib`, `Poser.Api`,
+  Defaults: `priv/poser_api.json`, `lib`, `ExPoser.Api`,
   `priv/poser_api_manifest.json`, `priv/poser_api_overrides.json`.
 
   `--check` writes nothing and fails if any generated file would change,
@@ -18,7 +18,7 @@ defmodule Mix.Tasks.Poser.Gen do
 
   use Mix.Task
 
-  alias Poser.Gen.{Model, Overrides, Render}
+  alias ExPoser.Gen.{Model, Overrides, Render}
 
   @switches [
     out: :string,
@@ -33,7 +33,7 @@ defmodule Mix.Tasks.Poser.Gen do
     {opts, args} = OptionParser.parse!(argv, strict: @switches)
     dump_path = List.first(args, "priv/poser_api.json")
     out = Keyword.get(opts, :out, "lib")
-    namespace = Module.concat([Keyword.get(opts, :namespace, "Poser.Api")])
+    namespace = Module.concat([Keyword.get(opts, :namespace, "ExPoser.Api")])
     manifest = Keyword.get(opts, :manifest, "priv/poser_api_manifest.json")
 
     dump = dump_path |> File.read!() |> JSON.decode!()

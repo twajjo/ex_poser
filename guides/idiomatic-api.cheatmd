@@ -1,7 +1,7 @@
 # Idiomatic API cheatsheet
 
 Each task twice: with the idiomatic structs, and with the generated
-`Poser.Api` on handles. Frames are PoserPython's, from 0: `frame: 4` is GUI
+`ExPoser.Api` on handles. Frames are PoserPython's, from 0: `frame: 4` is GUI
 frame 5.
 
 ## Get a figure
@@ -10,17 +10,17 @@ frame 5.
 ### Idiomatic
 
 ```elixir
-{:ok, fig} = Poser.Scene.figure("Figure 1")
+{:ok, fig} = ExPoser.Scene.figure("Figure 1")
 # internal or display name; nothing to release
 ```
 
-### Poser.Api
+### ExPoser.Api
 
 ```elixir
-{:ok, scene} = Poser.Api.scene()
-{:ok, fig} = Poser.Api.SceneType.figure(scene, "Figure 1")
+{:ok, scene} = ExPoser.Api.scene()
+{:ok, fig} = ExPoser.Api.SceneType.figure(scene, "Figure 1")
 # ...
-Poser.Client.release([scene, fig])
+ExPoser.Client.release([scene, fig])
 ```
 
 ## Read a dial
@@ -29,17 +29,17 @@ Poser.Client.release([scene, fig])
 ### Idiomatic
 
 ```elixir
-{:ok, bend} = Poser.Figure.parameter(fig, "Left Forearm", "Bend")
-{:ok, 0.0} = Poser.Parameter.value(bend)
+{:ok, bend} = ExPoser.Figure.parameter(fig, "Left Forearm", "Bend")
+{:ok, 0.0} = ExPoser.Parameter.value(bend)
 ```
 
-### Poser.Api
+### ExPoser.Api
 
 ```elixir
-{:ok, arm} = Poser.Api.FigureType.actor(fig, "Left Forearm")
-{:ok, bend} = Poser.Api.ActorType.parameter(arm, "Bend")
-{:ok, 0.0} = Poser.Api.ParmType.value(bend)
-Poser.Client.release([arm, bend])
+{:ok, arm} = ExPoser.Api.FigureType.actor(fig, "Left Forearm")
+{:ok, bend} = ExPoser.Api.ActorType.parameter(arm, "Bend")
+{:ok, 0.0} = ExPoser.Api.ParmType.value(bend)
+ExPoser.Client.release([arm, bend])
 ```
 
 ## Set a dial at a frame
@@ -48,17 +48,17 @@ Poser.Client.release([arm, bend])
 ### Idiomatic
 
 ```elixir
-{:ok, :ok} = Poser.Parameter.set_value(bend, 30.0, frame: 4)
+{:ok, :ok} = ExPoser.Parameter.set_value(bend, 30.0, frame: 4)
 # the current frame is restored
 ```
 
-### Poser.Api
+### ExPoser.Api
 
 ```elixir
-{:ok, orig} = Poser.Api.SceneType.frame(scene)
-{:ok, nil} = Poser.Api.SceneType.set_frame(scene, 4)
-{:ok, nil} = Poser.Api.ParmType.set_value(bend, 30.0)
-{:ok, nil} = Poser.Api.SceneType.set_frame(scene, orig)
+{:ok, orig} = ExPoser.Api.SceneType.frame(scene)
+{:ok, nil} = ExPoser.Api.SceneType.set_frame(scene, 4)
+{:ok, nil} = ExPoser.Api.ParmType.set_value(bend, 30.0)
+{:ok, nil} = ExPoser.Api.SceneType.set_frame(scene, orig)
 ```
 
 ## Set many dials
@@ -68,25 +68,25 @@ Poser.Client.release([arm, bend])
 
 ```elixir
 # one request
-Poser.Actor.set(arm, %{"yrot" => 30.0, "xrot" => -10.0})
+ExPoser.Actor.set(arm, %{"yrot" => 30.0, "xrot" => -10.0})
 
 # across actors and frames, one request
-Poser.batch!(fn b ->
+ExPoser.batch!(fn b ->
   b
-  |> Poser.Batch.set(bend, 30.0, frame: 4)
-  |> Poser.Batch.set(twist, -10.0, frame: 4)
+  |> ExPoser.Batch.set(bend, 30.0, frame: 4)
+  |> ExPoser.Batch.set(twist, -10.0, frame: 4)
 end)
 ```
 
-### Poser.Api
+### ExPoser.Api
 
 ```elixir
 # one request per call
-{:ok, bend} = Poser.Api.ActorType.parameter(arm, "Bend")
-{:ok, twist} = Poser.Api.ActorType.internal_parameter(arm, "xrot")  # "Twist" labels two dials
-{:ok, nil} = Poser.Api.ParmType.set_value(bend, 30.0)
-{:ok, nil} = Poser.Api.ParmType.set_value(twist, -10.0)
-Poser.Client.release([bend, twist])
+{:ok, bend} = ExPoser.Api.ActorType.parameter(arm, "Bend")
+{:ok, twist} = ExPoser.Api.ActorType.internal_parameter(arm, "xrot")  # "Twist" labels two dials
+{:ok, nil} = ExPoser.Api.ParmType.set_value(bend, 30.0)
+{:ok, nil} = ExPoser.Api.ParmType.set_value(twist, -10.0)
+ExPoser.Client.release([bend, twist])
 ```
 
 ## List keyframes
@@ -95,28 +95,28 @@ Poser.Client.release([bend, twist])
 ### Idiomatic
 
 ```elixir
-{:ok, [0, 4]} = Poser.Parameter.keyframes(bend)
+{:ok, [0, 4]} = ExPoser.Parameter.keyframes(bend)
 ```
 
-### Poser.Api
+### ExPoser.Api
 
 ```elixir
 # NextKeyFrame reads from the current frame,
 # so walk the timeline and put it back
-{:ok, orig} = Poser.Api.SceneType.frame(scene)
+{:ok, orig} = ExPoser.Api.SceneType.frame(scene)
 
 keys =
   Stream.unfold(0, fn f ->
-    Poser.Api.SceneType.set_frame(scene, f)
+    ExPoser.Api.SceneType.set_frame(scene, f)
 
-    case Poser.Api.ParmType.next_key_frame(bend) do
+    case ExPoser.Api.ParmType.next_key_frame(bend) do
       {:ok, nil} -> nil
       {:ok, next} -> {next, next}
     end
   end)
   |> Enum.to_list()
 
-Poser.Api.SceneType.set_frame(scene, orig)
+ExPoser.Api.SceneType.set_frame(scene, orig)
 [0 | keys]
 ```
 
@@ -126,17 +126,17 @@ Poser.Api.SceneType.set_frame(scene, orig)
 ### Idiomatic
 
 ```elixir
-{:ok, h} = Poser.Parameter.handle(bend)
-Poser.Api.ParmType.min_value(h)
-Poser.Client.release([h])
+{:ok, h} = ExPoser.Parameter.handle(bend)
+ExPoser.Api.ParmType.min_value(h)
+ExPoser.Client.release([h])
 ```
 
-### Poser.Api
+### ExPoser.Api
 
 ```elixir
-# every Poser.Api result that is a
+# every ExPoser.Api result that is a
 # Python object is already a handle
-%Poser.Handle{class: "ParmType"} = bend
+%ExPoser.Handle{class: "ParmType"} = bend
 ```
 
 ## Frames and names

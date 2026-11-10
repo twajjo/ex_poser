@@ -5,8 +5,8 @@ defmodule ExPoser.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {Registry, keys: :duplicate, name: Poser.Events.Registry},
-      {Task.Supervisor, name: Poser.TaskSupervisor}
+      {Registry, keys: :duplicate, name: ExPoser.Events.Registry},
+      {Task.Supervisor, name: ExPoser.TaskSupervisor}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: ExPoser.Supervisor)

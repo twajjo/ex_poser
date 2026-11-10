@@ -1,4 +1,4 @@
-defmodule Poser.LivePoserTest do
+defmodule ExPoser.LivePoserTest do
   @moduledoc """
   Runs against a real Poser with the add-on deployed and a scene with a figure
   loaded. Excluded by default; run with `mix test --only poser`.
@@ -7,12 +7,12 @@ defmodule Poser.LivePoserTest do
 
   import PoserTest.ClientCase
 
-  alias Poser.{Actor, Batch, Client, Error, Figure, Handle, Parameter, Scene}
+  alias ExPoser.{Actor, Batch, Client, Error, Figure, Handle, Parameter, Scene}
 
   @moduletag :poser
 
   setup do
-    %{c: start_client(Poser.Session.default_path())}
+    %{c: start_client(ExPoser.Session.default_path())}
   end
 
   test "scene, frames and figures", %{c: c} do
@@ -55,7 +55,7 @@ defmodule Poser.LivePoserTest do
   @tag timeout: 600_000
   test "every generated getter runs against the scene without protocol problems", %{c: c} do
     manifest = "priv/poser_api_manifest.json" |> File.read!() |> JSON.decode!()
-    report = Poser.Smoke.run(manifest, server: c, per_class: 2)
+    report = ExPoser.Smoke.run(manifest, server: c, per_class: 2)
     s = report["summary"]
 
     problems =

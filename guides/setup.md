@@ -33,7 +33,7 @@ silently drops inbound connections on it, so connecting from WSL times out.
 Run this once in an **administrator** PowerShell:
 
 ```
-New-NetFirewallRule -DisplayName "Poser bridge (WSL only)" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 47800 -InterfaceAlias "vEthernet (WSL)" -Program "D:\Program Files\Poser Software\Poser 14\Poser.exe"
+New-NetFirewallRule -DisplayName "Poser bridge (WSL only)" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 47800 -InterfaceAlias "vEthernet (WSL)" -Program "D:\Program Files\Poser Software\Poser 14\ExPoser.exe"
 ```
 
 Adjust `-Program` if Poser is installed elsewhere. If Windows created a
@@ -47,13 +47,13 @@ Get-NetFirewallApplicationFilter | ? Program -like '*Poser*' | Get-NetFirewallRu
 ## 3. Connect
 
 ```elixir
-{:ok, _} = Poser.Client.start_link()
-:ok = Poser.Client.await_connected()
-{:ok, scene} = Poser.Client.call("Scene")
-{:ok, frame} = Poser.Client.invoke(scene, "Frame")
+{:ok, _} = ExPoser.Client.start_link()
+:ok = ExPoser.Client.await_connected()
+{:ok, scene} = ExPoser.Client.call("Scene")
+{:ok, frame} = ExPoser.Client.invoke(scene, "Frame")
 ```
 
-`Poser.Client.await_connected/1` waits for the handshake, which runs in the
+`ExPoser.Client.await_connected/1` waits for the handshake, which runs in the
 background, so the first call doesn't fail with `:disconnected`. The client
 finds the session file on its own (through `/mnt/c` in WSL); set
 `POSERX_SESSION` to point somewhere else.
@@ -98,5 +98,5 @@ mix test --only poser
 
 ## 6. Generated API
 
-Regenerating the `Poser.Api` modules and the smoke test are in
+Regenerating the `ExPoser.Api` modules and the smoke test are in
 [Generated API](generated-api.md#regenerating).
