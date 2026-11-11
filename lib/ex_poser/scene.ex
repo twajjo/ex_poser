@@ -29,7 +29,7 @@ defmodule ExPoser.Scene do
   See [Posing](posing.md) and [Frames and keyframes](frames-and-keyframes.md).
   """
 
-  alias ExPoser.{Actor, Batch, Camera, Client, Codec, Error, Figure, Light, Ref}
+  alias ExPoser.{Actor, Batch, Camera, Client, Error, Figure, Light, Ref}
 
   @doc group: "Lookup"
   @doc """
@@ -186,11 +186,11 @@ defmodule ExPoser.Scene do
 
     case Client.batch(ops, opts) do
       {:ok, [_, _, internal, name] = results} ->
-        release(results, opts)
+        Ref.release_in(results, opts)
         {:ok, build_camera(%{"InternalName" => internal, "Name" => name})}
 
       {:error, %Error{kind: :batch_failed, details: %{partial: partial}} = error} ->
-        release(partial, opts)
+        Ref.release_in(partial, opts)
         {:error, error}
 
       {:error, _} = error ->
@@ -479,13 +479,6 @@ defmodule ExPoser.Scene do
   defp camera?(%{"IsCamera" => v}), do: v not in [0, false, nil]
 
   defp light?(%{"IsLight" => v}), do: v not in [0, false, nil]
-
-  defp release(results, opts) do
-    case Codec.handles_in(results) do
-      [] -> :ok
-      handles -> Client.release(handles, opts)
-    end
-  end
 
   defp run_opts(opts), do: Keyword.validate!(opts, [:server, :timeout])
 

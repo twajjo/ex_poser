@@ -20,7 +20,7 @@ defmodule ExPoser.Camera do
 
   @doc group: "Escape hatch"
   @doc """
-  The light's `%ExPoser.Handle{}`, for calls this library doesn't wrap. Like
+  The camera's `%ExPoser.Handle{}`, for calls this library doesn't wrap. Like
   `ExPoser.Actor.handle/2`, whose rules apply: release the handle with
   `ExPoser.Client.release/2`.
   """

@@ -29,7 +29,7 @@ defmodule ExPoser.Ref do
       try do
         read_children(handles, methods, opts)
       after
-        release(handles, opts)
+        release_in(handles, opts)
       end
     end
   end
@@ -128,8 +128,7 @@ defmodule ExPoser.Ref do
   @spec path_string(ref()) :: String.t()
   def path_string(ref), do: ref |> path() |> Enum.map_join("/", &elem(&1, 1))
 
-  @doc "True for the structs that name a Poser object: a figure, actor, light, camera or
-  parameter."
+  @doc "True for the structs that name a Poser object: figure, actor, light, camera, parameter."
   @spec ref?(term()) :: boolean()
   def ref?(%Figure{}), do: true
   def ref?(%Actor{}), do: true
@@ -137,6 +136,16 @@ defmodule ExPoser.Ref do
   def ref?(%Camera{}), do: true
   def ref?(%Parameter{}), do: true
   def ref?(_other), do: false
+
+  @doc false
+  # Releases the handles found anywhere in `term`, a batch result or its partial.
+  @spec release_in(term(), keyword()) :: :ok | {:error, ExPoser.Error.t()}
+  def release_in(term, opts) do
+    case ExPoser.Codec.handles_in(term) do
+      [] -> :ok
+      handles -> ExPoser.Client.release(handles, Keyword.take(opts, [:server, :timeout]))
+    end
+  end
 
   @doc false
   @spec unwrap!({:ok, v} | {:error, Exception.t()}) :: v when v: term()
@@ -153,22 +162,17 @@ defmodule ExPoser.Ref do
 
     case ExPoser.Client.batch(ops, Keyword.take(opts, [:server, :timeout])) do
       {:ok, results} ->
-        release(ExPoser.Codec.handles_in(results), opts)
+        release_in(results, opts)
 
         {:ok,
          results |> Enum.chunk_every(length(methods)) |> Enum.map(&Map.new(Enum.zip(methods, &1)))}
 
       {:error, %ExPoser.Error{kind: :batch_failed, details: %{partial: partial}} = error} ->
-        release(ExPoser.Codec.handles_in(partial), opts)
+        release_in(partial, opts)
         {:error, error}
 
       {:error, _} = error ->
         error
     end
   end
-
-  defp release([], _opts), do: :ok
-
-  defp release(handles, opts),
-    do: ExPoser.Client.release(handles, Keyword.take(opts, [:server, :timeout]))
 end
