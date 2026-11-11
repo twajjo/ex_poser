@@ -71,9 +71,9 @@ defmodule Phase0Ping do
         _ -> "/mnt/c/Users/Jeff/AppData/Roaming"
       end
 
-    Path.join([appdata, "PoserBridge", "session.json"])
+    Path.join([appdata, "ExPoserBridge", "session.json"])
   rescue
-    ErlangError -> "/mnt/c/Users/Jeff/AppData/Roaming/PoserBridge/session.json"
+    ErlangError -> "/mnt/c/Users/Jeff/AppData/Roaming/ExPoserBridge/session.json"
   end
 
   # The add-on binds 127.0.0.1 plus the WSL adapter; from WSL only the adapter works.
