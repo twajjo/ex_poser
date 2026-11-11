@@ -22,9 +22,10 @@ class ParmType(object):
     interpolation). SetValue creates a key at the current frame.
     """
 
-    def __init__(self, name, value, scene_frame=lambda: 0, internal=None):
+    def __init__(self, name, value, scene_frame=lambda: 0, internal=None, code=0):
         self._name = name
         self._internal = name.lower() if internal is None else internal
+        self._code = code
         self._frame = scene_frame
         self._keys = {0: float(value)}
 
@@ -33,6 +34,9 @@ class ParmType(object):
 
     def InternalName(self):
         return self._internal
+
+    def Code(self):
+        return self._code
 
     def _key_at_or_before(self, frame):
         return max(k for k in self._keys if k <= frame)
@@ -116,12 +120,15 @@ class GeomType(object):
 
 
 class ActorType(object):
-    def __init__(self, name, internal=None, scene_frame=lambda: 0, body_part=True):
+    def __init__(self, name, internal=None, scene_frame=lambda: 0, body_part=True, kind=None):
         self._name = name
+        self.kind = kind
+        self._scene = None
+        self._point_at = None
         self._internal = name.lower() if internal is None else internal
         self._body_part = body_part
         self.visible = True
-        self._parms = [ParmType("xTran", 0.0, scene_frame),
+        self._parms = [ParmType("xTran", 0.0, scene_frame, code=1),
                        ParmType("Weird", float("nan"), scene_frame)]
         self._geom = GeomType()
 
@@ -151,6 +158,28 @@ class ActorType(object):
     def Parameters(self):
         return list(self._parms)
 
+    def ParameterByCode(self, code):
+        for p in self._parms:
+            if p.Code() == code:
+                return p
+        return None
+
+    def IsLight(self):
+        return 1 if self.kind == "light" else 0
+
+    def IsCamera(self):
+        return 1 if self.kind == "camera" else 0
+
+    def PointAt(self, target):
+        self._point_at = target
+
+    def PointAtTarget(self):
+        """Test-only: Poser has no getter for the point-at target."""
+        return self._point_at
+
+    def Delete(self):
+        self._scene._remove(self)
+
     def Geometry(self):
         return self._geom
 
@@ -162,6 +191,139 @@ class ActorType(object):
 
     def SetUpdateCallback(self, callback, args=None):
         self._callback = callback
+
+
+class LightActor(ActorType):
+    """A light: an ActorType with the Poser light properties and Kd dials."""
+
+    def __init__(self, name, internal, light_type, scene_frame=lambda: 0):
+        ActorType.__init__(self, name, internal=internal, scene_frame=scene_frame,
+                           body_part=False, kind="light")
+        self._parms = [ParmType("xTran", 0.0, scene_frame, code=1),
+                       ParmType("KdRed", 1.0, scene_frame, code=23),
+                       ParmType("KdGreen", 1.0, scene_frame, code=24),
+                       ParmType("KdBlue", 1.0, scene_frame, code=25),
+                       ParmType("KdIntensity", 1.0, scene_frame, code=29)]
+        self._props = {
+            "light_type": light_type, "atten_type": 0, "on": 1, "preview": 1,
+            "shadow": 1, "casts_shadows": 1, "ray_trace_shadows": 0,
+            "shadow_bias_min": 0.0, "shadow_bias_max": 0.0,
+            "shadow_blur_radius": 0.0, "shadow_raytrace_softness": 0.0,
+            "shadow_samples": 0, "ambient_occlusion": 0,
+            "ambient_occlusion_bias": 0.0, "ambient_occlusion_distance": 0.0,
+            "ambient_occlusion_strength": 0.0}
+
+    def LightType(self):
+        return self._props["light_type"]
+
+    def SetLightType(self, v):
+        self._props["light_type"] = v
+
+    def LightAttenType(self):
+        return self._props["atten_type"]
+
+    def SetLightAttenType(self, v):
+        self._props["atten_type"] = v
+
+    def LightOn(self):
+        return self._props["on"]
+
+    def SetLightOn(self, v):
+        self._props["on"] = v
+
+    def LightPreview(self):
+        return self._props["preview"]
+
+    def SetLightPreview(self, v):
+        self._props["preview"] = v
+
+    def Shadow(self):
+        return self._props["shadow"]
+
+    def SetShadow(self, v):
+        self._props["shadow"] = v
+
+    def CastsShadows(self):
+        return self._props["casts_shadows"]
+
+    def SetCastsShadows(self, v):
+        self._props["casts_shadows"] = v
+
+    def RayTraceShadows(self):
+        return self._props["ray_trace_shadows"]
+
+    def SetRayTraceShadows(self, v):
+        self._props["ray_trace_shadows"] = v
+
+    def ShadowBiasMin(self):
+        return self._props["shadow_bias_min"]
+
+    def SetShadowBiasMin(self, v):
+        self._props["shadow_bias_min"] = v
+
+    def ShadowBiasMax(self):
+        return self._props["shadow_bias_max"]
+
+    def SetShadowBiasMax(self, v):
+        self._props["shadow_bias_max"] = v
+
+    def ShadowBlurRadius(self):
+        return self._props["shadow_blur_radius"]
+
+    def SetShadowBlurRadius(self, v):
+        self._props["shadow_blur_radius"] = v
+
+    def ShadowRaytraceSoftness(self):
+        return self._props["shadow_raytrace_softness"]
+
+    def SetShadowRaytraceSoftness(self, v):
+        self._props["shadow_raytrace_softness"] = v
+
+    def ShadowSamples(self):
+        return self._props["shadow_samples"]
+
+    def SetShadowSamples(self, v):
+        self._props["shadow_samples"] = v
+
+    def AmbientOcclusion(self):
+        return self._props["ambient_occlusion"]
+
+    def SetAmbientOcclusion(self, v):
+        self._props["ambient_occlusion"] = v
+
+    def AmbientOcclusionBias(self):
+        return self._props["ambient_occlusion_bias"]
+
+    def SetAmbientOcclusionBias(self, v):
+        self._props["ambient_occlusion_bias"] = v
+
+    def AmbientOcclusionDistance(self):
+        return self._props["ambient_occlusion_distance"]
+
+    def SetAmbientOcclusionDistance(self, v):
+        self._props["ambient_occlusion_distance"] = v
+
+    def AmbientOcclusionStrength(self):
+        return self._props["ambient_occlusion_strength"]
+
+    def SetAmbientOcclusionStrength(self, v):
+        self._props["ambient_occlusion_strength"] = v
+
+    def GetLightIntensity(self):
+        return self.ParameterByCode(29).Value()
+
+    def SetLightIntensity(self, v):
+        self.ParameterByCode(29).SetValue(v)
+
+
+class CameraActor(ActorType):
+    """A camera: an ActorType with xTran and Focal dials."""
+
+    def __init__(self, name, internal, scene_frame=lambda: 0):
+        ActorType.__init__(self, name, internal=internal, scene_frame=scene_frame,
+                           body_part=False, kind="camera")
+        self._parms = [ParmType("xTran", 0.0, scene_frame, code=1),
+                       ParmType("Focal", 55.0, scene_frame, code=12)]
 
 
 class FigureType(object):
@@ -195,7 +357,15 @@ class SceneType(object):
         ball = ActorType("Ball", internal="ball", scene_frame=frame, body_part=False)
         self._figures = [FigureType("Figure 1", actors),
                          FigureType("Figure 1", head, internal="figure 2")]
-        self._actors = actors + head + [ball]
+        lights = [LightActor("Key", "light 1", 1, frame),
+                  LightActor("Fill", "light 2", 2, frame),
+                  LightActor("Fill", "light 3", 3, frame)]
+        cameras = [CameraActor("Main Camera", "MAIN_CAMERA", frame),
+                   CameraActor("Aux Camera", "AUX_CAMERA", frame)]
+        self._actors = actors + head + [ball] + lights + cameras
+        self._current_camera = cameras[0]
+        for a in self._actors:
+            a._scene = self
 
     def Frame(self):
         return self._frame
@@ -241,6 +411,31 @@ class SceneType(object):
                 return a
         raise error("no actor named %s" % name)
 
+    def Lights(self):
+        return [a for a in self._actors if a.IsLight()]
+
+    def Cameras(self):
+        return [a for a in self._actors if a.IsCamera()]
+
+    def CurrentCamera(self):
+        return self._current_camera
+
+    def SetCurrentCamera(self, actor):
+        self._current_camera = actor
+
+    def CreateLight(self):
+        taken = set(a.InternalName() for a in self._actors)
+        n = 1
+        while "light %d" % n in taken:
+            n += 1
+        light = LightActor("Light %d" % n, "light %d" % n, 1, self.Frame)
+        light._scene = self
+        self._actors.append(light)
+        return light
+
+    def _remove(self, actor):
+        self._actors.remove(actor)
+
 
 def install():
     """Build a fresh fake `poser` module and register it as sys.modules['poser']."""
@@ -280,7 +475,9 @@ def install():
     mod.SceneType, mod.FigureType, mod.ActorType, mod.ParmType, mod.GeomType = (
         SceneType, FigureType, ActorType, ParmType, GeomType)
     mod.VertexType, mod.ImageType, mod.LinkType = VertexType, ImageType, LinkType
+    mod.LightActor, mod.CameraActor = LightActor, CameraActor
     mod.kParmCodeXTRAN = 1
+    mod.kParmCodeFOCAL = 12
     sys.modules["poser"] = mod
     return mod
 

@@ -44,10 +44,13 @@ defmodule ExPoser.SceneTest do
   end
 
   test "actors returns scene-level actors only", %{c: c} do
-    assert {:ok, [%Actor{figure: nil, internal: "ball", name: "Ball"}]} =
+    assert {:ok, [%Actor{figure: nil, internal: "ball", name: "Ball"} | lights_and_cameras]} =
              Scene.actors(server: c)
 
-    assert [_] = Scene.actors!(server: c)
+    assert Enum.map(lights_and_cameras, & &1.internal) ==
+             ["light 1", "light 2", "light 3", "MAIN_CAMERA", "AUX_CAMERA"]
+
+    assert [_ | _] = Scene.actors!(server: c)
     assert_no_handles(c)
   end
 
