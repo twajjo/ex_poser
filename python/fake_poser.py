@@ -316,6 +316,9 @@ class LightActor(ActorType):
         self.ParameterByCode(29).SetValue(v)
 
 
+LightActor.__name__ = "ActorType"  # the handle table and policy key on the class name
+
+
 class CameraActor(ActorType):
     """A camera: an ActorType with xTran and Focal dials."""
 
@@ -324,6 +327,9 @@ class CameraActor(ActorType):
                            body_part=False, kind="camera")
         self._parms = [ParmType("xTran", 0.0, scene_frame, code=1),
                        ParmType("Focal", 55.0, scene_frame, code=12)]
+
+
+CameraActor.__name__ = "ActorType"  # as for LightActor
 
 
 class FigureType(object):
