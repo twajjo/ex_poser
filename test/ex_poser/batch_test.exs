@@ -4,6 +4,7 @@ defmodule ExPoser.BatchTest do
   import PoserTest.ClientCase
 
   alias ExPoser.{Actor, Batch, Client, Error, Figure, Parameter}
+  alias ExPoser.Api.ActorType
 
   doctest ExPoser
   doctest ExPoser.Batch
@@ -184,6 +185,46 @@ defmodule ExPoser.BatchTest do
 
       assert {:ok, %{"handles" => 1}} = Client.stats(server: c)
       {:ok, _} = Client.release([fig], server: c)
+    end
+
+    test "a struct argument is resolved in the same request", %{c: c} do
+      aux = %Actor{figure: nil, internal: "AUX_CAMERA", name: "Aux Camera"}
+
+      assert {:ok, [nil, %ExPoser.Handle{} = cam]} =
+               Batch.new()
+               |> Batch.call(:scene, "SetCurrentCamera", [aux])
+               |> Batch.call(:scene, "CurrentCamera", [])
+               |> Batch.run(server: c)
+
+      assert ActorType.internal_name(cam, server: c) == {:ok, "AUX_CAMERA"}
+      {:ok, _} = Client.release([cam], server: c)
+      assert_no_handles(c)
+    end
+
+    test "a missing struct argument is not_found", %{c: c} do
+      nope = %Actor{figure: nil, internal: "nope", name: "nope"}
+
+      assert {:error, %Error{kind: :not_found, details: %{path: [actor: "nope"], index: 1}}} =
+               Batch.new()
+               |> Batch.call(:scene, "NumFrames", [])
+               |> Batch.call(:scene, "SetCurrentCamera", [nope])
+               |> Batch.run(server: c)
+
+      assert_no_handles(c)
+    end
+
+    test "argument lookups count toward chunk size", %{c: c} do
+      aux = %Actor{figure: nil, internal: "AUX_CAMERA", name: "Aux Camera"}
+      main = %Actor{figure: nil, internal: "MAIN_CAMERA", name: "Main Camera"}
+
+      b =
+        Batch.new()
+        |> Batch.call(:scene, "SetCurrentCamera", [aux])
+        |> Batch.call(:scene, "SetCurrentCamera", [main])
+
+      assert length(Batch.compile(b, chunk: 3)) == 2
+      assert Batch.run(b, server: c, chunk: 3) == {:ok, [nil, nil]}
+      assert_no_handles(c)
     end
 
     test "frame is restored", %{c: c} do

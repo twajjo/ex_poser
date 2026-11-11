@@ -125,6 +125,13 @@ defmodule ExPoser.Ref do
   @spec path_string(ref()) :: String.t()
   def path_string(ref), do: ref |> path() |> Enum.map_join("/", &elem(&1, 1))
 
+  @doc "True for the structs that name a Poser object: a figure, actor or parameter."
+  @spec ref?(term()) :: boolean()
+  def ref?(%Figure{}), do: true
+  def ref?(%Actor{}), do: true
+  def ref?(%Parameter{}), do: true
+  def ref?(_other), do: false
+
   @doc false
   @spec unwrap!({:ok, v} | {:error, Exception.t()}) :: v when v: term()
   def unwrap!({:ok, value}), do: value

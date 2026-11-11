@@ -49,7 +49,7 @@ defmodule ExPoser.Batch.Compiler do
     target = target_frame(op)
     moves = if target != st.frame, do: 1, else: 0
     restore = if last? and (st.moved or moves == 1), do: 1, else: 0
-    length(missing(chunk, op.ref)) + moves + 1 + restore
+    length(missing(chunk, op)) + moves + 1 + restore
   end
 
   defp emit(chunk, wire, role) do
@@ -70,12 +70,15 @@ defmodule ExPoser.Batch.Compiler do
   defp finish(%{cur: nil, done: done}), do: done |> Enum.reverse() |> Enum.map(&chunk_out/1)
   defp finish(%{cur: cur, done: done} = st), do: finish(%{st | cur: nil, done: [cur | done]})
 
-  defp missing(chunk, ref) do
-    path = Ref.path(ref)
-
-    for i <- 1..length(path)//1,
+  # Path prefixes not yet looked up in `chunk`, for the op's target and its
+  # struct arguments, each prefix once.
+  defp missing(chunk, op) do
+    for ref <- [op.ref | Enum.filter(op.args, &Ref.ref?/1)],
+        path = Ref.path(ref),
+        i <- 1..length(path)//1,
         prefix = Enum.take(path, i),
         not Map.has_key?(chunk.memo, prefix),
+        uniq: true,
         do: prefix
   end
 
@@ -97,7 +100,7 @@ defmodule ExPoser.Batch.Compiler do
             "chunk: #{st.limit} is too small for op #{k} on #{inspect(op.ref)}"
     end
 
-    chunk = Enum.reduce(missing(st.cur, op.ref), st.cur, &emit_lookup(&2, &1, k))
+    chunk = Enum.reduce(missing(st.cur, op), st.cur, &emit_lookup(&2, &1, k))
     target = target_frame(op)
 
     {chunk, st} =
@@ -108,13 +111,18 @@ defmodule ExPoser.Batch.Compiler do
       end
 
     path = Ref.path(op.ref)
-    wire = {:invoke, {:result, chunk.memo[path]}, op.method, op.args}
+    args = Enum.map(op.args, &resolve_arg(&1, chunk))
+    wire = {:invoke, {:result, chunk.memo[path]}, op.method, args}
     chunk = emit(chunk, wire, {:caller, k})
 
     chunk =
       if last? and st.moved, do: emit(chunk, set_frame(chunk, :orig), {:frame, k}), else: chunk
 
     %{st | cur: chunk}
+  end
+
+  defp resolve_arg(arg, chunk) do
+    if Ref.ref?(arg), do: {:result, chunk.memo[Ref.path(arg)]}, else: arg
   end
 
   # What the parent of a lookup is: an actor step under a figure uses the
