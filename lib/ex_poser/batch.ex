@@ -10,7 +10,8 @@ defmodule ExPoser.Batch do
 
   - **Lookups.** Each struct's path is resolved inside Poser in the same
     request as its op, and ops share lookups on a common path prefix. No
-    handle is kept, so nothing goes stale.
+    handle is kept, so nothing goes stale. Struct arguments of `call/5`
+    (top level only) are resolved the same way, in the same request.
   - **Frames.** Ops with `frame:` run at that frame; every other op runs at
     the frame the batch found, and that frame is restored at the end. Ops
     are never reordered.
@@ -75,6 +76,10 @@ defmodule ExPoser.Batch do
 
   Its result is the method's return value. Handles it returns belong to the
   caller, who releases them with `ExPoser.Client.release/2`. Options: `:frame`.
+
+  A figure, actor or parameter struct among `args` is resolved in the same
+  request and sent as the object it names. Only top-level elements of `args`
+  are resolved, not ones nested in a list or map.
 
   ## Examples
 
