@@ -364,8 +364,8 @@ class SceneType(object):
         self._figures = [FigureType("Figure 1", actors),
                          FigureType("Figure 1", head, internal="figure 2")]
         lights = [LightActor("Key", "light 1", 1, frame),
-                  LightActor("Fill", "light 2", 2, frame),
-                  LightActor("Fill", "light 3", 3, frame)]
+                  LightActor("Fill", "light 2", 0, frame),
+                  LightActor("Fill", "light 3", 2, frame)]
         cameras = [CameraActor("Main Camera", "MAIN_CAMERA", frame),
                    CameraActor("Aux Camera", "AUX_CAMERA", frame)]
         self._actors = actors + head + [ball] + lights + cameras
