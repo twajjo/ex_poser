@@ -2,16 +2,17 @@ defmodule ExPoser.Ref do
   @moduledoc """
   Internal: compiles name-path structs into wire batch ops.
 
-  A ref is `:scene` or a `ExPoser.Figure`, `ExPoser.Actor` or `ExPoser.Parameter`.
+  A ref is `:scene` or an `ExPoser.Figure`, `ExPoser.Actor`, `ExPoser.Light`,
+  `ExPoser.Camera` or `ExPoser.Parameter`.
   Its path is a list of internal-name steps, never a live handle.
 
       iex> ExPoser.Ref.path(%ExPoser.Figure{internal: "figure 1", name: "Andy"})
       [figure: "figure 1"]
   """
 
-  alias ExPoser.{Actor, Figure, Parameter}
+  alias ExPoser.{Actor, Camera, Figure, Light, Parameter}
 
-  @type ref :: :scene | Figure.t() | Actor.t() | Parameter.t()
+  @type ref :: :scene | Figure.t() | Actor.t() | Light.t() | Camera.t() | Parameter.t()
   @type step :: {:figure, String.t()} | {:actor, String.t()} | {:parm, String.t()}
 
   @doc false
@@ -119,16 +120,21 @@ defmodule ExPoser.Ref do
   def path(%Figure{internal: internal}), do: [{:figure, internal}]
   def path(%Actor{figure: nil, internal: internal}), do: [{:actor, internal}]
   def path(%Actor{figure: figure, internal: internal}), do: path(figure) ++ [{:actor, internal}]
+  def path(%Light{actor: actor}), do: path(actor)
+  def path(%Camera{actor: actor}), do: path(actor)
   def path(%Parameter{actor: actor, internal: internal}), do: path(actor) ++ [{:parm, internal}]
 
   @doc false
   @spec path_string(ref()) :: String.t()
   def path_string(ref), do: ref |> path() |> Enum.map_join("/", &elem(&1, 1))
 
-  @doc "True for the structs that name a Poser object: a figure, actor or parameter."
+  @doc "True for the structs that name a Poser object: a figure, actor, light, camera or
+  parameter."
   @spec ref?(term()) :: boolean()
   def ref?(%Figure{}), do: true
   def ref?(%Actor{}), do: true
+  def ref?(%Light{}), do: true
+  def ref?(%Camera{}), do: true
   def ref?(%Parameter{}), do: true
   def ref?(_other), do: false
 

@@ -3,7 +3,7 @@ defmodule ExPoser.SceneTest do
 
   import PoserTest.ClientCase
 
-  alias ExPoser.{Actor, Client, Error, Figure, Scene}
+  alias ExPoser.{Actor, Camera, Client, Error, Figure, Light, Scene}
 
   setup do
     server = start_standalone()
@@ -60,6 +60,64 @@ defmodule ExPoser.SceneTest do
     assert %Actor{internal: "ball"} = Scene.actor!("ball", server: c)
     assert {:error, %Error{kind: :not_found}} = Scene.actor("hip", server: c)
     assert {:error, %Error{kind: :not_found}} = Scene.actor("nope", server: c)
+    assert_no_handles(c)
+  end
+
+  test "lights lists the three lights", %{c: c} do
+    assert {:ok, [%Light{actor: %Actor{internal: "light 1"}} | _] = lights} =
+             Scene.lights(server: c)
+
+    assert length(lights) == 3
+    assert [_, _, _] = Scene.lights!(server: c)
+    assert_no_handles(c)
+  end
+
+  test "light finds by internal then display name", %{c: c} do
+    assert {:ok, %Light{actor: %Actor{internal: "light 1", name: "Key"}}} =
+             Scene.light("Key", server: c)
+
+    assert {:ok, %Light{actor: %Actor{internal: "light 2"}}} = Scene.light("light 2", server: c)
+    assert %Light{} = Scene.light!("light 2", server: c)
+    assert_no_handles(c)
+  end
+
+  test "light by shared display name is ambiguous", %{c: c} do
+    assert {:error, %Error{kind: :ambiguous, details: %{matches: [_, _]}}} =
+             Scene.light("Fill", server: c)
+
+    assert_raise Error, fn -> Scene.light!("Fill", server: c) end
+    assert_no_handles(c)
+  end
+
+  test "light rejects a name that is not a light", %{c: c} do
+    assert {:error, %Error{kind: :not_found}} = Scene.light("Ball", server: c)
+    assert {:error, %Error{kind: :not_found}} = Scene.light("ball", server: c)
+    assert {:error, %Error{kind: :not_found}} = Scene.light("MAIN_CAMERA", server: c)
+    assert_no_handles(c)
+  end
+
+  test "cameras and camera", %{c: c} do
+    assert {:ok, [%Camera{}, %Camera{}] = cameras} = Scene.cameras(server: c)
+    assert Enum.map(cameras, & &1.actor.internal) == ["MAIN_CAMERA", "AUX_CAMERA"]
+    assert [_, _] = Scene.cameras!(server: c)
+
+    assert {:ok, %Camera{actor: %Actor{internal: "MAIN_CAMERA"}}} =
+             Scene.camera("Main Camera", server: c)
+
+    assert %Camera{actor: %Actor{internal: "AUX_CAMERA"}} = Scene.camera!("AUX_CAMERA", server: c)
+    assert {:error, %Error{kind: :not_found}} = Scene.camera("light 1", server: c)
+    assert_no_handles(c)
+  end
+
+  test "current_camera and set_current_camera", %{c: c} do
+    assert {:ok, %Camera{actor: %Actor{internal: "MAIN_CAMERA", name: "Main Camera"}}} =
+             Scene.current_camera(server: c)
+
+    aux = Scene.camera!("AUX_CAMERA", server: c)
+    assert {:ok, :ok} = Scene.set_current_camera(aux, server: c)
+    assert %Camera{actor: %Actor{internal: "AUX_CAMERA"}} = Scene.current_camera!(server: c)
+    assert :ok = Scene.set_current_camera!(Scene.camera!("MAIN_CAMERA", server: c), server: c)
+    assert %Camera{actor: %Actor{internal: "MAIN_CAMERA"}} = Scene.current_camera!(server: c)
     assert_no_handles(c)
   end
 
