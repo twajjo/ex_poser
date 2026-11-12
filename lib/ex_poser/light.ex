@@ -125,8 +125,13 @@ defmodule ExPoser.Light do
   Integers pass through for `:type` and `:attenuation`. Options: `:server`,
   `:timeout`, and `:frame`, the frame dials (and the colour) are set at.
 
-  Everything is validated before anything is sent: an unknown property atom or
-  enum atom raises `ArgumentError` and changes nothing.
+  In a map, `:type` is applied before every other key, because a type change
+  can reset dials. The order of the other keys is unspecified.
+
+  Only the enum keys (`:type`, `:attenuation`), `:color` and the key names are
+  checked before anything is sent: an unknown property atom, an unknown enum
+  atom or a malformed colour raises `ArgumentError` and changes nothing. Other
+  values go to Poser as they are.
 
   ## Examples
 
@@ -135,12 +140,29 @@ defmodule ExPoser.Light do
       ExPoser.Light.set(key, %{type: :point, "xtran" => 0.5}, frame: 4)
       #=> {:ok, :ok}
   """
-  @spec set(t(), map(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
-  def set(light, attrs, opts \\ [])
+  @spec set(t(), map()) :: {:ok, :ok} | {:error, Error.t()}
+  def set(%__MODULE__{} = light, attrs) when is_map(attrs), do: set(light, attrs, [])
 
+  @doc group: "Properties"
+  @doc """
+  Sets a map of values with options, or one key and value. See `set/2`.
+
+  ## Examples
+
+      ExPoser.Light.set(key, :on, 0)
+      #=> {:ok, :ok}
+      ExPoser.Light.set(key, %{on: 0}, frame: 4)
+      #=> {:ok, :ok}
+  """
+  @spec set(t(), map(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
+  @spec set(t(), String.t() | atom(), term()) :: {:ok, :ok} | {:error, Error.t()}
   def set(%__MODULE__{} = light, attrs, opts) when is_map(attrs) and is_list(opts) do
     {frame, run} = split(opts)
-    pairs = Enum.map(attrs, fn {key, value} -> {key, encode!(key, value)} end)
+
+    pairs =
+      attrs
+      |> Enum.map(fn {key, value} -> {key, encode!(key, value)} end)
+      |> Enum.sort_by(fn {key, _value} -> key != :type end)
 
     with {:ok, colors} <- color_dials(light, Enum.map(pairs, &elem(&1, 0)), run) do
       batch = Enum.reduce(pairs, Batch.new(), &add_set(&2, light, &1, colors, frame))
@@ -148,14 +170,31 @@ defmodule ExPoser.Light do
     end
   end
 
-  def set(%__MODULE__{} = light, key, value), do: set(light, key, value, [])
+  def set(%__MODULE__{} = light, key, value) when not is_map(key) and not is_list(value),
+    do: set(light, key, value, [])
 
+  @doc group: "Properties"
+  @doc "Sets one key and value, with options. See `set/2`."
   @spec set(t(), String.t() | atom(), term(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
   def set(%__MODULE__{} = light, key, value, opts), do: set(light, %{key => value}, opts)
 
   @doc group: "Properties"
   @doc """
-  Like `set/3` and `set/4`, but returns `:ok` and raises `ExPoser.Error` on failure.
+  Like `set/2`, `set/3` and `set/4`, but returns `:ok` and raises
+  `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.Light.set!(key, :on, 0)
+      #=> :ok
+  """
+  @spec set!(t(), map()) :: :ok
+  def set!(%__MODULE__{} = light, attrs) when is_map(attrs), do: set!(light, attrs, [])
+
+  @doc group: "Properties"
+  @doc """
+  Sets a map of values with options, or one key and value, and returns `:ok`.
+  See `set!/2`.
 
   ## Examples
 
@@ -163,12 +202,18 @@ defmodule ExPoser.Light do
       #=> :ok
   """
   @spec set!(t(), map(), keyword()) :: :ok
-  def set!(light, attrs, opts \\ [])
-  def set!(light, attrs, opts) when is_map(attrs), do: light |> set(attrs, opts) |> unwrap_ok!()
-  def set!(light, key, value), do: set!(light, key, value, [])
+  @spec set!(t(), String.t() | atom(), term()) :: :ok
+  def set!(%__MODULE__{} = light, attrs, opts) when is_map(attrs) and is_list(opts),
+    do: light |> set(attrs, opts) |> unwrap_ok!()
 
+  def set!(%__MODULE__{} = light, key, value) when not is_map(key) and not is_list(value),
+    do: set!(light, key, value, [])
+
+  @doc group: "Properties"
+  @doc "Sets one key and value, with options, and returns `:ok`. See `set!/2`."
   @spec set!(t(), String.t() | atom(), term(), keyword()) :: :ok
-  def set!(light, key, value, opts), do: light |> set(key, value, opts) |> unwrap_ok!()
+  def set!(%__MODULE__{} = light, key, value, opts),
+    do: light |> set(key, value, opts) |> unwrap_ok!()
 
   defp add_get(b, light, :color, colors, frame),
     do: Enum.reduce(colors, b, &Batch.get(&2, dial(light.actor, &1), frame: frame))
@@ -217,6 +262,7 @@ defmodule ExPoser.Light do
 
       case Client.batch(ops, opts) do
         {:ok, results} ->
+          # A failed release is not worth failing the caller's call for.
           Ref.release_in(results, opts)
           {:ok, Enum.drop(results, 5)}
 
