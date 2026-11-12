@@ -61,6 +61,8 @@ defmodule ExPoser.MixProject do
           ExPoser.Scene,
           ExPoser.Figure,
           ExPoser.Actor,
+          ExPoser.Light,
+          ExPoser.Camera,
           ExPoser.Parameter,
           ExPoser.Batch
         ],
