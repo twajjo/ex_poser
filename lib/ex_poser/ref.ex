@@ -22,14 +22,33 @@ defmodule ExPoser.Ref do
   @spec children(ref(), String.t(), [String.t()], keyword()) ::
           {:ok, [%{String.t() => term()}]} | {:error, ExPoser.Error.t()}
   def children(parent, list_method, extra, opts) do
-    methods = ["InternalName", "Name" | extra]
-    batch = ExPoser.Batch.new() |> ExPoser.Batch.call(parent, list_method, [])
+    with {:ok, [rows]} <- children_many([parent], list_method, extra, opts) do
+      {:ok, rows}
+    end
+  end
 
-    with {:ok, [handles]} <- ExPoser.Batch.run(batch, opts) do
+  @doc false
+  # Like `children/4` for many parents, still in two requests: one lists every
+  # parent's children, one reads every child. Gives one row list per parent, in
+  # the order of `parents`; a parent without children gets `[]`. No parents,
+  # no request.
+  @spec children_many([ref()], String.t(), [String.t()], keyword()) ::
+          {:ok, [[%{String.t() => term()}]]} | {:error, ExPoser.Error.t()}
+  def children_many([], _list_method, _extra, _opts), do: {:ok, []}
+
+  def children_many(parents, list_method, extra, opts) do
+    methods = ["InternalName", "Name" | extra]
+
+    batch =
+      Enum.reduce(parents, ExPoser.Batch.new(), &ExPoser.Batch.call(&2, &1, list_method, []))
+
+    with {:ok, handle_lists} <- ExPoser.Batch.run(batch, opts) do
       try do
-        read_children(handles, methods, opts)
+        with {:ok, rows} <- read_children(Enum.concat(handle_lists), methods, opts) do
+          {:ok, regroup(rows, Enum.map(handle_lists, &length/1))}
+        end
       after
-        release_in(handles, opts)
+        release_in(handle_lists, opts)
       end
     end
   end
@@ -174,5 +193,14 @@ defmodule ExPoser.Ref do
       {:error, _} = error ->
         error
     end
+  end
+
+  defp regroup(rows, sizes) do
+    {groups, []} =
+      Enum.map_reduce(sizes, rows, fn size, rest ->
+        Enum.split(rest, size)
+      end)
+
+    groups
   end
 end
