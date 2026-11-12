@@ -16,7 +16,8 @@ defmodule ExPoser.Light do
 
   @type t :: %__MODULE__{actor: ExPoser.Actor.t()}
 
-  alias ExPoser.{Actor, Batch, Client, Error, Parameter, Ref}
+  alias ExPoser.{Actor, Batch, Client, Error, Parameter, Ref, Scene}
+  alias ExPoser.Light.Snapshot
 
   @props %{
     type: {"LightType", "SetLightType"},
@@ -396,6 +397,79 @@ defmodule ExPoser.Light do
   def set!(%__MODULE__{} = light, key, value, opts),
     do: light |> set(key, value, opts) |> Ref.unwrap!()
 
+  @doc group: "Snapshots"
+  @doc """
+  Reads the light's state at one frame as an `ExPoser.Light.Snapshot`: its
+  name, its type, every dial and every other property. Options: `:server`,
+  `:timeout`, and `:frame` (default: the scene's current frame). An unknown
+  option raises `ArgumentError` before any request.
+
+  It takes three batch round trips when the reads fit in one `ExPoser.Batch`
+  chunk (2000 wire ops, far more than one light needs): the dial names (two),
+  then one batch that reads everything. Each is followed by a request that
+  releases its handles, so six requests in all.
+
+  ## Examples
+
+      ExPoser.Light.snapshot(key, frame: 2)
+      #=> {:ok, %ExPoser.Light.Snapshot{name: "Key", type: :spot, dials: %{"xtran" => 0.0, ...}, props: %{on: 1, ...}}}
+  """
+  @spec snapshot(t(), keyword()) :: {:ok, Snapshot.t()} | {:error, Error.t()}
+  def snapshot(%__MODULE__{} = light, opts \\ []) do
+    {frame, run} = split(opts)
+
+    with {:ok, [snapshot]} <- read_snapshots([light], frame, run), do: {:ok, snapshot}
+  end
+
+  @doc group: "Snapshots"
+  @doc """
+  Like `snapshot/2`, but returns the snapshot and raises `ExPoser.Error` on
+  failure.
+
+  ## Examples
+
+      ExPoser.Light.snapshot!(key)
+      #=> %ExPoser.Light.Snapshot{name: "Key", type: :spot, ...}
+  """
+  @spec snapshot!(t(), keyword()) :: Snapshot.t()
+  def snapshot!(%__MODULE__{} = light, opts \\ []), do: light |> snapshot(opts) |> Ref.unwrap!()
+
+  @doc group: "Snapshots"
+  @doc """
+  Snapshots every light in the scene, in `ExPoser.Scene.lights/1` order, at
+  one frame. Options: `:server`, `:timeout`, and `:frame`. The number of
+  requests does not grow with the number of lights while the reads fit in one
+  `ExPoser.Batch` chunk (2000 wire ops, about 30 per light with 5 dials, so
+  roughly 65 such lights; more dials mean fewer lights): five batch round
+  trips, the list (two), the dial names (two) and one batch that reads
+  everything, each followed by a request that releases its handles, so ten
+  requests in all. Beyond that limit the batch splits into more requests.
+
+  ## Examples
+
+      ExPoser.Light.snapshot_all()
+      #=> {:ok, [%ExPoser.Light.Snapshot{name: "Key", ...}, ...]}
+  """
+  @spec snapshot_all(keyword()) :: {:ok, [Snapshot.t()]} | {:error, Error.t()}
+  def snapshot_all(opts \\ []) do
+    {frame, run} = split(opts)
+
+    with {:ok, lights} <- Scene.lights(run), do: read_snapshots(lights, frame, run)
+  end
+
+  @doc group: "Snapshots"
+  @doc """
+  Like `snapshot_all/1`, but returns the list and raises `ExPoser.Error` on
+  failure.
+
+  ## Examples
+
+      ExPoser.Light.snapshot_all!()
+      #=> [%ExPoser.Light.Snapshot{name: "Key", ...}, ...]
+  """
+  @spec snapshot_all!(keyword()) :: [Snapshot.t()]
+  def snapshot_all!(opts \\ []), do: opts |> snapshot_all() |> Ref.unwrap!()
+
   defp add_get(b, light, :color, colors, frame),
     do: Enum.reduce(colors, b, &Batch.get(&2, dial(light.actor, &1), frame: frame))
 
@@ -421,6 +495,16 @@ defmodule ExPoser.Light do
   defp add_set(b, light, {key, value}, _colors, _frame) do
     {_getter, setter} = Map.fetch!(@props, key)
     Batch.call(b, light, setter, [value])
+  end
+
+  # Splits the results by key type: atom keys are properties (into `props`,
+  # minus `:type`), string keys are dial internal names (into `dials`).
+  defp build_snapshot(light, keys, results) do
+    values = keys |> decode_all(results) |> Map.new()
+    {type, values} = Map.pop!(values, :type)
+    {props, dials} = Enum.split_with(values, fn {key, _value} -> is_atom(key) end)
+
+    %Snapshot{name: light.actor.name, type: type, dials: Map.new(dials), props: Map.new(props)}
   end
 
   defp check_key!(key) when is_binary(key) or key == :color, do: :ok
@@ -517,8 +601,41 @@ defmodule ExPoser.Light do
     value
   end
 
+  # One snapshot per light: dial names for all lights (two requests), then
+  # one batch that reads every property and dial of every light.
+  defp read_snapshots(lights, frame, run) do
+    prop_keys = [:type | @props |> Map.keys() |> List.delete(:type) |> Enum.sort()]
+
+    with {:ok, rows} <- Ref.children_many(lights, "Parameters", [], run) do
+      keys_per_light =
+        Enum.map(rows, fn dials -> prop_keys ++ Enum.map(dials, & &1["InternalName"]) end)
+
+      pairs = Enum.zip(lights, keys_per_light)
+
+      with {:ok, results} <- pairs |> snapshot_batch(frame) |> Batch.run(run) do
+        {:ok, snapshots_from(pairs, results)}
+      end
+    end
+  end
+
   defp set_unless_empty(_light, rest, _opts) when map_size(rest) == 0, do: {:ok, :ok}
   defp set_unless_empty(light, rest, opts), do: set(light, rest, opts)
+
+  defp snapshot_batch(pairs, frame) do
+    Enum.reduce(pairs, Batch.new(), fn {light, keys}, acc ->
+      Enum.reduce(keys, acc, &add_get(&2, light, &1, nil, frame))
+    end)
+  end
+
+  defp snapshots_from(pairs, results) do
+    {snapshots, []} =
+      Enum.map_reduce(pairs, results, fn {light, keys}, rest ->
+        {mine, rest} = Enum.split(rest, length(keys))
+        {build_snapshot(light, keys, mine), rest}
+      end)
+
+    snapshots
+  end
 
   defp split(opts) do
     opts = Keyword.validate!(opts, [:frame, :server, :timeout])
