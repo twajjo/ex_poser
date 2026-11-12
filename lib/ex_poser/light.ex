@@ -44,6 +44,115 @@ defmodule ExPoser.Light do
 
   @color_codes [23, 24, 25]
 
+  @doc group: "Create and delete"
+  @doc """
+  Creates a light, a spot light, and returns it. With a map, it is given
+  those attributes: `:name` (the GUI label) plus any key `set/3` accepts.
+  With a keyword list, it is the options. See `create/2`. Attributes must be
+  a map: `create(name: "Rim")` raises `ArgumentError`, because a keyword list
+  is read as options.
+
+  ## Examples
+
+      ExPoser.Light.create()
+      #=> {:ok, #ExPoser.Light<Light 4>}
+      ExPoser.Light.create(%{name: "Rim", type: :point})
+      #=> {:ok, #ExPoser.Light<Rim>}
+  """
+  @spec create(map() | keyword()) :: {:ok, t()} | {:error, Error.t()}
+  def create(attrs_or_opts \\ [])
+
+  def create(opts) when is_list(opts), do: create(%{}, opts)
+  def create(attrs) when is_map(attrs), do: create(attrs, [])
+
+  @doc group: "Create and delete"
+  @doc """
+  Creates a light with the attributes `attrs`. The new light is made in one
+  request, then the remaining attributes are set (as `set/3` does) in a
+  second. Options: `:server` and `:timeout`. Dial attributes are set at the
+  scene's current frame; `create` takes no `:frame` option, so use `set/3`
+  with `frame:` afterwards to key another frame.
+
+  The attributes are checked first: an unknown property or enum atom, a
+  malformed colour or a `:name` that isn't a string raises `ArgumentError`
+  and creates nothing. If the second request fails, the light already exists
+  and the error is returned. The light stays in the scene: find it by its
+  `:name`, or as `"Light N"` (Poser's default name) if no name was given.
+
+  ## Examples
+
+      ExPoser.Light.create(%{name: "Rim", color: {0.2, 0.4, 1.0}}, timeout: 10_000)
+      #=> {:ok, #ExPoser.Light<Rim>}
+  """
+  @spec create(map(), keyword()) :: {:ok, t()} | {:error, Error.t()}
+  def create(attrs, opts) when is_map(attrs) and is_list(opts) do
+    opts = Keyword.validate!(opts, [:server, :timeout])
+    {name, rest} = Map.pop(attrs, :name)
+
+    unless is_nil(name) or is_binary(name) do
+      raise ArgumentError, "light name must be a string, got #{inspect(name)}"
+    end
+
+    Enum.each(rest, fn {key, value} -> encode!(key, value) end)
+
+    with {:ok, light} <- create_light(name, opts),
+         {:ok, :ok} <- set_unless_empty(light, rest, opts) do
+      {:ok, light}
+    end
+  end
+
+  @doc group: "Create and delete"
+  @doc """
+  Like `create/1`, but returns the light and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.Light.create!(%{name: "Rim"})
+      #=> #ExPoser.Light<Rim>
+  """
+  @spec create!(map() | keyword()) :: t()
+  def create!(attrs_or_opts \\ []), do: attrs_or_opts |> create() |> Ref.unwrap!()
+
+  @doc group: "Create and delete"
+  @doc """
+  Like `create/2`, but returns the light and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.Light.create!(%{name: "Rim"}, timeout: 10_000)
+      #=> #ExPoser.Light<Rim>
+  """
+  @spec create!(map(), keyword()) :: t()
+  def create!(attrs, opts), do: attrs |> create(opts) |> Ref.unwrap!()
+
+  @doc group: "Create and delete"
+  @doc """
+  Deletes the light from the scene. Options: `:server` and `:timeout`.
+
+  ## Examples
+
+      ExPoser.Light.delete(rim)
+      #=> {:ok, :ok}
+  """
+  @spec delete(t(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
+  def delete(%__MODULE__{} = light, opts \\ []) do
+    opts = Keyword.validate!(opts, [:server, :timeout])
+    batch = Batch.call(Batch.new(), light, "Delete", [])
+    with {:ok, _} <- Batch.run(batch, opts), do: {:ok, :ok}
+  end
+
+  @doc group: "Create and delete"
+  @doc """
+  Like `delete/2`, but returns `:ok` and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.Light.delete!(rim)
+      #=> :ok
+  """
+  @spec delete!(t(), keyword()) :: :ok
+  def delete!(%__MODULE__{} = light, opts \\ []), do: light |> delete(opts) |> Ref.unwrap!()
+
   @doc false
   # A dial of `actor`, named by its internal name. Shared with cameras.
   @spec dial(Actor.t(), String.t()) :: Parameter.t()
@@ -350,6 +459,27 @@ defmodule ExPoser.Light do
     end
   end
 
+  defp create_light(name, opts) do
+    ops =
+      [{:call, "Scene", []}, {:invoke, {:result, 0}, "CreateLight", []}] ++
+        if(name, do: [{:invoke, {:result, 1}, "SetName", [name]}], else: []) ++
+        [{:invoke, {:result, 1}, "InternalName", []}, {:invoke, {:result, 1}, "Name", []}]
+
+    case Client.batch(ops, opts) do
+      {:ok, results} ->
+        Ref.release_in(results, opts)
+        [internal, label] = Enum.take(results, -2)
+        {:ok, %__MODULE__{actor: %Actor{figure: nil, internal: internal, name: label}}}
+
+      {:error, %Error{kind: :batch_failed, details: %{partial: partial}} = error} ->
+        Ref.release_in(partial, opts)
+        {:error, error}
+
+      {:error, _} = error ->
+        error
+    end
+  end
+
   defp decode(:color, [r, g, b]), do: {r, g, b}
   defp decode(key, [value]) when key in [:type, :attenuation], do: decode_enum(key, value)
   defp decode(_key, [value]), do: value
@@ -386,6 +516,9 @@ defmodule ExPoser.Light do
     check_key!(key)
     value
   end
+
+  defp set_unless_empty(_light, rest, _opts) when map_size(rest) == 0, do: {:ok, :ok}
+  defp set_unless_empty(light, rest, opts), do: set(light, rest, opts)
 
   defp split(opts) do
     opts = Keyword.validate!(opts, [:frame, :server, :timeout])

@@ -122,6 +122,12 @@ class FakePoserTest(unittest.TestCase):
         self.assertNotIn(light, self.scene.Lights())
         self.assertNotIn(light, self.scene.Actors())
 
+    def test_set_name_changes_name_but_not_internal_name(self):
+        light = self.scene.CreateLight()
+        light.SetName("Rim")
+        self.assertEqual(light.Name(), "Rim")
+        self.assertEqual(light.InternalName(), "light 4")
+
     def test_set_current_camera(self):
         aux = self.scene.ActorByInternalName("AUX_CAMERA")
         self.scene.SetCurrentCamera(aux)

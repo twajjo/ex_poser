@@ -124,4 +124,81 @@ defmodule ExPoser.LightTest do
     assert Light.get!(key, :color, frame: 0, server: c) == {1.0, 1.0, 1.0}
     assert_no_handles(c)
   end
+
+  test "create makes a spot light", %{c: c} do
+    assert {:ok, %Light{} = light} = Light.create(server: c)
+    assert Light.get!(light, :type, server: c) == :spot
+    assert length(Scene.lights!(server: c)) == 4
+    assert_no_handles(c)
+  end
+
+  test "create with attrs, then find it by name", %{c: c} do
+    attrs = %{name: "Rim", type: :point, color: {0.2, 0.4, 1.0}}
+    assert {:ok, %Light{}} = Light.create(attrs, server: c)
+
+    rim = Scene.light!("Rim", server: c)
+    assert %{type: :point, color: {0.2, 0.4, 1.0}} = Light.get!(rim, [:type, :color], server: c)
+    assert %Light{} = Light.create!(%{name: "Back"}, server: c)
+    assert_no_handles(c)
+  end
+
+  test "create with a bad attr raises and creates nothing", %{c: c} do
+    assert_raise ArgumentError, fn -> Light.create(%{type: :laser}, server: c) end
+    assert_raise ArgumentError, fn -> Light.create(%{shaddow: true}, server: c) end
+    assert length(Scene.lights!(server: c)) == 3
+    assert_no_handles(c)
+  end
+
+  test "create whose set step fails still releases its handles", %{c: c} do
+    assert {:error, %ExPoser.Error{kind: :not_found}} = Light.create(%{"nope" => 1.0}, server: c)
+    assert length(Scene.lights!(server: c)) == 4
+    assert_no_handles(c)
+  end
+
+  test "delete removes the light", %{c: c} do
+    {:ok, rim} = Light.create(%{name: "Rim"}, server: c)
+    assert {:ok, :ok} = Light.delete(rim, server: c)
+    assert {:error, %ExPoser.Error{kind: :not_found}} = Scene.light("Rim", server: c)
+    assert length(Scene.lights!(server: c)) == 3
+
+    other = Light.create!(%{name: "Gone"}, server: c)
+    assert :ok = Light.delete!(other, server: c)
+    assert_no_handles(c)
+  end
+
+  test "create with a non-string name raises and creates nothing", %{c: c} do
+    assert_raise ArgumentError, fn -> Light.create(%{name: 42}, server: c) end
+    assert length(Scene.lights!(server: c)) == 3
+    assert_no_handles(c)
+  end
+
+  test "create with keyword attributes raises, since a list is options", %{c: c} do
+    assert_raise ArgumentError, fn -> Light.create(name: "Rim", server: c) end
+    assert length(Scene.lights!(server: c)) == 3
+    assert_no_handles(c)
+  end
+
+  test "create with a malformed colour raises and creates nothing", %{c: c} do
+    assert_raise ArgumentError, fn -> Light.create(%{color: {1.0, 0.5}}, server: c) end
+    assert length(Scene.lights!(server: c)) == 3
+    assert_no_handles(c)
+  end
+
+  test "an unknown option raises ArgumentError on create and delete", %{c: c, key: key} do
+    assert_raise ArgumentError, fn -> Light.create(%{}, server: c, frame: 1) end
+    assert_raise ArgumentError, fn -> Light.delete(key, server: c, frame: 1) end
+    assert length(Scene.lights!(server: c)) == 3
+    assert_no_handles(c)
+  end
+
+  test "delete given a camera raises FunctionClauseError", %{c: c} do
+    camera = Scene.current_camera!(server: c)
+    assert_raise FunctionClauseError, fn -> apply(Light, :delete, [camera, [server: c]]) end
+    assert_no_handles(c)
+  end
+
+  test "create! raises when the set step fails", %{c: c} do
+    assert_raise ExPoser.Error, fn -> Light.create!(%{"nope" => 1.0}, server: c) end
+    assert_no_handles(c)
+  end
 end
