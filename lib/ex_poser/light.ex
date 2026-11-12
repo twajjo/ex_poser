@@ -76,16 +76,8 @@ defmodule ExPoser.Light do
   def get(light, key_or_keys, opts \\ [])
 
   def get(%__MODULE__{} = light, keys, opts) when is_list(keys) do
-    {frame, run} = split(opts)
     Enum.each(keys, &check_key!/1)
-
-    with {:ok, colors} <- color_dials(light, keys, run) do
-      batch = Enum.reduce(keys, Batch.new(), &add_get(&2, light, &1, colors, frame))
-
-      with {:ok, results} <- Batch.run(batch, run) do
-        {:ok, keys |> decode_all(results) |> Map.new()}
-      end
-    end
+    run_get(light, keys, opts)
   end
 
   def get(%__MODULE__{} = light, key, opts) do
@@ -113,10 +105,81 @@ defmodule ExPoser.Light do
   @spec handle(t(), keyword()) :: {:ok, ExPoser.Handle.t()} | {:error, ExPoser.Error.t()}
   def handle(%__MODULE__{actor: actor}, opts \\ []), do: Actor.handle(actor, opts)
 
+  @doc group: "Aiming"
+  @doc """
+  Aims the light at `target`: any light, camera, figure, actor or parameter
+  struct, or `nil` to clear the target. The target is resolved in the same
+  request. Options: `:server` and `:timeout`. Any other target raises
+  `ArgumentError`.
+
+  ## Examples
+
+      ExPoser.Light.point_at(key, hip)
+      #=> {:ok, :ok}
+      ExPoser.Light.point_at(key, nil)
+      #=> {:ok, :ok}
+  """
+  @spec point_at(t(), Ref.ref() | nil, keyword()) :: {:ok, :ok} | {:error, Error.t()}
+  def point_at(%__MODULE__{} = light, target, opts \\ []), do: run_point_at(light, target, opts)
+
+  @doc group: "Aiming"
+  @doc """
+  Like `point_at/3`, but returns `:ok` and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.Light.point_at!(key, hip)
+      #=> :ok
+  """
+  @spec point_at!(t(), Ref.ref() | nil, keyword()) :: :ok
+  def point_at!(%__MODULE__{} = light, target, opts \\ []),
+    do: light |> point_at(target, opts) |> Ref.unwrap!()
+
   @doc false
   # The property table, for tests: atom => {getter, setter}.
   @spec props() :: %{atom() => {String.t(), String.t()}}
   def props, do: @props
+
+  @doc false
+  # Reads `keys` (strings are dials; atoms are checked by the caller) of an
+  # owner with an `actor` field, a light or a camera.
+  @spec run_get(struct(), [term()], keyword()) :: {:ok, map()} | {:error, Error.t()}
+  def run_get(owner, keys, opts) do
+    {frame, run} = split(opts)
+
+    with {:ok, colors} <- color_dials(owner, keys, run) do
+      batch = Enum.reduce(keys, Batch.new(), &add_get(&2, owner, &1, colors, frame))
+
+      with {:ok, results} <- Batch.run(batch, run) do
+        {:ok, keys |> decode_all(results) |> Map.new()}
+      end
+    end
+  end
+
+  @doc false
+  # Aims a light or camera at a ref struct, or clears the target with nil.
+  @spec run_point_at(struct(), term(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
+  def run_point_at(owner, target, opts) do
+    unless is_nil(target) or Ref.ref?(target) do
+      raise ArgumentError, "point_at target must be a ref struct or nil, got #{inspect(target)}"
+    end
+
+    opts = Keyword.validate!(opts, [:server, :timeout])
+    batch = Batch.call(Batch.new(), owner, "PointAt", [target])
+    with {:ok, _} <- Batch.run(batch, opts), do: {:ok, :ok}
+  end
+
+  @doc false
+  # Sets `{key, value}` pairs, already checked and encoded, in order.
+  @spec run_set(struct(), [{term(), term()}], keyword()) :: {:ok, :ok} | {:error, Error.t()}
+  def run_set(owner, pairs, opts) do
+    {frame, run} = split(opts)
+
+    with {:ok, colors} <- color_dials(owner, Enum.map(pairs, &elem(&1, 0)), run) do
+      batch = Enum.reduce(pairs, Batch.new(), &add_set(&2, owner, &1, colors, frame))
+      with {:ok, _} <- Batch.run(batch, run), do: {:ok, :ok}
+    end
+  end
 
   @doc group: "Properties"
   @doc """
@@ -157,24 +220,26 @@ defmodule ExPoser.Light do
   @spec set(t(), map(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
   @spec set(t(), String.t() | atom(), term()) :: {:ok, :ok} | {:error, Error.t()}
   def set(%__MODULE__{} = light, attrs, opts) when is_map(attrs) and is_list(opts) do
-    {frame, run} = split(opts)
-
     pairs =
       attrs
       |> Enum.map(fn {key, value} -> {key, encode!(key, value)} end)
       |> Enum.sort_by(fn {key, _value} -> key != :type end)
 
-    with {:ok, colors} <- color_dials(light, Enum.map(pairs, &elem(&1, 0)), run) do
-      batch = Enum.reduce(pairs, Batch.new(), &add_set(&2, light, &1, colors, frame))
-      with {:ok, _} <- Batch.run(batch, run), do: {:ok, :ok}
-    end
+    run_set(light, pairs, opts)
   end
 
   def set(%__MODULE__{} = light, key, value) when not is_map(key) and not is_list(value),
     do: set(light, key, value, [])
 
   @doc group: "Properties"
-  @doc "Sets one key and value, with options. See `set/2`."
+  @doc """
+  Sets one key and value, with options. See `set/2`.
+
+  ## Examples
+
+      ExPoser.Light.set(key, "xtran", 0.5, frame: 4)
+      #=> {:ok, :ok}
+  """
   @spec set(t(), String.t() | atom(), term(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
   def set(%__MODULE__{} = light, key, value, opts), do: set(light, %{key => value}, opts)
 
@@ -204,16 +269,23 @@ defmodule ExPoser.Light do
   @spec set!(t(), map(), keyword()) :: :ok
   @spec set!(t(), String.t() | atom(), term()) :: :ok
   def set!(%__MODULE__{} = light, attrs, opts) when is_map(attrs) and is_list(opts),
-    do: light |> set(attrs, opts) |> unwrap_ok!()
+    do: light |> set(attrs, opts) |> Ref.unwrap!()
 
   def set!(%__MODULE__{} = light, key, value) when not is_map(key) and not is_list(value),
     do: set!(light, key, value, [])
 
   @doc group: "Properties"
-  @doc "Sets one key and value, with options, and returns `:ok`. See `set!/2`."
+  @doc """
+  Sets one key and value, with options, and returns `:ok`. See `set!/2`.
+
+  ## Examples
+
+      ExPoser.Light.set!(key, "xtran", 0.5, frame: 4)
+      #=> :ok
+  """
   @spec set!(t(), String.t() | atom(), term(), keyword()) :: :ok
   def set!(%__MODULE__{} = light, key, value, opts),
-    do: light |> set(key, value, opts) |> unwrap_ok!()
+    do: light |> set(key, value, opts) |> Ref.unwrap!()
 
   defp add_get(b, light, :color, colors, frame),
     do: Enum.reduce(colors, b, &Batch.get(&2, dial(light.actor, &1), frame: frame))
@@ -319,9 +391,6 @@ defmodule ExPoser.Light do
     opts = Keyword.validate!(opts, [:frame, :server, :timeout])
     {opts[:frame], Keyword.take(opts, [:server, :timeout])}
   end
-
-  defp unwrap_ok!({:ok, :ok}), do: :ok
-  defp unwrap_ok!({:error, error}), do: raise(error)
 
   defimpl Inspect do
     def inspect(%{actor: %{name: name}}, _opts), do: "#ExPoser.Light<#{name}>"

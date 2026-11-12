@@ -16,7 +16,43 @@ defmodule ExPoser.Camera do
 
   @type t :: %__MODULE__{actor: ExPoser.Actor.t()}
 
-  alias ExPoser.Actor
+  alias ExPoser.{Actor, Error, Light, Ref}
+
+  @doc group: "Properties"
+  @doc """
+  Reads one dial (a string, its internal name, such as `"focal"`) or several (a list of them,
+  which gives a map from each name to its value). Options: `:server`,
+  `:timeout`, and `:frame`. Any key that isn't a string raises `ArgumentError`.
+
+  ## Examples
+
+      ExPoser.Camera.get(main, "focal")
+      #=> {:ok, 55.0}
+  """
+  @spec get(t(), String.t() | [String.t()], keyword()) :: {:ok, term()} | {:error, Error.t()}
+  def get(camera, name_or_names, opts \\ [])
+
+  def get(%__MODULE__{} = camera, names, opts) when is_list(names) do
+    Enum.each(names, &check_key!/1)
+    Light.run_get(camera, names, opts)
+  end
+
+  def get(%__MODULE__{} = camera, name, opts) do
+    with {:ok, map} <- get(camera, [name], opts), do: {:ok, Map.fetch!(map, name)}
+  end
+
+  @doc group: "Properties"
+  @doc """
+  Like `get/3`, but returns the value and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.Camera.get!(main, "focal")
+      #=> 55.0
+  """
+  @spec get!(t(), String.t() | [String.t()], keyword()) :: term()
+  def get!(camera, name_or_names, opts \\ []),
+    do: camera |> get(name_or_names, opts) |> Ref.unwrap!()
 
   @doc group: "Escape hatch"
   @doc """
@@ -26,6 +62,131 @@ defmodule ExPoser.Camera do
   """
   @spec handle(t(), keyword()) :: {:ok, ExPoser.Handle.t()} | {:error, ExPoser.Error.t()}
   def handle(%__MODULE__{actor: actor}, opts \\ []), do: Actor.handle(actor, opts)
+
+  @doc group: "Aiming"
+  @doc """
+  Aims the camera at `target`: any light, camera, figure, actor or parameter
+  struct, or `nil` to clear the target. See `ExPoser.Light.point_at/3`.
+
+  ## Examples
+
+      ExPoser.Camera.point_at(main, key)
+      #=> {:ok, :ok}
+  """
+  @spec point_at(t(), Ref.ref() | nil, keyword()) :: {:ok, :ok} | {:error, Error.t()}
+  def point_at(%__MODULE__{} = camera, target, opts \\ []),
+    do: Light.run_point_at(camera, target, opts)
+
+  @doc group: "Aiming"
+  @doc """
+  Like `point_at/3`, but returns `:ok` and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.Camera.point_at!(main, key)
+      #=> :ok
+  """
+  @spec point_at!(t(), Ref.ref() | nil, keyword()) :: :ok
+  def point_at!(%__MODULE__{} = camera, target, opts \\ []),
+    do: camera |> point_at(target, opts) |> Ref.unwrap!()
+
+  @doc group: "Properties"
+  @doc """
+  Sets one dial (`set(camera, name, value, opts)`) or several
+  (`set(camera, %{name => value}, opts)`), in one batch. Options: `:server`,
+  `:timeout`, and `:frame`. Any key that isn't a string raises `ArgumentError`
+  before anything is sent.
+
+  ## Examples
+
+      ExPoser.Camera.set(main, %{"focal" => 50.0})
+      #=> {:ok, :ok}
+  """
+  @spec set(t(), map()) :: {:ok, :ok} | {:error, Error.t()}
+  def set(%__MODULE__{} = camera, attrs) when is_map(attrs), do: set(camera, attrs, [])
+
+  @doc group: "Properties"
+  @doc """
+  Sets a map of dials with options, or one dial and value. See `set/2`.
+
+  ## Examples
+
+      ExPoser.Camera.set(main, %{"focal" => 50.0}, frame: 4)
+      #=> {:ok, :ok}
+      ExPoser.Camera.set(main, "focal", 50.0)
+      #=> {:ok, :ok}
+  """
+  @spec set(t(), map(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
+  @spec set(t(), String.t(), term()) :: {:ok, :ok} | {:error, Error.t()}
+  def set(%__MODULE__{} = camera, attrs, opts) when is_map(attrs) and is_list(opts) do
+    pairs = Map.to_list(attrs)
+    Enum.each(pairs, fn {key, _value} -> check_key!(key) end)
+    Light.run_set(camera, pairs, opts)
+  end
+
+  def set(%__MODULE__{} = camera, key, value) when not is_map(key) and not is_list(value),
+    do: set(camera, key, value, [])
+
+  @doc group: "Properties"
+  @doc """
+  Sets one dial and value, with options. See `set/2`.
+
+  ## Examples
+
+      ExPoser.Camera.set(main, "focal", 50.0, frame: 4)
+      #=> {:ok, :ok}
+  """
+  @spec set(t(), String.t(), term(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
+  def set(%__MODULE__{} = camera, key, value, opts), do: set(camera, %{key => value}, opts)
+
+  @doc group: "Properties"
+  @doc """
+  Like `set/2`, `set/3` and `set/4`, but returns `:ok` and raises
+  `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.Camera.set!(main, "focal", 50.0)
+      #=> :ok
+  """
+  @spec set!(t(), map()) :: :ok
+  def set!(%__MODULE__{} = camera, attrs) when is_map(attrs), do: set!(camera, attrs, [])
+
+  @doc group: "Properties"
+  @doc """
+  Sets a map of dials with options, or one dial and value, and returns `:ok`.
+  See `set!/2`.
+
+  ## Examples
+
+      ExPoser.Camera.set!(main, %{"focal" => 50.0}, frame: 4)
+      #=> :ok
+  """
+  @spec set!(t(), map(), keyword()) :: :ok
+  @spec set!(t(), String.t(), term()) :: :ok
+  def set!(%__MODULE__{} = camera, attrs, opts) when is_map(attrs) and is_list(opts),
+    do: camera |> set(attrs, opts) |> Ref.unwrap!()
+
+  def set!(%__MODULE__{} = camera, key, value) when not is_map(key) and not is_list(value),
+    do: set!(camera, key, value, [])
+
+  @doc group: "Properties"
+  @doc """
+  Sets one dial and value, with options, and returns `:ok`. See `set!/2`.
+
+  ## Examples
+
+      ExPoser.Camera.set!(main, "focal", 50.0, frame: 4)
+      #=> :ok
+  """
+  @spec set!(t(), String.t(), term(), keyword()) :: :ok
+  def set!(%__MODULE__{} = camera, key, value, opts),
+    do: camera |> set(key, value, opts) |> Ref.unwrap!()
+
+  defp check_key!(key) when is_binary(key), do: :ok
+
+  defp check_key!(key),
+    do: raise(ArgumentError, "a camera takes dial names (strings), got #{inspect(key)}")
 
   defimpl Inspect do
     def inspect(%{actor: %{name: name}}, _opts), do: "#ExPoser.Camera<#{name}>"
