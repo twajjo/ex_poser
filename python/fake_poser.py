@@ -132,6 +132,9 @@ class ActorType(object):
                        ParmType("Weird", float("nan"), scene_frame)]
         self._geom = GeomType()
 
+    def SetName(self, name):
+        self._name = name
+
     def Name(self):
         return self._name
 
