@@ -16,7 +16,8 @@ defmodule ExPoser.Camera do
 
   @type t :: %__MODULE__{actor: ExPoser.Actor.t()}
 
-  alias ExPoser.{Actor, Error, Light, Ref}
+  alias ExPoser.{Actor, Batch, Error, Light, Ref, Scene}
+  alias ExPoser.Camera.Snapshot
 
   @doc group: "Properties"
   @doc """
@@ -183,10 +184,116 @@ defmodule ExPoser.Camera do
   def set!(%__MODULE__{} = camera, key, value, opts),
     do: camera |> set(key, value, opts) |> Ref.unwrap!()
 
+  @doc group: "Snapshots"
+  @doc """
+  Reads the camera's state at one frame as an `ExPoser.Camera.Snapshot`: its
+  name and every dial. Options: `:server`, `:timeout`, and `:frame` (default:
+  the scene's current frame). An unknown option raises `ArgumentError` before
+  any request.
+
+  While the reads fit in one `ExPoser.Batch` chunk (2000 wire ops), it takes
+  three batch round trips: the dial names (two), then one batch that reads
+  every dial. Each is followed by a request that releases its handles,
+  so six requests in all.
+
+  ## Examples
+
+      ExPoser.Camera.snapshot(main, frame: 2)
+      #=> {:ok, %ExPoser.Camera.Snapshot{name: "Main Camera", dials: %{"focal" => 55.0, ...}}}
+  """
+  @spec snapshot(t(), keyword()) :: {:ok, Snapshot.t()} | {:error, Error.t()}
+  def snapshot(%__MODULE__{} = camera, opts \\ []) do
+    {frame, run} = split(opts)
+
+    with {:ok, [snapshot]} <- read_snapshots([camera], frame, run), do: {:ok, snapshot}
+  end
+
+  @doc group: "Snapshots"
+  @doc """
+  Like `snapshot/2`, but returns the snapshot and raises `ExPoser.Error` on
+  failure.
+
+  ## Examples
+
+      ExPoser.Camera.snapshot!(main)
+      #=> %ExPoser.Camera.Snapshot{name: "Main Camera", ...}
+  """
+  @spec snapshot!(t(), keyword()) :: Snapshot.t()
+  def snapshot!(%__MODULE__{} = camera, opts \\ []),
+    do: camera |> snapshot(opts) |> Ref.unwrap!()
+
+  @doc group: "Snapshots"
+  @doc """
+  Snapshots every camera in the scene, in `ExPoser.Scene.cameras/1` order, at
+  one frame. Options: `:server`, `:timeout`, and `:frame`. The number of
+  requests does not grow with the number of cameras while the reads fit in one
+  `ExPoser.Batch` chunk (2000 wire ops): five batch round trips, the list
+  (two), the dial names (two) and one batch that reads everything, each
+  followed by a request that releases its handles, so ten requests in all.
+
+  ## Examples
+
+      ExPoser.Camera.snapshot_all()
+      #=> {:ok, [%ExPoser.Camera.Snapshot{name: "Main Camera", ...}, ...]}
+  """
+  @spec snapshot_all(keyword()) :: {:ok, [Snapshot.t()]} | {:error, Error.t()}
+  def snapshot_all(opts \\ []) do
+    {frame, run} = split(opts)
+
+    with {:ok, cameras} <- Scene.cameras(run), do: read_snapshots(cameras, frame, run)
+  end
+
+  @doc group: "Snapshots"
+  @doc """
+  Like `snapshot_all/1`, but returns the list and raises `ExPoser.Error` on
+  failure.
+
+  ## Examples
+
+      ExPoser.Camera.snapshot_all!()
+      #=> [%ExPoser.Camera.Snapshot{name: "Main Camera", ...}, ...]
+  """
+  @spec snapshot_all!(keyword()) :: [Snapshot.t()]
+  def snapshot_all!(opts \\ []), do: opts |> snapshot_all() |> Ref.unwrap!()
+
   defp check_key!(key) when is_binary(key), do: :ok
 
   defp check_key!(key),
     do: raise(ArgumentError, "a camera takes dial names (strings), got #{inspect(key)}")
+
+  # One snapshot per camera: dial names for all cameras (two requests), then
+  # one batch that reads every dial of every camera.
+  defp read_snapshots(cameras, frame, run) do
+    with {:ok, rows} <- Ref.children_many(cameras, "Parameters", [], run) do
+      pairs =
+        Enum.zip(cameras, Enum.map(rows, fn dials -> Enum.map(dials, & &1["InternalName"]) end))
+
+      batch =
+        Enum.reduce(pairs, Batch.new(), fn {camera, keys}, acc ->
+          Enum.reduce(keys, acc, &Batch.get(&2, Light.dial(camera.actor, &1), frame: frame))
+        end)
+
+      with {:ok, results} <- Batch.run(batch, run) do
+        {:ok, snapshots_from(pairs, results)}
+      end
+    end
+  end
+
+  defp snapshots_from(pairs, results) do
+    {snapshots, []} =
+      Enum.map_reduce(pairs, results, fn {camera, keys}, rest ->
+        {mine, rest} = Enum.split(rest, length(keys))
+
+        {%Snapshot{name: camera.actor.name, dials: Map.new(Enum.zip(keys, mine))}, rest}
+      end)
+
+    snapshots
+  end
+
+  defp split(opts) do
+    opts = Keyword.validate!(opts, [:frame, :server, :timeout])
+    {opts[:frame], Keyword.take(opts, [:server, :timeout])}
+  end
 
   defimpl Inspect do
     def inspect(%{actor: %{name: name}}, _opts), do: "#ExPoser.Camera<#{name}>"

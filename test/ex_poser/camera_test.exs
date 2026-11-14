@@ -120,4 +120,80 @@ defmodule ExPoser.CameraTest do
     assert :ok = Light.point_at!(key, nil, server: c)
     assert_no_handles(c)
   end
+
+  describe "snapshots" do
+    test "snapshot reads the camera's name and every dial", %{c: c, main: main} do
+      assert %Camera.Snapshot{name: "Main Camera", dials: dials} =
+               Camera.snapshot!(main, server: c)
+
+      assert dials == %{"focal" => 55.0, "xtran" => 0.0}
+      assert_no_handles(c)
+    end
+
+    test "snapshot_all returns every camera in Scene.cameras order", %{c: c} do
+      assert {:ok, snapshots} = Camera.snapshot_all(server: c)
+
+      assert Enum.map(snapshots, & &1.name) ==
+               Enum.map(Scene.cameras!(server: c), & &1.actor.name)
+
+      assert length(snapshots) == 2
+      assert_no_handles(c)
+    end
+
+    test "frame: reads dials at that frame and leaves the scene frame", %{c: c, main: main} do
+      :ok = Camera.set!(main, "focal", 70.0, frame: 2, server: c)
+
+      assert Camera.snapshot!(main, frame: 2, server: c).dials["focal"] == 70.0
+      assert Scene.frame!(server: c) == 0
+      assert Camera.snapshot!(main, frame: 0, server: c).dials["focal"] == 55.0
+      assert Scene.frame!(server: c) == 0
+      assert_no_handles(c)
+    end
+
+    test "request counts", %{c: c, main: main} do
+      count = fn fun ->
+        before = Client.request_count(server: c)
+        fun.()
+        Client.request_count(server: c) - before
+      end
+
+      # The fake can't add cameras, so there is no 2-vs-3 comparison here.
+      # snapshot_all: 5 batches (cameras list (2), dial names via
+      # children_many (2), the read (1)), each followed by a :release request.
+      assert count.(fn -> Camera.snapshot_all!(server: c) end) == 10
+
+      # snapshot: 3 batches (dial names (2), the read (1)), each followed by
+      # a :release request.
+      assert count.(fn -> Camera.snapshot!(main, server: c) end) == 6
+
+      assert_no_handles(c)
+    end
+
+    test "an unknown option raises ArgumentError before any request", %{c: c, main: main} do
+      before = Client.request_count(server: c)
+      assert_raise ArgumentError, fn -> Camera.snapshot(main, bad: 1, server: c) end
+      assert_raise ArgumentError, fn -> Camera.snapshot_all(bad: 1, server: c) end
+      assert Client.request_count(server: c) == before
+      assert_no_handles(c)
+    end
+
+    test "the bang variants return the bare value", %{c: c, main: main} do
+      assert %Camera.Snapshot{name: "Main Camera"} = Camera.snapshot!(main, server: c)
+      assert [%Camera.Snapshot{}, %Camera.Snapshot{}] = Camera.snapshot_all!(server: c)
+      assert_no_handles(c)
+    end
+
+    test "a missing camera gives an error and leaves no handles", %{c: c} do
+      bogus = %Camera{actor: %Actor{figure: nil, internal: "NOPE", name: "Nope"}}
+      before = Client.request_count(server: c)
+
+      assert {:error, %ExPoser.Error{kind: :not_found, details: %{path: [actor: "NOPE"]}}} =
+               Camera.snapshot(bogus, server: c)
+
+      # The dial-name lookup fails in its first batch: 1 batch + 1 :release.
+      assert Client.request_count(server: c) - before == 2
+      assert_raise ExPoser.Error, fn -> Camera.snapshot!(bogus, server: c) end
+      assert_no_handles(c)
+    end
+  end
 end
