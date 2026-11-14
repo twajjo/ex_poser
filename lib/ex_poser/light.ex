@@ -54,12 +54,14 @@ defmodule ExPoser.Light do
   `:server`, `:timeout`, and `:frame`, the frame dials are set at (default:
   the scene's current frame, which is left unchanged).
 
-  Each snapshot is matched to a light by display name. If a name matches no
-  light the call returns a `:not_found` error (with `details.path` as
-  `ExPoser.Scene.light/2` gives it), and if it matches several lights, an
-  `:ambiguous` error whose `details.matches` holds the lights. The first
-  such error in snapshot order is returned, and nothing is changed. Creating
-  missing lights is not done yet.
+  Each snapshot is matched to a light by display name. If a name matches
+  several lights the call returns an `:ambiguous` error whose
+  `details.matches` holds the lights; the first such error in snapshot order
+  is returned, and nothing is created or changed. A snapshot that matches no
+  light gets a new one, named by the snapshot and then given its type, props
+  and dials like any other. All missing lights are created in one request. If
+  that fails, the error is returned and no snapshot is written, but lights
+  the request made before it failed stay in the scene.
 
   Before any request, duplicate snapshot names, an unknown property, an
   unknown enum atom or an unknown option raise `ArgumentError`. An empty
@@ -71,11 +73,14 @@ defmodule ExPoser.Light do
   `{:ok, %{skipped: skipped}}`, where `skipped` lists `{light_name, dial}`
   for each snapshot dial the light lacks; those are not sent.
 
-  It takes five batch round trips: the lights list (two), the dial names
-  (two) and one batch that writes everything. Each is followed by a request
-  that releases its handles, so ten requests in all, however many snapshots
-  there are, while the writes fit in one `ExPoser.Batch` chunk (2000 wire
-  ops). Beyond that limit the write batch splits into more requests.
+  When no light is missing it takes five batch round trips: the lights list
+  (two), the dial names (two) and one batch that writes everything. Each is
+  followed by a request that releases its handles, so ten requests in all,
+  however many snapshots there are, while the writes fit in one
+  `ExPoser.Batch` chunk (2000 wire ops). Beyond that limit the write batch
+  splits into more requests. Creating the missing lights adds one batch
+  (the create request, then its release), so twelve requests in all,
+  however many lights are created.
 
   ## Examples
 
@@ -160,7 +165,7 @@ defmodule ExPoser.Light do
 
     Enum.each(rest, fn {key, value} -> encode!(key, value) end)
 
-    with {:ok, light} <- create_light(name, opts),
+    with {:ok, [light]} <- create_lights([name], opts),
          {:ok, :ok} <- set_unless_empty(light, rest, opts) do
       {:ok, light}
     end
@@ -644,17 +649,39 @@ defmodule ExPoser.Light do
     end
   end
 
-  defp create_light(name, opts) do
-    ops =
-      [{:call, "Scene", []}, {:invoke, {:result, 0}, "CreateLight", []}] ++
-        if(name, do: [{:invoke, {:result, 1}, "SetName", [name]}], else: []) ++
-        [{:invoke, {:result, 1}, "InternalName", []}, {:invoke, {:result, 1}, "Name", []}]
+  # One light per entry of `names` (a string, or nil for Poser's default
+  # name), made in one request, in the same order. No names sends nothing.
+  defp create_lights([], _opts), do: {:ok, []}
+
+  defp create_lights(names, opts) do
+    {ops, slots} =
+      Enum.reduce(names, {[{:call, "Scene", []}], []}, fn name, {ops, slots} ->
+        at = length(ops)
+        named = if(name, do: [{:invoke, {:result, at}, "SetName", [name]}], else: [])
+        tail = at + length(named) + 1
+
+        added =
+          [{:invoke, {:result, 0}, "CreateLight", []}] ++
+            named ++
+            [{:invoke, {:result, at}, "InternalName", []}, {:invoke, {:result, at}, "Name", []}]
+
+        {ops ++ added, slots ++ [{tail, tail + 1}]}
+      end)
 
     case Client.batch(ops, opts) do
       {:ok, results} ->
         Ref.release_in(results, opts)
-        [internal, label] = Enum.take(results, -2)
-        {:ok, %__MODULE__{actor: %Actor{figure: nil, internal: internal, name: label}}}
+
+        {:ok,
+         for {internal, label} <- slots do
+           actor = %Actor{
+             figure: nil,
+             internal: Enum.at(results, internal),
+             name: Enum.at(results, label)
+           }
+
+           %__MODULE__{actor: actor}
+         end}
 
       {:error, %Error{kind: :batch_failed, details: %{partial: partial}} = error} ->
         Ref.release_in(partial, opts)
@@ -702,15 +729,31 @@ defmodule ExPoser.Light do
     value
   end
 
-  # One light per snapshot, or the first error in snapshot order.
+  # Replaces each nil in `matched` with a light created for its snapshot, in
+  # one request, or sends nothing when none is missing.
+  defp fill_missing(snapshots, matched, run) do
+    missing = for {snapshot, nil} <- Enum.zip(snapshots, matched), do: snapshot.name
+
+    with {:ok, created} <- create_lights(missing, run) do
+      {filled, []} =
+        Enum.map_reduce(matched, created, fn
+          nil, [light | rest] -> {light, rest}
+          light, rest -> {light, rest}
+        end)
+
+      {:ok, filled}
+    end
+  end
+
+  # One light per snapshot, nil where none matches, or the first ambiguous
+  # name in snapshot order.
   defp match_lights(snapshots, lights) do
     by_name = Enum.group_by(lights, & &1.actor.name)
-    found = Enum.map(snapshots, &{&1.name, Map.get(by_name, &1.name, [])})
+    found = Enum.map(snapshots, &Map.get(by_name, &1.name, []))
 
-    case Enum.find(found, fn {_name, matches} -> not match?([_], matches) end) do
-      nil -> {:ok, Enum.map(found, fn {_name, [light]} -> light end)}
-      {name, []} -> {:error, Error.not_found([{:name, name}])}
-      {_name, matches} -> {:error, %Error{kind: :ambiguous, details: %{matches: matches}}}
+    case Enum.find(found, &match?([_, _ | _], &1)) do
+      nil -> {:ok, Enum.map(found, &List.first/1)}
+      matches -> {:error, %Error{kind: :ambiguous, details: %{matches: matches}}}
     end
   end
 
@@ -746,7 +789,8 @@ defmodule ExPoser.Light do
 
   defp run_apply(snapshots, frame, run) do
     with {:ok, lights} <- Scene.lights(run),
-         {:ok, targets} <- match_lights(snapshots, lights),
+         {:ok, matched} <- match_lights(snapshots, lights),
+         {:ok, targets} <- fill_missing(snapshots, matched, run),
          {:ok, dial_rows} <- Ref.children_many(targets, "Parameters", [], run),
          present = Enum.map(dial_rows, fn rows -> Enum.map(rows, & &1["InternalName"]) end),
          rows = Enum.zip([targets, snapshots, present]),
