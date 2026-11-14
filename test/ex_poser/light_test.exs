@@ -201,4 +201,111 @@ defmodule ExPoser.LightTest do
     assert_raise ExPoser.Error, fn -> Light.create!(%{"nope" => 1.0}, server: c) end
     assert_no_handles(c)
   end
+
+  describe "snapshots" do
+    test "snapshot reads name, type, dials and props", %{c: c, key: key} do
+      assert {:ok, %Light.Snapshot{name: "Key", type: :spot} = snap} =
+               Light.snapshot(key, server: c)
+
+      assert snap.dials |> Map.keys() |> Enum.sort() ==
+               ["kdblue", "kdgreen", "kdintensity", "kdred", "xtran"]
+
+      assert snap.props |> Map.keys() |> Enum.sort() ==
+               Light.props() |> Map.keys() |> List.delete(:type) |> Enum.sort()
+
+      assert map_size(snap.props) == 15
+      assert snap.props.on == 1
+      assert snap.props.attenuation == :poser
+      assert_no_handles(c)
+    end
+
+    test "snapshot_all returns every light in Scene.lights order", %{c: c} do
+      names = c |> then(&Scene.lights!(server: &1)) |> Enum.map(& &1.actor.name)
+      assert {:ok, snaps} = Light.snapshot_all(server: c)
+      assert length(snaps) == 3
+      assert Enum.map(snaps, & &1.name) == names
+      assert_no_handles(c)
+    end
+
+    test "frame: reads dials at that frame and leaves the scene frame", %{c: c, key: key} do
+      frame = Scene.frame!(server: c)
+      :ok = Light.set!(key, "xtran", 0.75, frame: 2, server: c)
+
+      assert Light.snapshot!(key, frame: 2, server: c).dials["xtran"] == 0.75
+      assert Light.snapshot!(key, frame: 0, server: c).dials["xtran"] == 0.0
+      assert Scene.frame!(server: c) == frame
+      assert_no_handles(c)
+    end
+
+    test "snapshot_all takes the same number of requests for 3 lights as for 4", %{c: c} do
+      pid = Process.whereis(c)
+
+      count = fn ->
+        :erlang.trace(pid, true, [:receive])
+
+        try do
+          Light.snapshot_all!(server: c)
+        after
+          :erlang.trace(pid, false, [:receive])
+        end
+
+        drain_requests(0)
+      end
+
+      three = count.()
+      Light.create!(%{name: "Rim"}, server: c)
+      four = count.()
+
+      # 5 batches: lights list (2), dial names via children_many (2), the
+      # read (1); each is followed by a :release request, 5 more.
+      assert three == 10
+      assert three == four
+      assert_no_handles(c)
+    end
+
+    test "a deleted light gives an error and leaves no handles", %{c: c} do
+      rim = Light.create!(%{name: "Rim"}, server: c)
+      :ok = Light.delete!(rim, server: c)
+
+      assert {:error, %ExPoser.Error{kind: kind}} = Light.snapshot(rim, server: c)
+      assert kind == :not_found
+      assert_raise ExPoser.Error, fn -> Light.snapshot!(rim, server: c) end
+      assert_no_handles(c)
+    end
+
+    test "an unknown type code stays an integer", %{c: c, key: key} do
+      :ok = Light.set!(key, :type, 7, server: c)
+
+      assert %Light.Snapshot{type: 7} = Light.snapshot!(key, server: c)
+      assert [%Light.Snapshot{type: 7} | _] = Light.snapshot_all!(server: c)
+      assert_no_handles(c)
+    end
+
+    test "an unknown option raises ArgumentError", %{c: c, key: key} do
+      assert_raise ArgumentError, fn -> Light.snapshot(key, frame: 1, bad: 1, server: c) end
+      assert_raise ArgumentError, fn -> Light.snapshot_all(bad: 1, server: c) end
+      assert_no_handles(c)
+    end
+
+    test "the bang variants return the bare value", %{c: c, key: key} do
+      assert %Light.Snapshot{name: "Key"} = Light.snapshot!(key, server: c)
+
+      assert [%Light.Snapshot{}, %Light.Snapshot{}, %Light.Snapshot{}] =
+               Light.snapshot_all!(server: c)
+
+      assert_no_handles(c)
+    end
+  end
+
+  defp drain_requests(n) do
+    receive do
+      {:trace, _pid, :receive, {:"$gen_call", _from, {:request, _req, _timeout}}} ->
+        drain_requests(n + 1)
+
+      {:trace, _pid, :receive, _other} ->
+        drain_requests(n)
+    after
+      0 -> n
+    end
+  end
 end
