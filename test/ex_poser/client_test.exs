@@ -107,6 +107,51 @@ defmodule ExPoser.ClientTest do
       assert Client.release(scene, server: c) == {:ok, 1}
       assert {:ok, %{"handles" => 0}} = Client.stats(server: c)
     end
+
+    test "request_count starts at zero", %{c: c} do
+      assert Client.request_count(server: c) == 0
+    end
+
+    test "a batch and a release each count once", %{c: c} do
+      assert {:ok, [scene]} = Client.batch([{:call, "Scene", []}], server: c)
+      assert Client.request_count(server: c) == 1
+      assert {:ok, 1} = Client.release(scene, server: c)
+      assert Client.request_count(server: c) == 2
+    end
+
+    test "stats is not counted and reports the count", %{c: c} do
+      {:ok, _} = Client.call("Scene", [], server: c)
+      assert {:ok, %{"requests" => 1}} = Client.stats(server: c)
+      assert {:ok, %{"requests" => 1}} = Client.stats(server: c)
+      assert Client.request_count(server: c) == 1
+    end
+
+    test "ping counts once", %{c: c} do
+      assert {:ok, _} = Client.ping(server: c)
+      assert Client.request_count(server: c) == 1
+    end
+
+    test "refused requests are not counted", %{c: c} do
+      {:ok, scene} = Client.call("Scene", [], server: c)
+      before = Client.request_count(server: c)
+
+      stale = %{scene | epoch: scene.epoch + 1}
+      assert {:error, %Error{kind: :stale_handle}} = Client.release(stale, server: c)
+
+      assert {:error, %Error{kind: :bad_request}} =
+               Client.call("Scene", [], server: c, timeout: "soon")
+
+      assert {:error, %Error{kind: :bad_request}} = Client.call("Scene", [self()], server: c)
+
+      assert Client.request_count(server: c) == before
+    end
+
+    test "the release after an owner exits is not counted", %{c: c} do
+      Task.async(fn -> Client.call("Scene", [], server: c) end) |> Task.await()
+      eventually(fn -> match?({:ok, %{"handles" => 0}}, Client.stats(server: c)) end)
+
+      assert Client.request_count(server: c) == 1
+    end
   end
 
   test "strict mode rejects raw calls" do
@@ -220,6 +265,7 @@ defmodule ExPoser.ClientTest do
     assert {:error, %Error{kind: :disconnected}} = Client.call("Scene", [], server: name)
     assert System.monotonic_time(:millisecond) - t0 < 50
     assert Client.status(server: name) == :disconnected
+    assert Client.request_count(server: name) == 0
 
     # let the first connect attempt finish inside the log capture
     eventually(fn ->

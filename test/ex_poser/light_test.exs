@@ -238,28 +238,31 @@ defmodule ExPoser.LightTest do
     end
 
     test "snapshot_all takes the same number of requests for 3 lights as for 4", %{c: c} do
-      pid = Process.whereis(c)
-
-      count = fn ->
-        :erlang.trace(pid, true, [:receive])
-
-        try do
-          Light.snapshot_all!(server: c)
-        after
-          :erlang.trace(pid, false, [:receive])
-        end
-
-        drain_requests(0)
+      count = fn fun ->
+        before = Client.request_count(server: c)
+        fun.()
+        Client.request_count(server: c) - before
       end
 
-      three = count.()
+      three = count.(fn -> Light.snapshot_all!(server: c) end)
       Light.create!(%{name: "Rim"}, server: c)
-      four = count.()
+      four = count.(fn -> Light.snapshot_all!(server: c) end)
 
       # 5 batches: lights list (2), dial names via children_many (2), the
       # read (1); each is followed by a :release request, 5 more.
       assert three == 10
       assert three == four
+
+      assert_no_handles(c)
+    end
+
+    test "snapshot of one light takes 6 requests", %{c: c, key: key} do
+      before = Client.request_count(server: c)
+      Light.snapshot!(key, server: c)
+
+      # 3 batches, each followed by a :release request.
+      assert Client.request_count(server: c) - before == 6
+
       assert_no_handles(c)
     end
 
@@ -294,18 +297,6 @@ defmodule ExPoser.LightTest do
                Light.snapshot_all!(server: c)
 
       assert_no_handles(c)
-    end
-  end
-
-  defp drain_requests(n) do
-    receive do
-      {:trace, _pid, :receive, {:"$gen_call", _from, {:request, _req, _timeout}}} ->
-        drain_requests(n + 1)
-
-      {:trace, _pid, :receive, _other} ->
-        drain_requests(n)
-    after
-      0 -> n
     end
   end
 end

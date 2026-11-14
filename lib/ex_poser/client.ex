@@ -96,6 +96,21 @@ defmodule ExPoser.Client do
   def release(handles, opts \\ []), do: request({:release, List.wrap(handles)}, opts)
 
   @doc """
+  How many requests this client has sent or attempted to send since it started.
+
+  Counted: every caller request except `stats/1`, including batches and
+  `release/2`. Not counted: `stats/1`, requests refused before sending
+  (disconnected, bad timeout, stale handle, bad arguments), and the client's
+  own sends (heartbeat pings, releases after an owner exits or a reply arrives
+  late). A send that fails (the connection dropping) still counts. The count is
+  not reset on reconnect. Works while disconnected.
+
+  Options: `:server`.
+  """
+  @spec request_count(keyword()) :: non_neg_integer()
+  def request_count(opts \\ []), do: GenServer.call(server(opts), :request_count)
+
+  @doc """
   Starts a client. Options: `:name` (default `ExPoser.Client`), `:session`
   (session file path, default `ExPoser.Session.default_path/0`), `:host`,
   `:port`, `:token` (override the session file), `:transport`,
@@ -106,8 +121,21 @@ defmodule ExPoser.Client do
     GenServer.start_link(__MODULE__, opts, name: Keyword.get(opts, :name, __MODULE__))
   end
 
-  @doc "Handle-table statistics: `%{\"handles\" => n, \"generation\" => g}`."
-  def stats(opts \\ []), do: request(:stats, opts)
+  @doc """
+  Handle-table statistics: `%{"handles" => n, "generation" => g, "requests" => r}`.
+
+  `"handles"` and `"generation"` come from the bridge. `"requests"` is counted
+  locally by this client (see `request_count/1`), not by the bridge. The call
+  to `stats/1` itself is not counted. `"requests"` is read in a separate call
+  just after the bridge replies, so if other processes use the client at the
+  same time it can be slightly newer than `"handles"` and `"generation"`.
+  """
+  @spec stats(keyword()) :: {:ok, %{String.t() => non_neg_integer()}} | {:error, Error.t()}
+  def stats(opts \\ []) do
+    with {:ok, map} <- request(:stats, opts) do
+      {:ok, Map.put(map, "requests", request_count(opts))}
+    end
+  end
 
   @spec status(keyword()) :: :connected | :disconnected
   def status(opts \\ []), do: GenServer.call(server(opts), :status)
@@ -117,6 +145,8 @@ defmodule ExPoser.Client do
     do: {:reply, {:error, disconnected_error(state)}, state}
 
   def handle_call(:info, _from, state), do: {:reply, {:ok, state.info}, state}
+
+  def handle_call(:request_count, _from, state), do: {:reply, state.requests, state}
 
   def handle_call(:status, _from, state),
     do: {:reply, if(state.conn, do: :connected, else: :disconnected), state}
@@ -144,7 +174,8 @@ defmodule ExPoser.Client do
         t0: System.monotonic_time(:microsecond)
       }
 
-      send_request(%{state | pending: Map.put(state.pending, id, entry)}, frame)
+      state = %{state | pending: Map.put(state.pending, id, entry)}
+      send_request(count_request(state, req), frame)
     else
       %Handle{} = h -> {:reply, {:error, stale_error(h)}, state}
       {:error, %Error{} = error} -> {:reply, {:error, error}, state}
@@ -232,7 +263,9 @@ defmodule ExPoser.Client do
       # pid => %{handle_id => %Handle{}} for handles returned to that process
       owners: %{},
       monitors: %{},
-      last_inbound: 0
+      last_inbound: 0,
+      # caller requests sent; see request_count/1
+      requests: 0
     }
 
     {:ok, state, {:continue, :connect}}
@@ -306,6 +339,9 @@ defmodule ExPoser.Client do
 
     schedule_reconnect(%{state | last_error: reason})
   end
+
+  defp count_request(state, :stats), do: state
+  defp count_request(state, _req), do: %{state | requests: state.requests + 1}
 
   defp disconnect(state, reason) do
     if state.conn, do: state.transport.close(state.conn)
