@@ -348,18 +348,74 @@ defmodule ExPoser.LightTest do
       assert_no_handles(c)
     end
 
-    test "a missing name returns :not_found and changes nothing", %{c: c, key: key} do
-      before = Light.snapshot_all!(server: c)
-      key_snap = Light.snapshot!(key, server: c)
+    test "a missing name is created", %{c: c} do
       rim = %Light.Snapshot{name: "Rim", type: :point, dials: %{}, props: %{}}
-      changed = %{key_snap | props: %{key_snap.props | shadow_samples: 8}}
 
-      assert {:error, %Error{kind: :not_found, details: %{path: [name: "Rim"]}}} =
-               Light.apply([changed, rim], server: c)
+      assert {:ok, %{skipped: []}} = Light.apply([rim], server: c)
+      assert length(Scene.lights!(server: c)) == 4
+      assert Light.get!(Scene.light!("Rim", server: c), :type, server: c) == :point
+      assert_no_handles(c)
+    end
 
-      assert {:error, %Error{details: %{path: path}}} = Scene.light("Rim", server: c)
-      assert path == [name: "Rim"]
+    test "a created light gets the snapshot's props and dials", %{c: c} do
+      rim = %Light.Snapshot{
+        name: "Rim",
+        type: :point,
+        dials: %{"xtran" => 0.5, "nope" => 1.0},
+        props: %{shadow_samples: 8}
+      }
+
+      assert {:ok, %{skipped: skipped}} = Light.apply(rim, server: c)
+      made = Scene.light!("Rim", server: c)
+      assert Light.get!(made, :shadow_samples, server: c) == 8
+      assert Light.get!(made, "xtran", server: c) == 0.5
+      assert skipped == [{"Rim", "nope"}]
+      assert_no_handles(c)
+    end
+
+    test "creating 2 missing lights takes the same requests as creating 1", %{c: c} do
+      rim = %Light.Snapshot{name: "Rim", type: :point, dials: %{}, props: %{}}
+      kick = %{rim | name: "Kick"}
+      glow = %{rim | name: "Glow"}
+
+      {_, n1} = requests(c, fn -> Light.apply!([rim], server: c) end)
+      {_, n2} = requests(c, fn -> Light.apply!([kick, glow], server: c) end)
+
+      # 6 batches, each followed by a :release request: the lights list (2),
+      # the create batch (1), the dial names via children_many (2) and the
+      # one mutate batch (1).
+      assert n1 == 12
+      assert n2 == n1
+      assert length(Scene.lights!(server: c)) == 6
+      assert_no_handles(c)
+    end
+
+    test "existing and missing lights are both written, in snapshot order", %{c: c, key: key} do
+      key_snap = Light.snapshot!(key, server: c)
+      key_snap = %{key_snap | props: %{key_snap.props | shadow_samples: 8}}
+      rim = %Light.Snapshot{name: "Rim", type: :point, dials: %{"xtran" => 0.5}, props: %{}}
+      nope = %{key_snap | dials: Map.put(key_snap.dials, "nope", 1.0)}
+      gone = %{rim | name: "Gone", dials: %{"nope" => 1.0}}
+
+      # Snapshot order shows only through `skipped`: gone comes before nope.
+      assert {:ok, %{skipped: [{"Gone", "nope"}, {"Key", "nope"}]}} =
+               Light.apply([gone, nope, rim], server: c)
+
+      assert Light.get!(key, :shadow_samples, server: c) == 8
+      assert Light.get!(Scene.light!("Rim", server: c), "xtran", server: c) == 0.5
+      assert length(Scene.lights!(server: c)) == 5
+      assert_no_handles(c)
+    end
+
+    test "ambiguous plus missing creates nothing and changes nothing", %{c: c} do
+      before = Light.snapshot_all!(server: c)
+      rim = %Light.Snapshot{name: "Rim", type: :point, dials: %{}, props: %{}}
+      fill = %{rim | name: "Fill"}
+
+      assert {:error, %Error{kind: :ambiguous}} = Light.apply([rim, fill], server: c)
+      assert {:error, %Error{kind: :ambiguous}} = Light.apply([fill, rim], server: c)
       assert Light.snapshot_all!(server: c) == before
+      assert length(Scene.lights!(server: c)) == 3
       assert_no_handles(c)
     end
 
@@ -369,15 +425,6 @@ defmodule ExPoser.LightTest do
 
       assert {:ok, %{skipped: [{"Key", "nope"}]}} = Light.apply(snap, server: c)
       assert Light.get!(key, "xtran", server: c) == 0.5
-      assert_no_handles(c)
-    end
-
-    test "the first error in snapshot order is returned", %{c: c} do
-      rim = %Light.Snapshot{name: "Rim", type: :point, dials: %{}, props: %{}}
-      fill = %Light.Snapshot{name: "Fill", type: :point, dials: %{}, props: %{}}
-
-      assert {:error, %Error{kind: :not_found}} = Light.apply([rim, fill], server: c)
-      assert {:error, %Error{kind: :ambiguous}} = Light.apply([fill, rim], server: c)
       assert_no_handles(c)
     end
 
@@ -536,7 +583,7 @@ defmodule ExPoser.LightTest do
       snap = Light.snapshot!(key, server: c)
       assert %{skipped: []} = Light.apply!(snap, server: c)
 
-      assert_raise Error, fn -> Light.apply!(%{snap | name: "Rim"}, server: c) end
+      assert_raise Error, fn -> Light.apply!(%{snap | name: "Fill"}, server: c) end
       assert_no_handles(c)
     end
   end
