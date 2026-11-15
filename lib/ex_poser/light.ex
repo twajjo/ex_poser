@@ -11,6 +11,8 @@ defmodule ExPoser.Light do
       "#ExPoser.Light<Key>"
   """
 
+  import Kernel, except: [apply: 2]
+
   @enforce_keys [:actor]
   defstruct [:actor]
 
@@ -44,6 +46,68 @@ defmodule ExPoser.Light do
   }
 
   @color_codes [23, 24, 25]
+
+  @doc group: "Snapshots"
+  @doc """
+  Applies snapshots to the lights that already exist (merge). The first
+  argument is one `ExPoser.Light.Snapshot` or a list of them. Options:
+  `:server`, `:timeout`, and `:frame`, the frame dials are set at (default:
+  the scene's current frame, which is left unchanged).
+
+  Each snapshot is matched to a light by display name. If a name matches no
+  light the call returns a `:not_found` error (with `details.path` as
+  `ExPoser.Scene.light/2` gives it), and if it matches several lights, an
+  `:ambiguous` error whose `details.matches` holds the lights. The first
+  such error in snapshot order is returned, and nothing is changed. Creating
+  missing lights is not done yet.
+
+  Before any request, duplicate snapshot names, an unknown property, an
+  unknown enum atom or an unknown option raise `ArgumentError`. An empty
+  list sends no request. A snapshot's `props` can't hold `:color` (colour is
+  in its dials) or `:type` (use its `:type` field); either raises too.
+
+  Per light, the type is written first, then the other properties in the
+  snapshot (only those present), then the dials. The result is
+  `{:ok, %{skipped: skipped}}`, where `skipped` lists `{light_name, dial}`
+  for each snapshot dial the light lacks; those are not sent.
+
+  It takes five batch round trips: the lights list (two), the dial names
+  (two) and one batch that writes everything. Each is followed by a request
+  that releases its handles, so ten requests in all, however many snapshots
+  there are, while the writes fit in one `ExPoser.Batch` chunk (2000 wire
+  ops). Beyond that limit the write batch splits into more requests.
+
+  ## Examples
+
+      snaps = ExPoser.Light.snapshot_all!()
+      ExPoser.Light.apply(snaps, frame: 4)
+      #=> {:ok, %{skipped: []}}
+  """
+  @spec apply(Snapshot.t() | [Snapshot.t()], keyword()) ::
+          {:ok, %{skipped: [{String.t(), String.t()}]}} | {:error, Error.t()}
+  def apply(snapshot_or_list, opts \\ []) do
+    snapshots = List.wrap(snapshot_or_list)
+    {frame, run} = split(opts)
+    Enum.each(snapshots, &check_snapshot!/1)
+    check_unique!(snapshots)
+
+    run_apply(snapshots, frame, run)
+  end
+
+  @doc group: "Snapshots"
+  @doc """
+  Like `apply/2`, but returns the `%{skipped: _}` map and raises
+  `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.Light.apply!(snaps)
+      #=> %{skipped: []}
+  """
+  @spec apply!(Snapshot.t() | [Snapshot.t()], keyword()) :: %{
+          skipped: [{String.t(), String.t()}]
+        }
+  def apply!(snapshot_or_list, opts \\ []), do: snapshot_or_list |> apply(opts) |> Ref.unwrap!()
 
   @doc group: "Create and delete"
   @doc """
@@ -513,6 +577,43 @@ defmodule ExPoser.Light do
   defp check_key!(key),
     do: raise(ArgumentError, "unknown light property #{inspect(key)}")
 
+  defp check_snapshot!(%Snapshot{name: name, type: type, dials: dials, props: props}) do
+    unless is_binary(name), do: raise(ArgumentError, "snapshot name must be a string")
+    encode!(:type, type)
+
+    Enum.each(dials, fn {dial, value} ->
+      unless is_binary(dial) and is_number(value) do
+        raise ArgumentError,
+              "snapshot dials map internal-name strings to numbers, got " <>
+                "#{inspect(dial)} => #{inspect(value)}"
+      end
+    end)
+
+    Enum.each(props, fn {key, value} ->
+      case key do
+        :color ->
+          raise ArgumentError, "a snapshot's props can't hold :color; colour is in its dials"
+
+        :type ->
+          raise ArgumentError, "a snapshot's props can't hold :type; use its :type field"
+
+        _ ->
+          :ok
+      end
+
+      encode!(key, value)
+    end)
+  end
+
+  defp check_unique!(snapshots) do
+    names = Enum.map(snapshots, & &1.name)
+
+    case names -- Enum.uniq(names) do
+      [] -> :ok
+      [name | _] -> raise ArgumentError, "duplicate snapshot name #{inspect(name)}"
+    end
+  end
+
   # The internal names of the three colour dials, found by parm code in one
   # request, when `keys` include :color. Handles are released.
   defp color_dials(light, keys, opts) do
@@ -601,6 +702,29 @@ defmodule ExPoser.Light do
     value
   end
 
+  # One light per snapshot, or the first error in snapshot order.
+  defp match_lights(snapshots, lights) do
+    by_name = Enum.group_by(lights, & &1.actor.name)
+    found = Enum.map(snapshots, &{&1.name, Map.get(by_name, &1.name, [])})
+
+    case Enum.find(found, fn {_name, matches} -> not match?([_], matches) end) do
+      nil -> {:ok, Enum.map(found, fn {_name, [light]} -> light end)}
+      {name, []} -> {:error, Error.not_found([{:name, name}])}
+      {_name, matches} -> {:error, %Error{kind: :ambiguous, details: %{matches: matches}}}
+    end
+  end
+
+  defp mutate_batch(rows, frame) do
+    Enum.reduce(rows, Batch.new(), fn {light, snapshot, present}, acc ->
+      dials = Enum.filter(Enum.sort(snapshot.dials), fn {dial, _value} -> dial in present end)
+      pairs = [{:type, snapshot.type} | Enum.sort(snapshot.props)] ++ dials
+
+      Enum.reduce(pairs, acc, fn {key, value}, b ->
+        add_set(b, light, {key, encode!(key, value)}, nil, frame)
+      end)
+    end)
+  end
+
   # One snapshot per light: dial names for all lights (two requests), then
   # one batch that reads every property and dial of every light.
   defp read_snapshots(lights, frame, run) do
@@ -618,8 +742,28 @@ defmodule ExPoser.Light do
     end
   end
 
+  defp run_apply([], _frame, _run), do: {:ok, %{skipped: []}}
+
+  defp run_apply(snapshots, frame, run) do
+    with {:ok, lights} <- Scene.lights(run),
+         {:ok, targets} <- match_lights(snapshots, lights),
+         {:ok, dial_rows} <- Ref.children_many(targets, "Parameters", [], run),
+         present = Enum.map(dial_rows, fn rows -> Enum.map(rows, & &1["InternalName"]) end),
+         rows = Enum.zip([targets, snapshots, present]),
+         {:ok, _} <- rows |> mutate_batch(frame) |> Batch.run(run) do
+      {:ok, %{skipped: skipped(rows)}}
+    end
+  end
+
   defp set_unless_empty(_light, rest, _opts) when map_size(rest) == 0, do: {:ok, :ok}
   defp set_unless_empty(light, rest, opts), do: set(light, rest, opts)
+
+  defp skipped(rows) do
+    for {_light, snapshot, present} <- rows,
+        {dial, _value} <- Enum.sort_by(snapshot.dials, &elem(&1, 0)),
+        dial not in present,
+        do: {snapshot.name, dial}
+  end
 
   defp snapshot_batch(pairs, frame) do
     Enum.reduce(pairs, Batch.new(), fn {light, keys}, acc ->
@@ -639,7 +783,7 @@ defmodule ExPoser.Light do
 
   defp split(opts) do
     opts = Keyword.validate!(opts, [:frame, :server, :timeout])
-    {opts[:frame], Keyword.take(opts, [:server, :timeout])}
+    {Batch.check_frame!(opts[:frame]), Keyword.take(opts, [:server, :timeout])}
   end
 
   defimpl Inspect do

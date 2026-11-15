@@ -92,6 +92,16 @@ defmodule ExPoser.Batch do
   end
 
   @doc false
+  # Returns a `:frame` option value unchanged when it is nil or a
+  # non-negative integer; raises `ArgumentError` otherwise. Shared with
+  # callers that check `:frame` before sending any request.
+  @spec check_frame!(term()) :: non_neg_integer() | nil
+  def check_frame!(frame) when is_nil(frame) or (is_integer(frame) and frame >= 0), do: frame
+
+  def check_frame!(other),
+    do: raise(ArgumentError, "frame must be a non-negative integer, got #{inspect(other)}")
+
+  @doc false
   # Returns `[{wire_ops, roles}]`, one per chunk; see ExPoser.Batch.Compiler.
   @spec compile(t(), keyword()) :: [{list(), %{non_neg_integer() => role()}}]
   def compile(%__MODULE__{} = b, opts),
@@ -260,12 +270,7 @@ defmodule ExPoser.Batch do
     end
   end
 
-  defp frame_opt(opts) do
-    case Keyword.validate!(opts, [:frame])[:frame] do
-      frame when is_nil(frame) or (is_integer(frame) and frame >= 0) -> frame
-      other -> raise ArgumentError, "frame must be a non-negative integer, got #{inspect(other)}"
-    end
-  end
+  defp frame_opt(opts), do: check_frame!(Keyword.validate!(opts, [:frame])[:frame])
 
   defp lookup_handles(results, roles) do
     results
