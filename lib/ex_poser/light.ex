@@ -58,8 +58,7 @@ defmodule ExPoser.Light do
   With `mode: :replace`, every light in the scene is deleted and the
   snapshots' lights are created, all in one request; no snapshot is matched
   to an existing light, so a name shared by several lights is not
-  `:ambiguous`, and snapshots may share a name; Poser adds a number to a
-  name another light already has (`"Fill 2"`). The new lights are then
+  `:ambiguous`, and snapshots may share a name. The new lights are then
   given their type, props and dials as below. Only lights are replaced. It
   is not atomic: if the delete-and-create request fails, the error is
   returned and some lights may already be deleted or created; if the write
