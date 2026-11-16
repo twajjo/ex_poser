@@ -7,6 +7,10 @@
 | The open scene, with its single global current frame | `ExPoser.Scene` functions (no struct; there is one scene) | Poser has one current frame per scene. The `frame:` option sets it, does the work, then restores it. Only `ExPoser.Scene.set_frame/2` leaves it moved. |
 | Figure (in the GUI's figure menu, e.g. "Figure 1") | `%ExPoser.Figure{internal, name}` | `internal` is the key. `name` is the GUI label and can be renamed or repeated. |
 | Actor: a body part, prop, camera or light | `%ExPoser.Actor{figure, internal, name}` | Body parts have `figure` set. Props, cameras and lights have `figure: nil` and are found with `ExPoser.Scene.actor/2`. |
+| Light (an actor with no figure) | `%ExPoser.Light{actor: %ExPoser.Actor{}}` | `ExPoser.Light.get/3` and `ExPoser.Light.set/3` reach its dials (strings) and its method-only properties (atoms) together. |
+| Camera (an actor with no figure) | `%ExPoser.Camera{actor: %ExPoser.Actor{}}` | Its settings (focal length, position, …) are all dials. PoserPython has no method that creates a camera. |
+| The scene's current camera | `ExPoser.Scene.current_camera/1`, `ExPoser.Scene.set_current_camera/2` | |
+| A light rig or the cameras at one frame | `%ExPoser.Light.Snapshot{}`, `%ExPoser.Camera.Snapshot{}` | Plain data with no handles. Keyframes aren't captured. See [Lights and cameras](lights-and-cameras.md). |
 | Dial, or "parm" in PoserPython | `%ExPoser.Parameter{actor, internal, name}` | The internal name (`InternalParameter`) is the key, e.g. `"yrot"` for the dial labelled "yRotate". |
 | Internal name | A step in the struct's path | `ExPoser.Ref.path/1` shows it: `[figure: "Figure 1", actor: "BODY:1", parm: "yrot"]`. |
 | Frame number | An integer from 0, as in PoserPython | GUI frame 1 is `frame: 0`. The docs give both numbers wherever a frame appears. |
