@@ -49,24 +49,38 @@ defmodule ExPoser.Light do
 
   @doc group: "Snapshots"
   @doc """
-  Applies snapshots to the lights that already exist (merge). The first
-  argument is one `ExPoser.Light.Snapshot` or a list of them. Options:
-  `:server`, `:timeout`, and `:frame`, the frame dials are set at (default:
-  the scene's current frame, which is left unchanged).
+  Applies snapshots to the scene's lights. The first argument is one
+  `ExPoser.Light.Snapshot` or a list of them. Options: `:server`,
+  `:timeout`, `:frame`, the frame dials are set at (default: the scene's
+  current frame, which is left unchanged), and `:mode`, `:merge` (the
+  default) or `:replace`. Any other mode raises `ArgumentError`.
 
-  Each snapshot is matched to a light by display name. If a name matches
-  several lights the call returns an `:ambiguous` error whose
-  `details.matches` holds the lights; the first such error in snapshot order
-  is returned, and nothing is created or changed. A snapshot that matches no
-  light gets a new one, named by the snapshot and then given its type, props
-  and dials like any other. All missing lights are created in one request. If
-  that fails, the error is returned and no snapshot is written, but lights
-  the request made before it failed stay in the scene.
+  With `mode: :replace`, every light in the scene is deleted and the
+  snapshots' lights are created, all in one request; no snapshot is matched
+  to an existing light, so a name shared by several lights is not
+  `:ambiguous`, and snapshots may share a name; Poser adds a number to a
+  name another light already has (`"Fill 2"`). The new lights are then
+  given their type, props and dials as below. Only lights are replaced. It
+  is not atomic: if the delete-and-create request fails, the error is
+  returned and some lights may already be deleted or created; if the write
+  batch fails, the scene already holds the new lights. An empty list with
+  `mode: :replace` deletes every light and returns `{:ok, %{skipped: []}}`.
 
-  Before any request, duplicate snapshot names, an unknown property, an
-  unknown enum atom or an unknown option raise `ArgumentError`. An empty
-  list sends no request. A snapshot's `props` can't hold `:color` (colour is
-  in its dials) or `:type` (use its `:type` field); either raises too.
+  In merge mode (the rest of this doc), each snapshot is matched to a light
+  by display name. If a name matches several lights the call returns an
+  `:ambiguous` error whose `details.matches` holds the lights; the first
+  such error in snapshot order is returned, and nothing is created or
+  changed. A snapshot that matches no light gets a new one, named by the
+  snapshot and then given its type, props and dials like any other. All
+  missing lights are created in one request. If that fails, the error is
+  returned and no snapshot is written, but lights the request made before
+  it failed stay in the scene. In merge mode an empty list sends no
+  request.
+
+  Before any request, duplicate snapshot names (merge only), an unknown
+  property, an unknown enum atom or an unknown option raise
+  `ArgumentError`. A snapshot's `props` can't hold `:color` (colour is in
+  its dials) or `:type` (use its `:type` field); either raises too.
 
   Per light, the type is written first, then the other properties in the
   snapshot (only those present), then the dials. The result is
@@ -82,6 +96,12 @@ defmodule ExPoser.Light do
   (the create request, then its release), so twelve requests in all,
   however many lights are created.
 
+  Replace takes twelve requests however many snapshots there are, measured
+  with `ExPoser.Client.request_count/1`: the lights list (four), the
+  delete-and-create batch (two), the dial names (four) and the write batch
+  (two). An empty replace takes six (the lights list, then the delete batch),
+  or two when the scene has no lights.
+
   ## Examples
 
       snaps = ExPoser.Light.snapshot_all!()
@@ -92,11 +112,17 @@ defmodule ExPoser.Light do
           {:ok, %{skipped: [{String.t(), String.t()}]}} | {:error, Error.t()}
   def apply(snapshot_or_list, opts \\ []) do
     snapshots = List.wrap(snapshot_or_list)
+    mode = Keyword.get(opts, :mode, :merge)
+
+    unless mode in [:merge, :replace] do
+      raise ArgumentError, "mode must be :merge or :replace, got #{inspect(mode)}"
+    end
+
     {frame, run} = split(opts)
     Enum.each(snapshots, &check_snapshot!/1)
-    check_unique!(snapshots)
+    if mode == :merge, do: check_unique!(snapshots)
 
-    run_apply(snapshots, frame, run)
+    run_apply(snapshots, mode, frame, run)
   end
 
   @doc group: "Snapshots"
@@ -165,7 +191,7 @@ defmodule ExPoser.Light do
 
     Enum.each(rest, fn {key, value} -> encode!(key, value) end)
 
-    with {:ok, [light]} <- create_lights([name], opts),
+    with {:ok, [light]} <- create_lights([name], [], opts),
          {:ok, :ok} <- set_unless_empty(light, rest, opts) do
       {:ok, light}
     end
@@ -650,12 +676,23 @@ defmodule ExPoser.Light do
   end
 
   # One light per entry of `names` (a string, or nil for Poser's default
-  # name), made in one request, in the same order. No names sends nothing.
-  defp create_lights([], _opts), do: {:ok, []}
+  # name), made in one request, in the same order. The `doomed` lights are
+  # deleted first, in the same request. Nothing to do sends nothing.
+  defp create_lights([], [], _opts), do: {:ok, []}
 
-  defp create_lights(names, opts) do
+  defp create_lights(names, doomed, opts) do
+    deletes =
+      doomed
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {light, i} ->
+        [
+          Ref.lookup_op({:actor, light.actor.internal}, {:result, 0}, :scene),
+          {:invoke, {:result, 1 + 2 * i}, "Delete", []}
+        ]
+      end)
+
     {ops, slots} =
-      Enum.reduce(names, {[{:call, "Scene", []}], []}, fn name, {ops, slots} ->
+      Enum.reduce(names, {[{:call, "Scene", []}] ++ deletes, []}, fn name, {ops, slots} ->
         at = length(ops)
         named = if(name, do: [{:invoke, {:result, at}, "SetName", [name]}], else: [])
         tail = at + length(named) + 1
@@ -734,7 +771,7 @@ defmodule ExPoser.Light do
   defp fill_missing(snapshots, matched, run) do
     missing = for {snapshot, nil} <- Enum.zip(snapshots, matched), do: snapshot.name
 
-    with {:ok, created} <- create_lights(missing, run) do
+    with {:ok, created} <- create_lights(missing, [], run) do
       {filled, []} =
         Enum.map_reduce(matched, created, fn
           nil, [light | rest] -> {light, rest}
@@ -785,17 +822,27 @@ defmodule ExPoser.Light do
     end
   end
 
-  defp run_apply([], _frame, _run), do: {:ok, %{skipped: []}}
+  defp run_apply([], :merge, _frame, _run), do: {:ok, %{skipped: []}}
 
-  defp run_apply(snapshots, frame, run) do
+  defp run_apply([], :replace, _frame, run) do
+    with {:ok, lights} <- Scene.lights(run),
+         {:ok, []} <- create_lights([], lights, run) do
+      {:ok, %{skipped: []}}
+    end
+  end
+
+  defp run_apply(snapshots, :merge, frame, run) do
     with {:ok, lights} <- Scene.lights(run),
          {:ok, matched} <- match_lights(snapshots, lights),
-         {:ok, targets} <- fill_missing(snapshots, matched, run),
-         {:ok, dial_rows} <- Ref.children_many(targets, "Parameters", [], run),
-         present = Enum.map(dial_rows, fn rows -> Enum.map(rows, & &1["InternalName"]) end),
-         rows = Enum.zip([targets, snapshots, present]),
-         {:ok, _} <- rows |> mutate_batch(frame) |> Batch.run(run) do
-      {:ok, %{skipped: skipped(rows)}}
+         {:ok, targets} <- fill_missing(snapshots, matched, run) do
+      write_snapshots(snapshots, targets, frame, run)
+    end
+  end
+
+  defp run_apply(snapshots, :replace, frame, run) do
+    with {:ok, lights} <- Scene.lights(run),
+         {:ok, targets} <- create_lights(Enum.map(snapshots, & &1.name), lights, run) do
+      write_snapshots(snapshots, targets, frame, run)
     end
   end
 
@@ -826,8 +873,19 @@ defmodule ExPoser.Light do
   end
 
   defp split(opts) do
-    opts = Keyword.validate!(opts, [:frame, :server, :timeout])
+    opts = Keyword.validate!(opts, [:frame, :mode, :server, :timeout])
     {Batch.check_frame!(opts[:frame]), Keyword.take(opts, [:server, :timeout])}
+  end
+
+  # Reads each target's dial names, then writes every snapshot onto its
+  # target in one batch.
+  defp write_snapshots(snapshots, targets, frame, run) do
+    with {:ok, dial_rows} <- Ref.children_many(targets, "Parameters", [], run),
+         present = Enum.map(dial_rows, fn rows -> Enum.map(rows, & &1["InternalName"]) end),
+         rows = Enum.zip([targets, snapshots, present]),
+         {:ok, _} <- rows |> mutate_batch(frame) |> Batch.run(run) do
+      {:ok, %{skipped: skipped(rows)}}
+    end
   end
 
   defimpl Inspect do

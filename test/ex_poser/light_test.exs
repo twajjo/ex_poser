@@ -529,7 +529,7 @@ defmodule ExPoser.LightTest do
       bad = %{snap | props: Map.put(snap.props, :shaddow, true)}
 
       assert_raise ArgumentError, fn -> Light.apply(snap, bad: 1, server: c) end
-      assert_raise ArgumentError, fn -> Light.apply(snap, mode: :replace, server: c) end
+      assert_raise ArgumentError, fn -> Light.apply(snap, mode: :wipe, server: c) end
       assert_raise ArgumentError, fn -> Light.apply(bad, server: c) end
       assert_raise ArgumentError, fn -> Light.apply(%{snap | type: :laser}, server: c) end
       assert_no_handles(c)
@@ -584,6 +584,125 @@ defmodule ExPoser.LightTest do
       assert %{skipped: []} = Light.apply!(snap, server: c)
 
       assert_raise Error, fn -> Light.apply!(%{snap | name: "Fill"}, server: c) end
+      assert_no_handles(c)
+    end
+  end
+
+  describe "apply (replace)" do
+    defp light_names(c), do: Enum.map(Scene.lights!(server: c), & &1.actor.name)
+
+    defp rim(c, name \\ "Rim") do
+      key = Scene.light!("Key", server: c)
+      %{Light.snapshot!(key, server: c) | name: name, type: :point}
+    end
+
+    test "leaves exactly the rig's lights", %{c: c} do
+      assert {:ok, %{skipped: []}} = Light.apply([rim(c)], mode: :replace, server: c)
+
+      assert light_names(c) == ["Rim"]
+      assert Light.get!(Scene.light!("Rim", server: c), :type, server: c) == :point
+      assert_no_handles(c)
+    end
+
+    test "a snapshot named like an existing light replaces it", %{c: c, key: key} do
+      snap = %{Light.snapshot!(key, server: c) | type: :area, dials: %{"xtran" => 0.75}}
+      # A dial the snapshot leaves out. The fake reuses the freed internal
+      # name, so this, not the internal name, shows the light is new.
+      Light.set!(key, "kdintensity", 0.25, server: c)
+
+      assert {:ok, _} = Light.apply(snap, mode: :replace, server: c)
+
+      assert light_names(c) == ["Key"]
+      only = Scene.light!("Key", server: c)
+      assert Light.get!(only, "kdintensity", server: c) == 1.0
+      assert Light.get!(only, :type, server: c) == :area
+      assert Light.get!(only, "xtran", server: c) == 0.75
+      assert_no_handles(c)
+    end
+
+    test "sets props and dials, and skips a dial the light lacks", %{c: c} do
+      snap = %{rim(c) | props: %{on: 0}, dials: %{"xtran" => 0.5, "nodial" => 1.0}}
+
+      assert {:ok, %{skipped: [{"Rim", "nodial"}]}} =
+               Light.apply(snap, mode: :replace, server: c)
+
+      only = Scene.light!("Rim", server: c)
+      assert Light.get!(only, :on, server: c) == 0
+      assert Light.get!(only, "xtran", server: c) == 0.5
+      assert_no_handles(c)
+    end
+
+    test "an empty replace deletes every light", %{c: c} do
+      assert {:ok, %{skipped: []}} = Light.apply([], mode: :replace, server: c)
+      assert light_names(c) == []
+      assert_no_handles(c)
+    end
+
+    test "request counts", %{c: c} do
+      one = [rim(c)]
+      two = [rim(c), rim(c, "Rim 2")]
+
+      {_, n1} = requests(c, fn -> Light.apply!(one, mode: :replace, server: c) end)
+      {_, n2} = requests(c, fn -> Light.apply!(two, mode: :replace, server: c) end)
+
+      # The lights list (4: list and read, each released), the one
+      # delete-and-create batch (2: batch and release), the dial names via
+      # children_many (4), and the mutate batch (2).
+      assert n1 == 12
+      assert n2 == n1
+
+      # Empty replace: the lights list (4: list and read, each released) and
+      # the delete batch (2).
+      {_, empty} = requests(c, fn -> Light.apply!([], mode: :replace, server: c) end)
+      assert empty == 6
+
+      # With no lights left, only the lights list (2: batch and empty release).
+      {_, none} = requests(c, fn -> Light.apply!([], mode: :replace, server: c) end)
+      assert none == 2
+      assert_no_handles(c)
+    end
+
+    test "a bad mode raises before any request", %{c: c, key: key} do
+      snap = Light.snapshot!(key, server: c)
+      before = Client.request_count(server: c)
+
+      assert_raise ArgumentError, fn -> Light.apply(snap, mode: :wipe, server: c) end
+      assert_raise ArgumentError, fn -> Light.apply([], mode: "replace", server: c) end
+      assert Client.request_count(server: c) == before
+      assert length(light_names(c)) == 3
+      assert_no_handles(c)
+    end
+
+    test "validation raises in replace too", %{c: c, key: key} do
+      snap = Light.snapshot!(key, server: c)
+      before = Client.request_count(server: c)
+
+      assert_raise ArgumentError, fn ->
+        Light.apply(%{snap | props: %{color: 1}}, mode: :replace, server: c)
+      end
+
+      assert_raise ArgumentError, fn ->
+        Light.apply(snap, mode: :replace, frame: -1, server: c)
+      end
+
+      assert Client.request_count(server: c) == before
+      assert length(light_names(c)) == 3
+      assert_no_handles(c)
+    end
+
+    test "round trip restores a rig with two lights of the same name", %{c: c} do
+      # The scene has two `Fill` lights: merge raises on the duplicate
+      # snapshot names, replace restores both.
+      s = Light.snapshot_all!(server: c)
+      assert Enum.count(s, &(&1.name == "Fill")) == 2
+      assert_raise ArgumentError, fn -> Light.apply(s, server: c) end
+
+      assert {:ok, _} = Light.apply([rim(c)], mode: :replace, server: c)
+      assert light_names(c) == ["Rim"]
+
+      assert %{skipped: []} = Light.apply!(s, mode: :replace, server: c)
+      assert Light.snapshot_all!(server: c) == s
+      assert length(s) == 3
       assert_no_handles(c)
     end
   end
