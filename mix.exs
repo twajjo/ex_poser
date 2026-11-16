@@ -35,6 +35,7 @@ defmodule ExPoser.MixProject do
         {"guides/posing.md", filename: "posing"},
         "guides/frames-and-keyframes.md",
         "guides/batching.md",
+        "guides/lights-and-cameras.md",
         "guides/errors.md",
         "guides/generated-api.md",
         "guides/idiomatic-api.cheatmd",
@@ -48,6 +49,7 @@ defmodule ExPoser.MixProject do
           "guides/posing.md",
           "guides/frames-and-keyframes.md",
           "guides/batching.md",
+          "guides/lights-and-cameras.md",
           "guides/errors.md",
           "guides/generated-api.md"
         ],
