@@ -120,6 +120,67 @@ ExPoser.Api.SceneType.set_frame(scene, orig)
 [0 | keys]
 ```
 
+## Create and set a light
+{: .col-2}
+
+### Idiomatic
+
+```elixir
+{:ok, rim} = ExPoser.Light.create(%{name: "Rim", type: :point})
+{:ok, :ok} = ExPoser.Light.set(rim, %{shadow_samples: 8, color: {1.0, 0.8, 0.6}})
+{:ok, :point} = ExPoser.Light.get(rim, :type)
+```
+
+### ExPoser.Api
+
+```elixir
+{:ok, rim} = ExPoser.Api.SceneType.create_light(scene)
+{:ok, nil} = ExPoser.Api.ActorType.set_name(rim, "Rim")
+{:ok, nil} = ExPoser.Api.ActorType.set_light_type(rim, 2)  # point
+{:ok, nil} = ExPoser.Api.ActorType.set_shadow_samples(rim, 8)
+# colour: three dials, found by parm code
+ExPoser.Client.release([rim])
+```
+
+## Switch the camera
+{: .col-2}
+
+### Idiomatic
+
+```elixir
+{:ok, aux} = ExPoser.Scene.camera("Aux Camera")
+{:ok, :ok} = ExPoser.Scene.set_current_camera(aux)
+```
+
+### ExPoser.Api
+
+```elixir
+{:ok, aux} = ExPoser.Api.SceneType.actor(scene, "Aux Camera")
+{:ok, nil} = ExPoser.Api.SceneType.set_current_camera(scene, aux)
+ExPoser.Client.release([aux])
+```
+
+## Save and restore a rig
+{: .col-2}
+
+### Idiomatic
+
+```elixir
+rig = ExPoser.Light.snapshot_all!()
+# ... change the lights ...
+{:ok, %{skipped: []}} = ExPoser.Light.apply(rig)
+# mode: :replace deletes every light first
+```
+
+### ExPoser.Api
+
+```elixir
+# per light: read the type, every property
+# and every dial; later, find each light by
+# name (or create it) and write them back,
+# type first. Release every handle.
+```
+
 ## Get a handle
 {: .col-2}
 
