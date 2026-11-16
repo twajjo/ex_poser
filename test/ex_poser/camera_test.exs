@@ -3,7 +3,7 @@ defmodule ExPoser.CameraTest do
 
   import PoserTest.ClientCase
 
-  alias ExPoser.{Actor, Call, Camera, Client, Figure, Light, Parameter, Ref, Scene}
+  alias ExPoser.{Actor, Batch, Call, Camera, Client, Figure, Light, Parameter, Ref, Scene}
 
   doctest ExPoser.Camera
 
@@ -193,6 +193,137 @@ defmodule ExPoser.CameraTest do
       # The dial-name lookup fails in its first batch: 1 batch + 1 :release.
       assert Client.request_count(server: c) - before == 2
       assert_raise ExPoser.Error, fn -> Camera.snapshot!(bogus, server: c) end
+      assert_no_handles(c)
+    end
+  end
+
+  describe "apply" do
+    test "round trips: changed dials come back", %{c: c, main: main} do
+      s = Camera.snapshot_all!(server: c)
+      :ok = Camera.set!(main, %{"focal" => 90.0, "xtran" => 3.0}, server: c)
+      refute Camera.snapshot_all!(server: c) == s
+
+      assert %{skipped: []} = Camera.apply!(s, server: c)
+      assert Camera.snapshot_all!(server: c) == s
+      assert_no_handles(c)
+    end
+
+    test "is idempotent", %{c: c} do
+      s = Camera.snapshot_all!(server: c)
+      assert {:ok, %{skipped: []}} = Camera.apply(s, server: c)
+      assert {:ok, %{skipped: []}} = Camera.apply(s, server: c)
+      assert Camera.snapshot_all!(server: c) == s
+      assert_no_handles(c)
+    end
+
+    test "takes one snapshot as well as a list", %{c: c, main: main} do
+      snap = Camera.snapshot!(main, server: c)
+      :ok = Camera.set!(main, "focal", 80.0, server: c)
+      assert {:ok, %{skipped: []}} = Camera.apply(snap, server: c)
+      assert Camera.get!(main, "focal", server: c) == 55.0
+      assert_no_handles(c)
+    end
+
+    test "a missing camera is :not_found and changes nothing", %{c: c} do
+      s = Camera.snapshot_all!(server: c)
+      nope = %Camera.Snapshot{name: "Nope", dials: %{"focal" => 1.0}}
+      valid = %{hd(s) | dials: %{"focal" => 99.0}}
+
+      assert {:error, %ExPoser.Error{kind: :not_found, details: %{path: [name: "Nope"]}}} =
+               Camera.apply([nope], server: c)
+
+      assert {:error, %ExPoser.Error{kind: :not_found}} = Camera.apply([valid, nope], server: c)
+      assert Camera.snapshot_all!(server: c) == s
+      assert_raise ExPoser.Error, fn -> Camera.apply!([nope], server: c) end
+      assert_no_handles(c)
+    end
+
+    test "a name shared by two cameras is :ambiguous and changes nothing", %{c: c} do
+      aux = Scene.camera!("Aux Camera", server: c)
+
+      {:ok, _} =
+        Batch.new()
+        |> Batch.call(aux, "SetName", ["Main Camera"])
+        |> Batch.run(server: c)
+
+      before = Camera.snapshot_all!(server: c)
+      snap = %Camera.Snapshot{name: "Main Camera", dials: %{"focal" => 99.0}}
+
+      assert {:error, %ExPoser.Error{kind: :ambiguous, details: %{matches: [_, _]}}} =
+               Camera.apply(snap, server: c)
+
+      assert Camera.snapshot_all!(server: c) == before
+      assert_no_handles(c)
+    end
+
+    test "a dial the camera lacks is skipped, the rest is written", %{c: c, main: main} do
+      snap = %Camera.Snapshot{
+        name: "Main Camera",
+        dials: %{"focal" => 70.0, "nodial" => 1.0, "alsono" => 2.0}
+      }
+
+      assert {:ok, %{skipped: [{"Main Camera", "alsono"}, {"Main Camera", "nodial"}]}} =
+               Camera.apply(snap, server: c)
+
+      assert Camera.get!(main, "focal", server: c) == 70.0
+      assert_no_handles(c)
+    end
+
+    test "frame: sets the dials at that frame and leaves the scene frame", %{c: c, main: main} do
+      snap = %Camera.Snapshot{name: "Main Camera", dials: %{"focal" => 77.0}}
+
+      assert {:ok, %{skipped: []}} = Camera.apply(snap, frame: 3, server: c)
+      assert Camera.get!(main, "focal", frame: 3, server: c) == 77.0
+      assert Camera.get!(main, "focal", frame: 0, server: c) == 55.0
+      assert Scene.frame!(server: c) == 0
+      assert_no_handles(c)
+    end
+
+    test "bad input raises ArgumentError before any request", %{c: c, main: main} do
+      good = Camera.snapshot!(main, server: c)
+      before = Client.request_count(server: c)
+
+      bad_inputs = [
+        [:not_a_snapshot],
+        [%{good | name: :main}],
+        [%{good | dials: %{focal: 1.0}}],
+        [%{good | dials: %{"focal" => "x"}}],
+        [good, good]
+      ]
+
+      for input <- bad_inputs do
+        assert_raise ArgumentError, fn -> Camera.apply(input, server: c) end
+      end
+
+      assert_raise ArgumentError, fn -> Camera.apply([good], bad: 1, server: c) end
+      assert_raise ArgumentError, fn -> Camera.apply([good], mode: :merge, server: c) end
+
+      for frame <- [-1, 1.5] do
+        assert_raise ArgumentError, fn -> Camera.apply([good], frame: frame, server: c) end
+        assert_raise ArgumentError, fn -> Camera.snapshot(main, frame: frame, server: c) end
+        assert_raise ArgumentError, fn -> Camera.snapshot_all(frame: frame, server: c) end
+      end
+
+      assert Client.request_count(server: c) == before
+      assert_no_handles(c)
+    end
+
+    test "request counts", %{c: c} do
+      count = fn fun ->
+        before = Client.request_count(server: c)
+        fun.()
+        Client.request_count(server: c) - before
+      end
+
+      [one, two] = Camera.snapshot_all!(server: c)
+
+      # 5 batches, each followed by a :release request: the cameras list (2),
+      # the dial names via children_many (2), the write (1).
+      assert count.(fn -> Camera.apply!([one], server: c) end) == 10
+      assert count.(fn -> Camera.apply!([one, two], server: c) end) == 10
+
+      # An empty list sends nothing.
+      assert count.(fn -> Camera.apply!([], server: c) end) == 0
       assert_no_handles(c)
     end
   end
