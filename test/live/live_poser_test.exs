@@ -7,7 +7,7 @@ defmodule ExPoser.LivePoserTest do
 
   import PoserTest.ClientCase
 
-  alias ExPoser.{Actor, Batch, Client, Error, Figure, Handle, Parameter, Scene}
+  alias ExPoser.{Actor, Batch, Camera, Client, Error, Figure, Handle, Light, Parameter, Scene}
 
   @moduletag :poser
 
@@ -275,6 +275,97 @@ defmodule ExPoser.LivePoserTest do
             IO.puts("lForeArm:1 has no twistx dial; \"Twist\" ambiguity not asserted")
           end
       end
+
+      assert_no_handles(c)
+    end
+  end
+
+  describe "lights and cameras" do
+    # Runs `fun` and then puts the scene's lights and current camera back.
+    # The restore is done here, not in on_exit, because the client is a
+    # supervised child that is stopped before on_exit runs.
+    defp restoring_rig(c, fun) do
+      lights = Light.snapshot_all!(server: c)
+      camera = Scene.current_camera!(server: c)
+
+      try do
+        fun.()
+      after
+        Light.apply!(lights, mode: :replace, server: c)
+        Scene.set_current_camera!(camera, server: c)
+      end
+    end
+
+    test "a created light round trips through merge, and merge doesn't add it twice",
+         %{c: c} do
+      restoring_rig(c, fn ->
+        before = length(Scene.lights!(server: c))
+        light = Light.create!(%{name: "ExPoser Test", type: :point}, server: c)
+        :ok = Light.set!(light, %{color: {0.2, 0.4, 1.0}, shadow_samples: 8}, server: c)
+        snap = Light.snapshot!(light, server: c)
+
+        assert %{skipped: []} = Light.apply!(snap, server: c)
+        assert %{skipped: []} = Light.apply!(snap, server: c)
+        assert length(Scene.lights!(server: c)) == before + 1
+        assert Light.snapshot!(Scene.light!("ExPoser Test", server: c), server: c) == snap
+      end)
+
+      assert_no_handles(c)
+    end
+
+    test "replace leaves only the given light", %{c: c} do
+      restoring_rig(c, fn ->
+        key = hd(Scene.lights!(server: c))
+        snap = %{Light.snapshot!(key, server: c) | name: "ExPoser Test"}
+
+        assert %{skipped: []} = Light.apply!(snap, mode: :replace, server: c)
+        assert Enum.map(Scene.lights!(server: c), & &1.actor.name) == ["ExPoser Test"]
+      end)
+
+      assert_no_handles(c)
+    end
+
+    test "the current camera switches and switches back", %{c: c} do
+      restoring_rig(c, fn ->
+        current = Scene.current_camera!(server: c)
+
+        other =
+          Enum.find(Scene.cameras!(server: c), &(&1.actor.internal != current.actor.internal))
+
+        :ok = Scene.set_current_camera!(other, server: c)
+        assert Scene.current_camera!(server: c).actor.internal == other.actor.internal
+        :ok = Scene.set_current_camera!(current, server: c)
+        assert Scene.current_camera!(server: c).actor.internal == current.actor.internal
+      end)
+
+      assert_no_handles(c)
+    end
+
+    test "snapshot and apply timings, colour dials and light intensity, observed",
+         %{c: c} do
+      restoring_rig(c, fn ->
+        {us, snaps} = :timer.tc(fn -> Light.snapshot_all!(server: c) end)
+        IO.puts("Light.snapshot_all (#{length(snaps)} lights): #{div(us, 1000)} ms")
+
+        {us, _} = :timer.tc(fn -> Light.apply!(snaps, mode: :replace, server: c) end)
+        IO.puts("Light.apply replace (#{length(snaps)} lights): #{div(us, 1000)} ms")
+
+        {us, cams} = :timer.tc(fn -> Camera.snapshot_all!(server: c) end)
+        IO.puts("Camera.snapshot_all (#{length(cams)} cameras): #{div(us, 1000)} ms")
+
+        {us, _} = :timer.tc(fn -> Camera.apply!(cams, server: c) end)
+        IO.puts("Camera.apply (#{length(cams)} cameras): #{div(us, 1000)} ms")
+
+        light = hd(Scene.lights!(server: c))
+        dials = Light.snapshot!(light, server: c).dials
+        IO.puts("light dial internal names: #{inspect(Enum.sort(Map.keys(dials)))}")
+
+        {:ok, handle} = Light.handle(light, server: c)
+        {:ok, method} = ExPoser.Api.ActorType.get_light_intensity(handle, server: c)
+        {:ok, _} = Client.release([handle], server: c)
+        intensity = for {k, v} <- dials, k =~ ~r/intensity/i, do: {k, v}
+        IO.puts("GetLightIntensity: #{inspect(method)}; intensity dials: #{inspect(intensity)}")
+      end)
 
       assert_no_handles(c)
     end
