@@ -4,7 +4,8 @@ defmodule ExPoser.Light do
 
   It wraps its `ExPoser.Actor`, which holds the internal name (the key) and
   the GUI label. Find lights with `ExPoser.Scene.lights/1` and
-  `ExPoser.Scene.light/2`.
+  `ExPoser.Scene.light/2`. [Lights and cameras](lights-and-cameras.md)
+  explains properties and dials, snapshots, and merge versus replace.
 
       iex> actor = %ExPoser.Actor{figure: nil, internal: "light 1", name: "Key"}
       iex> inspect(%ExPoser.Light{actor: actor})
