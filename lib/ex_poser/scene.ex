@@ -29,7 +29,7 @@ defmodule ExPoser.Scene do
   See [Posing](posing.md) and [Frames and keyframes](frames-and-keyframes.md).
   """
 
-  alias ExPoser.{Actor, Batch, Camera, Client, Error, Figure, Light, Ref}
+  alias ExPoser.{Actor, Batch, Camera, Client, Error, Figure, Light, Ref, ShaderTree}
 
   @doc group: "Lookup"
   @doc """
@@ -103,6 +103,30 @@ defmodule ExPoser.Scene do
   """
   @spec actors!(keyword()) :: [Actor.t()]
   def actors!(opts \\ []), do: opts |> actors() |> Ref.unwrap!()
+
+  @doc group: "Shader trees"
+  @doc """
+  The scene's atmosphere shader tree, as a struct. Nothing is sent.
+
+  ## Examples
+
+      iex> ExPoser.Scene.atmosphere_tree()
+      #ExPoser.ShaderTree<atmosphere>
+  """
+  @spec atmosphere_tree() :: ShaderTree.t()
+  def atmosphere_tree, do: %ShaderTree{owner: :atmosphere}
+
+  @doc group: "Shader trees"
+  @doc """
+  The scene's background shader tree, as a struct. Nothing is sent.
+
+  ## Examples
+
+      iex> ExPoser.Scene.background_tree()
+      #ExPoser.ShaderTree<background>
+  """
+  @spec background_tree() :: ShaderTree.t()
+  def background_tree, do: %ShaderTree{owner: :background}
 
   @doc group: "Lights and cameras"
   @doc """

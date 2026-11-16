@@ -7,6 +7,13 @@ defmodule ExPoser.RefTest do
   doctest ExPoser.Actor
   doctest ExPoser.Parameter
   doctest ExPoser.Ref
+  doctest ExPoser.Material
+  doctest ExPoser.MaterialLayer
+  doctest ExPoser.ShaderTree
+  doctest ExPoser.ShaderNode
+  doctest ExPoser.ShaderInput
+  doctest ExPoser.ShaderOutput
+  doctest ExPoser.Scene, only: [atmosphere_tree: 0, background_tree: 0]
 
   @fig %Figure{internal: "figure 1", name: "Andy"}
   @actor %Actor{figure: @fig, internal: "lforearm", name: "Left Forearm"}
@@ -37,6 +44,28 @@ defmodule ExPoser.RefTest do
 
     assert Ref.lookup_op({:parm, "bend"}, {:result, 2}, :figure) ==
              {:invoke, {:result, 2}, "InternalParameter", ["bend"]}
+  end
+
+  test "lookup_op/3 for materials and shader trees" do
+    r = {:result, 3}
+
+    assert Ref.lookup_op({:material, "Skin"}, r, :scene) == {:invoke, r, "Material", ["Skin"]}
+    assert Ref.lookup_op({:layer, "L"}, r, :scene) == {:invoke, r, "LayerByName", ["L"]}
+    assert Ref.lookup_op({:tree, :main}, r, :scene) == {:invoke, r, "ShaderTree", []}
+
+    assert Ref.lookup_op({:tree, :atmosphere}, {:result, 0}, :scene) ==
+             {:invoke, {:result, 0}, "AtmosphereShaderTree", []}
+
+    assert Ref.lookup_op({:tree, :background}, {:result, 0}, :scene) ==
+             {:invoke, {:result, 0}, "BackgroundShaderTree", []}
+
+    assert Ref.lookup_op({:node, "N"}, r, :scene) == {:invoke, r, "NodeByInternalName", ["N"]}
+
+    assert Ref.lookup_op({:node, {:created, 2}}, r, :scene) ==
+             {:invoke, r, "NodeByInternalName", [{:created_name, 2}]}
+
+    assert Ref.lookup_op({:input, "I"}, r, :scene) == {:invoke, r, "InputByInternalName", ["I"]}
+    assert Ref.lookup_op({:output, "O"}, r, :scene) == {:invoke, r, "OutputByInternalName", ["O"]}
   end
 
   test "unwrap!/1" do
