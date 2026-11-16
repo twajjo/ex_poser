@@ -4,7 +4,8 @@ defmodule ExPoser.Camera do
 
   It wraps its `ExPoser.Actor`, which holds the internal name (the key) and
   the GUI label. Find cameras with `ExPoser.Scene.cameras/1` and
-  `ExPoser.Scene.camera/2`.
+  `ExPoser.Scene.camera/2`. [Lights and cameras](lights-and-cameras.md)
+  explains dials, snapshots and applying them.
 
       iex> actor = %ExPoser.Actor{figure: nil, internal: "MAIN_CAMERA", name: "Main Camera"}
       iex> inspect(%ExPoser.Camera{actor: actor})
