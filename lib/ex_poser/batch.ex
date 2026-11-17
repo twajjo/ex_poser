@@ -31,7 +31,7 @@ defmodule ExPoser.Batch do
   [Frames and keyframes](frames-and-keyframes.md) for `frame:`.
   """
 
-  alias ExPoser.{Client, Codec, Error, Parameter, Ref}
+  alias ExPoser.{Client, Codec, Error, Material, Parameter, Ref}
   alias ExPoser.Batch.Compiler
 
   @default_chunk 2000
@@ -233,6 +233,22 @@ defmodule ExPoser.Batch do
   @spec set(t(), Parameter.t(), number(), keyword()) :: t()
   def set(b, %Parameter{} = parm, value, opts \\ []) when is_number(value) do
     push(b, parm, "SetValue", [value * 1.0], frame_opt(opts), :ok)
+  end
+
+  @doc group: "Materials"
+  @doc """
+  Sets one flat setting of a material (a key from `ExPoser.Material.props/0`).
+  Its result is `:ok`. The key and value are checked now: a bad one raises
+  `ArgumentError`.
+
+  ## Examples
+
+      ExPoser.Batch.new() |> ExPoser.Batch.set_material(skin, :diffuse_color, {0.1, 0.2, 0.3})
+  """
+  @spec set_material(t(), Material.t(), atom(), term()) :: t()
+  def set_material(b, %Material{} = material, key, value) do
+    {method, args} = Material.set_call!(key, value)
+    push(b, material, method, args, nil, :ok)
   end
 
   @doc group: "Building"

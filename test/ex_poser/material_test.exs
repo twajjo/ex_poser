@@ -3,7 +3,7 @@ defmodule ExPoser.MaterialTest do
 
   import PoserTest.ClientCase
 
-  alias ExPoser.{Actor, Client, Error, Figure, Material, MaterialLayer}
+  alias ExPoser.{Actor, Batch, Client, Error, Figure, Material, MaterialLayer}
 
   setup do
     server = start_standalone()
@@ -69,6 +69,95 @@ defmodule ExPoser.MaterialTest do
              Material.layer(skin, "Nope", server: c)
 
     assert List.last(path) == {:layer, "Nope"}
+    assert_no_handles(c)
+  end
+
+  test "Material.props lists the flat keys" do
+    assert :diffuse_color in Material.props()
+    assert :selected in Material.props()
+    assert length(Material.props()) == 18
+  end
+
+  test "set then get a colour", %{c: c, skin: skin} do
+    assert {:ok, :ok} = Material.set(skin, :diffuse_color, {0.1, 0.2, 0.3}, server: c)
+    assert {:ok, {0.1, 0.2, 0.3}} = Material.get(skin, :diffuse_color, server: c)
+    assert :ok = Material.set!(skin, :ns, 20, server: c)
+    assert Material.get!(skin, :ns, server: c) == 20.0
+    assert_no_handles(c)
+  end
+
+  test "a map set of a string and a float reads back", %{c: c, skin: skin} do
+    assert {:ok, :ok} =
+             Material.set(skin, %{texture_map: "skin.png", bump_strength: 0.5}, server: c)
+
+    assert %{texture_map: "skin.png", bump_strength: 0.5} =
+             Material.get!(skin, [:texture_map, :bump_strength], server: c)
+
+    assert :ok = Material.set!(skin, %{selected: 1}, server: c)
+    assert Material.get!(skin, :selected, server: c) == 1
+    assert_no_handles(c)
+  end
+
+  test "get with a list returns a map", %{c: c, skin: skin} do
+    assert {:ok, %{ns: 50.0, selected: 0}} = Material.get(skin, [:ns, :selected], server: c)
+    assert_no_handles(c)
+  end
+
+  test "bad keys and values raise ArgumentError and send nothing", %{c: c, skin: skin} do
+    before = Client.request_count(server: c)
+
+    assert_raise ArgumentError, fn -> Material.set(skin, :nope, 1, server: c) end
+    assert_raise ArgumentError, fn -> Material.set(skin, :diffuse_color, {1, 2}, server: c) end
+    assert_raise ArgumentError, fn -> Material.set(skin, :texture_map, 1, server: c) end
+    assert_raise ArgumentError, fn -> Material.set(skin, :ns, "x", server: c) end
+
+    assert_raise ArgumentError, fn ->
+      Material.set(skin, %{ns: 1.0, nope: 2}, server: c)
+    end
+
+    assert_raise ArgumentError, fn -> Material.get(skin, :nope, server: c) end
+    assert_raise ArgumentError, fn -> Material.get(skin, [:ns, :nope], server: c) end
+    assert_raise ArgumentError, fn -> Material.set(skin, :ns, 1.0, frame: 1) end
+    assert_raise ArgumentError, fn -> Material.get(skin, :ns, frame: 1) end
+    assert Client.request_count(server: c) == before
+    assert Material.get!(skin, :ns, server: c) == 50.0
+    assert_no_handles(c)
+  end
+
+  test "a flat set does not change the tree's PreviewCount", %{c: c, skin: skin} do
+    count = fn ->
+      Batch.new()
+      |> Batch.call(Material.tree(skin), "PreviewCount")
+      |> Batch.run!(server: c)
+    end
+
+    before = count.()
+    Material.set!(skin, %{diffuse_color: {0.5, 0.5, 0.5}, ns: 10.0}, server: c)
+    assert count.() == before
+    assert_no_handles(c)
+  end
+
+  test "Batch.set_material adds a set op", %{c: c, skin: skin} do
+    b =
+      Batch.new()
+      |> Batch.set_material(skin, :bump_strength, 2)
+      |> Batch.set_material(skin, :ns, 5)
+
+    assert Batch.size(b) == 2
+    assert [:ok, :ok] = Batch.run!(b, server: c)
+    assert Material.get!(skin, :bump_strength, server: c) == 2.0
+    assert_raise ArgumentError, fn -> Batch.set_material(Batch.new(), skin, :nope, 1) end
+    assert_no_handles(c)
+  end
+
+  test "Batch.set_material with a bad value raises before any request", %{c: c, skin: skin} do
+    before = Client.request_count(server: c)
+
+    assert_raise ArgumentError, fn ->
+      Batch.set_material(Batch.new(), skin, :diffuse_color, {1, 2})
+    end
+
+    assert Client.request_count(server: c) == before
     assert_no_handles(c)
   end
 
