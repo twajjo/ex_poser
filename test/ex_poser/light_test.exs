@@ -3,7 +3,7 @@ defmodule ExPoser.LightTest do
 
   import PoserTest.ClientCase
 
-  alias ExPoser.{Actor, Camera, Client, Light, Ref, Scene}
+  alias ExPoser.{Actor, Batch, Camera, Client, Error, Light, Ref, Scene}
 
   doctest ExPoser.Light
 
@@ -18,8 +18,6 @@ defmodule ExPoser.LightTest do
     c = start_client(server.session)
     %{c: c, key: Scene.light!("Key", server: c), fill2: Scene.light!("light 2", server: c)}
   end
-
-  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
 
   test "props table names exist in priv/poser_api.json" do
     methods =
@@ -301,22 +299,6 @@ defmodule ExPoser.LightTest do
   end
 
   describe "apply (merge onto existing lights)" do
-    alias ExPoser.{Batch, Error}
-
-    # The seed scene has two lights named Fill, so snapshot_all holds a
-    # duplicate name. Rename `light 3` so every light can be applied.
-    defp rename_third(c) do
-      third = Scene.light!("light 3", server: c)
-      {:ok, _} = Batch.new() |> Batch.call(third, "SetName", ["Back"]) |> Batch.run(server: c)
-      third
-    end
-
-    defp requests(c, fun) do
-      before = Client.request_count(server: c)
-      result = fun.()
-      {result, Client.request_count(server: c) - before}
-    end
-
     test "is idempotent", %{c: c} do
       rename_third(c)
       s = Light.snapshot_all!(server: c)
@@ -589,13 +571,6 @@ defmodule ExPoser.LightTest do
   end
 
   describe "apply (replace)" do
-    defp light_names(c), do: Enum.map(Scene.lights!(server: c), & &1.actor.name)
-
-    defp rim(c, name \\ "Rim") do
-      key = Scene.light!("Key", server: c)
-      %{Light.snapshot!(key, server: c) | name: name, type: :point}
-    end
-
     test "leaves exactly the rig's lights", %{c: c} do
       assert {:ok, %{skipped: []}} = Light.apply([rim(c)], mode: :replace, server: c)
 
@@ -705,5 +680,28 @@ defmodule ExPoser.LightTest do
       assert length(s) == 3
       assert_no_handles(c)
     end
+  end
+
+  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
+
+  defp light_names(c), do: Enum.map(Scene.lights!(server: c), & &1.actor.name)
+
+  # The seed scene has two lights named Fill, so snapshot_all holds a
+  # duplicate name. Rename `light 3` so every light can be applied.
+  defp rename_third(c) do
+    third = Scene.light!("light 3", server: c)
+    {:ok, _} = Batch.new() |> Batch.call(third, "SetName", ["Back"]) |> Batch.run(server: c)
+    third
+  end
+
+  defp requests(c, fun) do
+    before = Client.request_count(server: c)
+    result = fun.()
+    {result, Client.request_count(server: c) - before}
+  end
+
+  defp rim(c, name \\ "Rim") do
+    key = Scene.light!("Key", server: c)
+    %{Light.snapshot!(key, server: c) | name: name, type: :point}
   end
 end

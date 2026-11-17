@@ -69,86 +69,6 @@ defmodule ExPoser.LivePoserTest do
   end
 
   describe "idiomatic layer" do
-    defp probe(c) do
-      {:ok, [fig | _]} = Scene.figures(server: c)
-      {:ok, body} = Figure.actor(fig, "BODY:1", server: c)
-      {:ok, parm} = Actor.parameter(body, "yRotate", server: c)
-      {fig, body, parm}
-    end
-
-    defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
-
-    # Snapshots frame, keys and the value at 5, sets a distinct value at frame 5
-    # inside the protected body, runs `fun` with the snapshot (plus `:v`), then
-    # restores every step independently. A body failure is re-raised after the
-    # restore, so a restore failure never hides it.
-    defp with_key_at_5(parm, c, fun) do
-      o = [server: c]
-      {:ok, frame0} = Scene.frame(o)
-      {:ok, keys0} = Parameter.keyframes(parm, o)
-      {:ok, orig5} = Parameter.value_at(parm, 5, o)
-      {:ok, {min, max}} = Parameter.min_max(parm, o)
-      saved = %{frame0: frame0, keys0: keys0, orig5: orig5}
-
-      body =
-        try do
-          v = if orig5 + 10.0 <= max, do: orig5 + 10.0, else: max(orig5 - 10.0, min)
-          {:ok, :ok} = Parameter.set_value(parm, v, [frame: 5] ++ o)
-          fun.(Map.put(saved, :v, v))
-          :ok
-        catch
-          kind, why -> {:raised, kind, why, __STACKTRACE__}
-        end
-
-      failures = restore_5(parm, saved, c)
-
-      case body do
-        {:raised, kind, why, st} ->
-          if failures != [], do: IO.puts("restore also failed: #{inspect(failures)}")
-          :erlang.raise(kind, why, st)
-
-        :ok ->
-          assert failures == [], "restore failed: #{inspect(failures)}"
-      end
-    end
-
-    defp restore_5(parm, %{frame0: frame0, keys0: keys0, orig5: orig5}, c) do
-      o = [server: c]
-
-      step = fn name, fun ->
-        try do
-          case fun.() do
-            {:error, _} = err -> [{name, err}]
-            _ -> []
-          end
-        rescue
-          e -> [{name, e}]
-        catch
-          kind, why -> [{name, {kind, why}}]
-        end
-      end
-
-      check = fn name, got, want ->
-        if got == want, do: [], else: [{name, {:expected, want, :got, got}}]
-      end
-
-      near = fn name, got, want ->
-        case got do
-          {:ok, g} when is_number(g) and abs(g - want) <= 1.0e-6 -> []
-          other -> [{name, {:expected, want, :got, other}}]
-        end
-      end
-
-      step.(:set_back, fn -> Parameter.set_value(parm, orig5, [frame: 5] ++ o) end) ++
-        step.(:delete_key, fn ->
-          if 5 in keys0, do: :ok, else: Parameter.delete_keyframe(parm, 5, o)
-        end) ++
-        step.(:frame, fn -> Scene.set_frame(frame0, o) end) ++
-        step.(:check_keys, fn -> check.(:keys, Parameter.keyframes(parm, o), {:ok, keys0}) end) ++
-        step.(:check_value, fn -> near.(:value, Parameter.value_at(parm, 5, o), orig5) end) ++
-        step.(:check_frame, fn -> check.(:frame, Scene.frame(o), {:ok, frame0}) end)
-    end
-
     test "figures are listed and Actor.values works on the first body part", %{c: c} do
       assert {:ok, [fig | _]} = Scene.figures(server: c)
       assert {:ok, [part | _]} = Figure.actors(fig, server: c)
@@ -281,21 +201,6 @@ defmodule ExPoser.LivePoserTest do
   end
 
   describe "lights and cameras" do
-    # Runs `fun` and then puts the scene's lights and current camera back.
-    # The restore is done here, not in on_exit, because the client is a
-    # supervised child that is stopped before on_exit runs.
-    defp restoring_rig(c, fun) do
-      lights = Light.snapshot_all!(server: c)
-      camera = Scene.current_camera!(server: c)
-
-      try do
-        fun.()
-      after
-        Light.apply!(lights, mode: :replace, server: c)
-        Scene.set_current_camera!(camera, server: c)
-      end
-    end
-
     test "a created light round trips through merge, and merge doesn't add it twice",
          %{c: c} do
       restoring_rig(c, fn ->
@@ -368,6 +273,101 @@ defmodule ExPoser.LivePoserTest do
       end)
 
       assert_no_handles(c)
+    end
+  end
+
+  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
+
+  defp probe(c) do
+    {:ok, [fig | _]} = Scene.figures(server: c)
+    {:ok, body} = Figure.actor(fig, "BODY:1", server: c)
+    {:ok, parm} = Actor.parameter(body, "yRotate", server: c)
+    {fig, body, parm}
+  end
+
+  defp restore_5(parm, %{frame0: frame0, keys0: keys0, orig5: orig5}, c) do
+    o = [server: c]
+
+    step = fn name, fun ->
+      try do
+        case fun.() do
+          {:error, _} = err -> [{name, err}]
+          _ -> []
+        end
+      rescue
+        e -> [{name, e}]
+      catch
+        kind, why -> [{name, {kind, why}}]
+      end
+    end
+
+    check = fn name, got, want ->
+      if got == want, do: [], else: [{name, {:expected, want, :got, got}}]
+    end
+
+    near = fn name, got, want ->
+      case got do
+        {:ok, g} when is_number(g) and abs(g - want) <= 1.0e-6 -> []
+        other -> [{name, {:expected, want, :got, other}}]
+      end
+    end
+
+    step.(:set_back, fn -> Parameter.set_value(parm, orig5, [frame: 5] ++ o) end) ++
+      step.(:delete_key, fn ->
+        if 5 in keys0, do: :ok, else: Parameter.delete_keyframe(parm, 5, o)
+      end) ++
+      step.(:frame, fn -> Scene.set_frame(frame0, o) end) ++
+      step.(:check_keys, fn -> check.(:keys, Parameter.keyframes(parm, o), {:ok, keys0}) end) ++
+      step.(:check_value, fn -> near.(:value, Parameter.value_at(parm, 5, o), orig5) end) ++
+      step.(:check_frame, fn -> check.(:frame, Scene.frame(o), {:ok, frame0}) end)
+  end
+
+  # Runs `fun` and then puts the scene's lights and current camera back.
+  # The restore is done here, not in on_exit, because the client is a
+  # supervised child that is stopped before on_exit runs.
+  defp restoring_rig(c, fun) do
+    lights = Light.snapshot_all!(server: c)
+    camera = Scene.current_camera!(server: c)
+
+    try do
+      fun.()
+    after
+      Light.apply!(lights, mode: :replace, server: c)
+      Scene.set_current_camera!(camera, server: c)
+    end
+  end
+
+  # Snapshots frame, keys and the value at 5, sets a distinct value at frame 5
+  # inside the protected body, runs `fun` with the snapshot (plus `:v`), then
+  # restores every step independently. A body failure is re-raised after the
+  # restore, so a restore failure never hides it.
+  defp with_key_at_5(parm, c, fun) do
+    o = [server: c]
+    {:ok, frame0} = Scene.frame(o)
+    {:ok, keys0} = Parameter.keyframes(parm, o)
+    {:ok, orig5} = Parameter.value_at(parm, 5, o)
+    {:ok, {min, max}} = Parameter.min_max(parm, o)
+    saved = %{frame0: frame0, keys0: keys0, orig5: orig5}
+
+    body =
+      try do
+        v = if orig5 + 10.0 <= max, do: orig5 + 10.0, else: max(orig5 - 10.0, min)
+        {:ok, :ok} = Parameter.set_value(parm, v, [frame: 5] ++ o)
+        fun.(Map.put(saved, :v, v))
+        :ok
+      catch
+        kind, why -> {:raised, kind, why, __STACKTRACE__}
+      end
+
+    failures = restore_5(parm, saved, c)
+
+    case body do
+      {:raised, kind, why, st} ->
+        if failures != [], do: IO.puts("restore also failed: #{inspect(failures)}")
+        :erlang.raise(kind, why, st)
+
+      :ok ->
+        assert failures == [], "restore failed: #{inspect(failures)}"
     end
   end
 end

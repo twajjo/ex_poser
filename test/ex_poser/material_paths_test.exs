@@ -26,8 +26,6 @@ defmodule ExPoser.MaterialPathsTest do
     %{c: c, skin: skin}
   end
 
-  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
-
   test "Batch.call on a material input reads its value", %{c: c, skin: skin} do
     node = %ShaderNode{tree: Material.tree(skin), internal: "PoserSurface"}
     input = ShaderNode.input(node, "Diffuse_Color")
@@ -99,4 +97,6 @@ defmodule ExPoser.MaterialPathsTest do
 
     assert_no_handles(c)
   end
+
+  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
 end

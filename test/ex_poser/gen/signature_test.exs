@@ -7,8 +7,6 @@ defmodule ExPoser.Gen.SignatureTest do
 
   @constants %{"kMirrorTypeNone" => -1}
 
-  defp parse(class, name), do: Signature.parse(name, doc(class, name), @constants)
-
   test "an optional parameter with a default" do
     assert {:ok, %{returns: "NoneType", params: [p]}} = parse("poser", "CloseDocument")
     assert p == %{name: "discardChanges", type: "IntType", optional: true, default: {:default, 0}}
@@ -98,4 +96,6 @@ defmodule ExPoser.Gen.SignatureTest do
   test "a missing docstring is an error" do
     assert {:error, _} = Signature.parse("F", nil, %{})
   end
+
+  defp parse(class, name), do: Signature.parse(name, doc(class, name), @constants)
 end

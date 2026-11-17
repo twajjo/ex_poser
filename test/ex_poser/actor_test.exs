@@ -15,8 +15,6 @@ defmodule ExPoser.ActorTest do
     %{c: start_client(server.session)}
   end
 
-  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
-
   test "parameters lists every parm with its actor", %{c: c} do
     assert {:ok, [%Parameter{} = x, %Parameter{} = w]} = Actor.parameters(@hip, server: c)
     assert {x.internal, x.name, x.actor} == {"xtran", "xTran", @hip}
@@ -99,18 +97,6 @@ defmodule ExPoser.ActorTest do
     assert_no_handles(c)
   end
 
-  defp batch_requests(acc) do
-    receive do
-      {:trace, _, :receive, {:"$gen_call", _, {:request, {:batch, _}, _}}} ->
-        batch_requests([:batch | acc])
-
-      {:trace, _, :receive, _} ->
-        batch_requests(acc)
-    after
-      0 -> acc
-    end
-  end
-
   test "values", %{c: c} do
     assert {:ok, %{"xtran" => +0.0, "weird" => :nan}} = Actor.values(@hip, server: c)
     assert %{"xtran" => +0.0} = Actor.values!(@hip, server: c)
@@ -162,5 +148,19 @@ defmodule ExPoser.ActorTest do
     assert {:error, %Error{}} = Ref.children(@hip, "NoSuchMethod", [], server: c)
     assert {:error, %Error{}} = Ref.children(@hip, "Parameters", ["NoSuchMethod"], server: c)
     assert_no_handles(c)
+  end
+
+  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
+
+  defp batch_requests(acc) do
+    receive do
+      {:trace, _, :receive, {:"$gen_call", _, {:request, {:batch, _}, _}}} ->
+        batch_requests([:batch | acc])
+
+      {:trace, _, :receive, _} ->
+        batch_requests(acc)
+    after
+      0 -> acc
+    end
   end
 end

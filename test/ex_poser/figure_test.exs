@@ -12,8 +12,6 @@ defmodule ExPoser.FigureTest do
     %{c: start_client(server.session)}
   end
 
-  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
-
   test "actors lists the body parts with their figure", %{c: c} do
     assert {:ok, [%Actor{figure: @fig, internal: "hip"}, _, _] = parts} =
              Figure.actors(@fig, server: c)
@@ -71,4 +69,6 @@ defmodule ExPoser.FigureTest do
   test "unknown options raise", %{c: c} do
     assert_raise ArgumentError, fn -> Figure.actors(@fig, server: c, bogus: 1) end
   end
+
+  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
 end
