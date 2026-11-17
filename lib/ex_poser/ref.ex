@@ -3,17 +3,52 @@ defmodule ExPoser.Ref do
   Internal: compiles name-path structs into wire batch ops.
 
   A ref is `:scene` or an `ExPoser.Figure`, `ExPoser.Actor`, `ExPoser.Light`,
-  `ExPoser.Camera` or `ExPoser.Parameter`.
+  `ExPoser.Camera`, `ExPoser.Parameter`, `ExPoser.Material`,
+  `ExPoser.MaterialLayer`, `ExPoser.ShaderTree`, `ExPoser.ShaderNode`,
+  `ExPoser.ShaderInput` or `ExPoser.ShaderOutput`.
   Its path is a list of internal-name steps, never a live handle.
 
       iex> ExPoser.Ref.path(%ExPoser.Figure{internal: "figure 1", name: "Andy"})
       [figure: "figure 1"]
   """
 
-  alias ExPoser.{Actor, Camera, Figure, Light, Parameter}
+  alias ExPoser.{
+    Actor,
+    Camera,
+    Figure,
+    Light,
+    Material,
+    MaterialLayer,
+    Parameter,
+    ShaderInput,
+    ShaderNode,
+    ShaderOutput,
+    ShaderTree
+  }
 
-  @type ref :: :scene | Figure.t() | Actor.t() | Light.t() | Camera.t() | Parameter.t()
-  @type step :: {:figure, String.t()} | {:actor, String.t()} | {:parm, String.t()}
+  @type ref ::
+          :scene
+          | Figure.t()
+          | Actor.t()
+          | Light.t()
+          | Camera.t()
+          | Parameter.t()
+          | Material.t()
+          | MaterialLayer.t()
+          | ShaderTree.t()
+          | ShaderNode.t()
+          | ShaderInput.t()
+          | ShaderOutput.t()
+  @type step ::
+          {:figure, String.t()}
+          | {:actor, String.t()}
+          | {:parm, String.t()}
+          | {:material, String.t()}
+          | {:layer, String.t()}
+          | {:tree, :main | :atmosphere | :background}
+          | {:node, ShaderNode.internal()}
+          | {:input, String.t()}
+          | {:output, String.t()}
 
   @doc false
   # Lists `parent`'s children with `list_method` (one request), then reads
@@ -51,6 +86,23 @@ defmodule ExPoser.Ref do
         release_in(handle_lists, opts)
       end
     end
+  end
+
+  @doc false
+  # The handle of `ref`, which `parent` hands out with `method(args)`. The first
+  # op, `probe` on `ref`, makes a missing `ref` :not_found with its path; a ref
+  # can't hand out its own handle.
+  @spec fetch_handle(ref(), String.t(), ref(), String.t(), list(), keyword()) ::
+          {:ok, ExPoser.Handle.t()} | {:error, ExPoser.Error.t()}
+  def fetch_handle(ref, probe, parent, method, args, opts) do
+    opts = Keyword.validate!(opts, [:server, :timeout])
+
+    batch =
+      ExPoser.Batch.new()
+      |> ExPoser.Batch.call(ref, probe, [])
+      |> ExPoser.Batch.call(parent, method, args)
+
+    batch |> ExPoser.Batch.run(opts) |> Actor.to_handle(ref)
   end
 
   @doc false
@@ -133,6 +185,28 @@ defmodule ExPoser.Ref do
   def lookup_op({:parm, internal}, parent, _scope),
     do: {:invoke, parent, "InternalParameter", [internal]}
 
+  def lookup_op({:material, name}, parent, _scope), do: {:invoke, parent, "Material", [name]}
+  def lookup_op({:layer, name}, parent, _scope), do: {:invoke, parent, "LayerByName", [name]}
+  def lookup_op({:tree, :main}, parent, _scope), do: {:invoke, parent, "ShaderTree", []}
+
+  def lookup_op({:tree, :atmosphere}, parent, _scope),
+    do: {:invoke, parent, "AtmosphereShaderTree", []}
+
+  def lookup_op({:tree, :background}, parent, _scope),
+    do: {:invoke, parent, "BackgroundShaderTree", []}
+
+  def lookup_op({:node, {:created, k}}, parent, _scope),
+    do: {:invoke, parent, "NodeByInternalName", [{:created_name, k}]}
+
+  def lookup_op({:node, internal}, parent, _scope),
+    do: {:invoke, parent, "NodeByInternalName", [internal]}
+
+  def lookup_op({:input, internal}, parent, _scope),
+    do: {:invoke, parent, "InputByInternalName", [internal]}
+
+  def lookup_op({:output, internal}, parent, _scope),
+    do: {:invoke, parent, "OutputByInternalName", [internal]}
+
   @doc "The internal-name path from the scene to `ref`. `:scene` gives `[]`."
   @spec path(ref()) :: [step()]
   def path(:scene), do: []
@@ -142,18 +216,32 @@ defmodule ExPoser.Ref do
   def path(%Light{actor: actor}), do: path(actor)
   def path(%Camera{actor: actor}), do: path(actor)
   def path(%Parameter{actor: actor, internal: internal}), do: path(actor) ++ [{:parm, internal}]
+  def path(%Material{owner: owner, name: name}), do: path(owner) ++ [{:material, name}]
+  def path(%MaterialLayer{material: material, name: name}), do: path(material) ++ [{:layer, name}]
+  def path(%ShaderTree{owner: :atmosphere}), do: [{:tree, :atmosphere}]
+  def path(%ShaderTree{owner: :background}), do: [{:tree, :background}]
+  def path(%ShaderTree{owner: owner}), do: path(owner) ++ [{:tree, :main}]
+  def path(%ShaderNode{tree: tree, internal: internal}), do: path(tree) ++ [{:node, internal}]
+  def path(%ShaderInput{node: node, internal: internal}), do: path(node) ++ [{:input, internal}]
+  def path(%ShaderOutput{node: node, internal: internal}), do: path(node) ++ [{:output, internal}]
 
   @doc false
   @spec path_string(ref()) :: String.t()
   def path_string(ref), do: ref |> path() |> Enum.map_join("/", &elem(&1, 1))
 
-  @doc "True for the structs that name a Poser object: figure, actor, light, camera, parameter."
+  @doc "True for the structs that name a Poser object: figure, actor, light, camera, parameter, material, layer, shader tree, node, input and output."
   @spec ref?(term()) :: boolean()
   def ref?(%Figure{}), do: true
   def ref?(%Actor{}), do: true
   def ref?(%Light{}), do: true
   def ref?(%Camera{}), do: true
   def ref?(%Parameter{}), do: true
+  def ref?(%Material{}), do: true
+  def ref?(%MaterialLayer{}), do: true
+  def ref?(%ShaderTree{}), do: true
+  def ref?(%ShaderNode{}), do: true
+  def ref?(%ShaderInput{}), do: true
+  def ref?(%ShaderOutput{}), do: true
   def ref?(_other), do: false
 
   @doc false
