@@ -13,7 +13,7 @@ defmodule ExPoser.ShaderNode do
       "#ExPoser.ShaderNode<Image_Map>"
   """
 
-  alias ExPoser.{Ref, ShaderInput, ShaderOutput, ShaderTree}
+  alias ExPoser.{Error, Ref, ShaderInput, ShaderOutput, ShaderTree}
 
   @enforce_keys [:tree, :internal]
   defstruct [:tree, :internal, :name]
@@ -65,6 +65,38 @@ defmodule ExPoser.ShaderNode do
 
   @doc group: "Inputs and outputs"
   @doc """
+  Lists the node's inputs, in Poser's order. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      ExPoser.ShaderNode.inputs(node)
+      #=> {:ok, [#ExPoser.ShaderInput<Diffuse_Color>, ...]}
+  """
+  @spec inputs(t(), keyword()) :: {:ok, [ShaderInput.t()]} | {:error, Error.t()}
+  def inputs(%__MODULE__{} = node, opts \\ []) do
+    with {:ok, rows} <- Ref.children(node, "Inputs", [], run_opts(opts)),
+         do:
+           {:ok,
+            Enum.map(
+              rows,
+              &%ShaderInput{node: node, internal: &1["InternalName"], name: &1["Name"]}
+            )}
+  end
+
+  @doc group: "Inputs and outputs"
+  @doc """
+  Like `inputs/2`, but returns the list and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.ShaderNode.inputs!(node)
+      #=> [#ExPoser.ShaderInput<Diffuse_Color>, ...]
+  """
+  @spec inputs!(t(), keyword()) :: [ShaderInput.t()]
+  def inputs!(node, opts \\ []), do: node |> inputs(opts) |> Ref.unwrap!()
+
+  @doc group: "Inputs and outputs"
+  @doc """
   An output of the node by internal name, as a struct. Nothing is sent.
 
   ## Examples
@@ -77,6 +109,40 @@ defmodule ExPoser.ShaderNode do
   @spec output(t(), String.t()) :: ShaderOutput.t()
   def output(%__MODULE__{} = node, internal) when is_binary(internal),
     do: %ShaderOutput{node: node, internal: internal}
+
+  @doc group: "Inputs and outputs"
+  @doc """
+  Lists the node's outputs, in Poser's order. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      ExPoser.ShaderNode.outputs(node)
+      #=> {:ok, [#ExPoser.ShaderOutput<Diffuse_Color>, ...]}
+  """
+  @spec outputs(t(), keyword()) :: {:ok, [ShaderOutput.t()]} | {:error, Error.t()}
+  def outputs(%__MODULE__{} = node, opts \\ []) do
+    with {:ok, rows} <- Ref.children(node, "Outputs", [], run_opts(opts)),
+         do:
+           {:ok,
+            Enum.map(
+              rows,
+              &%ShaderOutput{node: node, internal: &1["InternalName"], name: &1["Name"]}
+            )}
+  end
+
+  @doc group: "Inputs and outputs"
+  @doc """
+  Like `outputs/2`, but returns the list and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.ShaderNode.outputs!(node)
+      #=> [#ExPoser.ShaderOutput<Diffuse_Color>, ...]
+  """
+  @spec outputs!(t(), keyword()) :: [ShaderOutput.t()]
+  def outputs!(node, opts \\ []), do: node |> outputs(opts) |> Ref.unwrap!()
+
+  defp run_opts(opts), do: Keyword.validate!(opts, [:server, :timeout])
 
   defimpl Inspect do
     def inspect(%{name: name, internal: internal}, _opts),
