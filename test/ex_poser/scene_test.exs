@@ -10,8 +10,6 @@ defmodule ExPoser.SceneTest do
     %{c: start_client(server.session)}
   end
 
-  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
-
   test "figures lists both", %{c: c} do
     assert {:ok, [%Figure{internal: "figure 1"}, %Figure{internal: "figure 2"}]} =
              Scene.figures(server: c)
@@ -144,4 +142,6 @@ defmodule ExPoser.SceneTest do
   test "unknown options raise", %{c: c} do
     assert_raise ArgumentError, fn -> Scene.frame(server: c, bogus: 1) end
   end
+
+  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
 end

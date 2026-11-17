@@ -15,16 +15,6 @@ defmodule ExPoser.ParameterTest do
     %{c: start_client(server.session)}
   end
 
-  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
-
-  defp current_frame(c) do
-    {:ok, [scene, f]} =
-      Client.batch([{:call, "Scene", []}, {:invoke, {:result, 0}, "Frame", []}], server: c)
-
-    {:ok, _} = Client.release([scene], server: c)
-    f
-  end
-
   test "value round trip, integers read back as floats", %{c: c} do
     assert {:ok, :ok} = Parameter.set_value(@p, 2.5, server: c)
     assert {:ok, 2.5} = Parameter.value(@p, server: c)
@@ -92,5 +82,15 @@ defmodule ExPoser.ParameterTest do
     assert_raise Error, fn -> Parameter.value!(@missing, server: c) end
     assert_raise Error, fn -> Parameter.min_max!(@missing, server: c) end
     assert_no_handles(c)
+  end
+
+  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
+
+  defp current_frame(c) do
+    {:ok, [scene, f]} =
+      Client.batch([{:call, "Scene", []}, {:invoke, {:result, 0}, "Frame", []}], server: c)
+
+    {:ok, _} = Client.release([scene], server: c)
+    f
   end
 end

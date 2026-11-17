@@ -5,8 +5,6 @@ defmodule ExPoser.Gen.TypesTest do
 
   @classes MapSet.new(["ActorType", "Palette"])
 
-  defp spec(t, dir \\ :return), do: t |> Types.spec(dir, @classes) |> Macro.to_string()
-
   test "scalars" do
     for t <- ["IntType", "LongType", "EnumType"], do: assert(spec(t) == "integer()")
     assert spec("FloatType", :arg) == "number()"
@@ -50,4 +48,6 @@ defmodule ExPoser.Gen.TypesTest do
     assert Types.unknowns({:tuple, ["Weird", "IntType"]}, @classes) == ["Weird"]
     assert Types.unknowns("object", @classes) == []
   end
+
+  defp spec(t, dir \\ :return), do: t |> Types.spec(dir, @classes) |> Macro.to_string()
 end

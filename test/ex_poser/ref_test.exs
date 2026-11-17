@@ -88,8 +88,6 @@ defmodule ExPoser.RefChildrenManyTest do
     %{c: c, light1: Scene.light!("Key", server: c), light2: Scene.light!("light 2", server: c)}
   end
 
-  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
-
   test "children_many reads the children of every parent", %{c: c, light1: l1, light2: l2} do
     assert {:ok, [rows1, rows2]} = Ref.children_many([l1, l2], "Parameters", [], server: c)
     assert length(rows1) == 5
@@ -136,4 +134,6 @@ defmodule ExPoser.RefChildrenManyTest do
     assert %{"InternalName" => _, "Name" => _, "Value" => _} = hd(rows)
     assert_no_handles(c)
   end
+
+  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
 end

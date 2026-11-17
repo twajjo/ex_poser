@@ -24,16 +24,6 @@ defmodule ExPoser.CameraTest do
     }
   end
 
-  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
-
-  defp target_internal(owner, c) do
-    {:ok, handle} = Actor.handle(owner.actor, server: c)
-    {:ok, target} = Call.method(handle, "PointAtTarget", [], [], server: c)
-    internal = target && elem(Call.method(target, "InternalName", [], [], server: c), 1)
-    Client.release([handle | List.wrap(target)], server: c)
-    internal
-  end
-
   test "set then get round trips a dial", %{c: c, main: main} do
     assert {:ok, :ok} = Camera.set(main, "focal", 50.0, server: c)
     assert {:ok, 50.0} = Camera.get(main, "focal", server: c)
@@ -326,5 +316,15 @@ defmodule ExPoser.CameraTest do
       assert count.(fn -> Camera.apply!([], server: c) end) == 0
       assert_no_handles(c)
     end
+  end
+
+  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
+
+  defp target_internal(owner, c) do
+    {:ok, handle} = Actor.handle(owner.actor, server: c)
+    {:ok, target} = Call.method(handle, "PointAtTarget", [], [], server: c)
+    internal = target && elem(Call.method(target, "InternalName", [], [], server: c), 1)
+    Client.release([handle | List.wrap(target)], server: c)
+    internal
   end
 end

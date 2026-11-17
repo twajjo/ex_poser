@@ -3,18 +3,6 @@ defmodule Mix.Tasks.Poser.GenTest do
 
   @moduletag :tmp_dir
 
-  defp run(dir, extra) do
-    Mix.Tasks.Poser.Gen.run(
-      ["test/fixtures/gen_api.json", "--out", dir, "--namespace", "PoserTest.GenApiOut"] ++
-        [
-          "--manifest",
-          Path.join(dir, "manifest.json"),
-          "--overrides",
-          "test/fixtures/gen_overrides.json"
-        ] ++ extra
-    )
-  end
-
   test "writes the modules and the manifest, and --check passes on unchanged output", %{
     tmp_dir: dir
   } do
@@ -55,5 +43,17 @@ defmodule Mix.Tasks.Poser.GenTest do
     ExUnit.CaptureIO.capture_io(fn -> run(dir, []) end)
     assert File.exists?(hand)
     assert ExUnit.CaptureIO.capture_io(fn -> run(dir, ["--check"]) end) =~ "up to date"
+  end
+
+  defp run(dir, extra) do
+    Mix.Tasks.Poser.Gen.run(
+      ["test/fixtures/gen_api.json", "--out", dir, "--namespace", "PoserTest.GenApiOut"] ++
+        [
+          "--manifest",
+          Path.join(dir, "manifest.json"),
+          "--overrides",
+          "test/fixtures/gen_overrides.json"
+        ] ++ extra
+    )
   end
 end

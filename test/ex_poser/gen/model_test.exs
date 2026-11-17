@@ -9,9 +9,6 @@ defmodule ExPoser.Gen.ModelTest do
     %{model: Model.build(dump, overrides, PoserTest.GenApi)}
   end
 
-  defp mod(model, class), do: Enum.find(model.modules, &(&1.py_class == class))
-  defp fun(model, class, name), do: Enum.find(mod(model, class).funs, &(&1.name == name))
-
   test "one module per class, module functions in the namespace", %{model: model} do
     assert mod(model, "ActorType").module == PoserTest.GenApi.ActorType
     assert model.functions.module == PoserTest.GenApi
@@ -119,4 +116,8 @@ defmodule ExPoser.Gen.ModelTest do
     assert model.manifest["entries"]["GeomType.Vertices"]["returns"] == "VertexType List"
     assert "VertexType" in Map.keys(model.manifest["classes"])
   end
+
+  defp fun(model, class, name), do: Enum.find(mod(model, class).funs, &(&1.name == name))
+
+  defp mod(model, class), do: Enum.find(model.modules, &(&1.py_class == class))
 end

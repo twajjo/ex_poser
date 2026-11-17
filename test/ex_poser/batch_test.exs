@@ -25,29 +25,6 @@ defmodule ExPoser.BatchTest do
     {:invoke, {:result, 2}, "InternalParameter", ["xtran"]}
   ]
 
-  defp connect(_ctx) do
-    server = start_standalone()
-    %{c: start_client(server.session)}
-  end
-
-  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
-
-  defp frame(c) do
-    {:ok, [scene, f]} = Client.batch([@scene, {:invoke, {:result, 0}, "Frame", []}], server: c)
-    {:ok, _} = Client.release([scene], server: c)
-    f
-  end
-
-  defp set_frame(c, n) do
-    {:ok, [scene, nil]} =
-      Client.batch([@scene, {:invoke, {:result, 0}, "SetFrame", [n]}], server: c)
-
-    {:ok, _} = Client.release([scene], server: c)
-  end
-
-  defp value(c, parm, frame),
-    do: ExPoser.batch(&Batch.get(&1, parm, frame: frame), server: c)
-
   describe "compile/2" do
     test "shared lookups" do
       b = Enum.reduce(1..100, Batch.new(), &Batch.set(&2, @p, &1))
@@ -413,4 +390,27 @@ defmodule ExPoser.BatchTest do
     assert {:ok, [+0.0]} = ExPoser.batch(&Batch.get(&1, @p), server: c)
     assert_no_handles(c)
   end
+
+  defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
+
+  defp connect(_ctx) do
+    server = start_standalone()
+    %{c: start_client(server.session)}
+  end
+
+  defp frame(c) do
+    {:ok, [scene, f]} = Client.batch([@scene, {:invoke, {:result, 0}, "Frame", []}], server: c)
+    {:ok, _} = Client.release([scene], server: c)
+    f
+  end
+
+  defp set_frame(c, n) do
+    {:ok, [scene, nil]} =
+      Client.batch([@scene, {:invoke, {:result, 0}, "SetFrame", [n]}], server: c)
+
+    {:ok, _} = Client.release([scene], server: c)
+  end
+
+  defp value(c, parm, frame),
+    do: ExPoser.batch(&Batch.get(&1, parm, frame: frame), server: c)
 end
