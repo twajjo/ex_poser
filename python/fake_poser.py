@@ -8,6 +8,8 @@ import sys
 import time
 import types
 
+import fake_materials
+
 NUM_FRAMES = 30
 
 
@@ -119,8 +121,9 @@ class GeomType(object):
         self._positions = positions
 
 
-class ActorType(object):
+class ActorType(fake_materials.MaterialHolder):
     def __init__(self, name, internal=None, scene_frame=lambda: 0, body_part=True, kind=None):
+        self._materials = []
         self._name = name
         self.kind = kind
         self._scene = None
@@ -335,8 +338,9 @@ class CameraActor(ActorType):
 CameraActor.__name__ = "ActorType"  # as for LightActor
 
 
-class FigureType(object):
+class FigureType(fake_materials.MaterialHolder):
     def __init__(self, name, actors, internal=None):
+        self._materials = []
         self._name, self._actors = name, actors
         self._internal = name.lower() if internal is None else internal
 
@@ -373,6 +377,12 @@ class SceneType(object):
                    CameraActor("Aux Camera", "AUX_CAMERA", frame)]
         self._actors = actors + head + [ball] + lights + cameras
         self._current_camera = cameras[0]
+        skin, hair = fake_materials.seed_figure_materials()
+        self._figures[0]._materials = [skin, hair]
+        actors[0]._materials = [skin]
+        ball._materials = [fake_materials.seed_prop_material()]
+        self._atmosphere = fake_materials.seed_atmosphere_tree()
+        self._background = fake_materials.seed_background_tree()
         for a in self._actors:
             a._scene = self
 
@@ -442,6 +452,12 @@ class SceneType(object):
         self._actors.append(light)
         return light
 
+    def AtmosphereShaderTree(self):
+        return self._atmosphere
+
+    def BackgroundShaderTree(self):
+        return self._background
+
     def _remove(self, actor):
         self._actors.remove(actor)
 
@@ -485,6 +501,18 @@ def install():
         SceneType, FigureType, ActorType, ParmType, GeomType)
     mod.VertexType, mod.ImageType, mod.LinkType = VertexType, ImageType, LinkType
     mod.LightActor, mod.CameraActor = LightActor, CameraActor
+    mod.MaterialType, mod.MaterialLayerType = (
+        fake_materials.MaterialType, fake_materials.MaterialLayerType)
+    mod.ShaderTreeType, mod.ShaderNodeType = (
+        fake_materials.ShaderTreeType, fake_materials.ShaderNodeType)
+    mod.ShaderNodeInputType, mod.ShaderNodeOutputType = (
+        fake_materials.ShaderNodeInputType, fake_materials.ShaderNodeOutputType)
+    mod.kRenderEngineCodePREVIEW, mod.kRenderEngineCodeFIREFLY = 0, 1
+    mod.kRenderEngineCodePOSER4, mod.kRenderEngineCodeSKETCH = 2, 3
+    mod.kRenderEngineCodeSUPERFLY = 4
+    for _name in dir(fake_materials):
+        if _name.startswith("kNodeInputCode"):
+            setattr(mod, _name, getattr(fake_materials, _name))
     mod.kParmCodeXTRAN = 1
     mod.kParmCodeFOCAL = 12
     sys.modules["poser"] = mod
