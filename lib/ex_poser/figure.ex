@@ -32,7 +32,7 @@ defmodule ExPoser.Figure do
 
   @type t :: %__MODULE__{internal: String.t(), name: String.t()}
 
-  alias ExPoser.{Actor, Batch, Error, Parameter, Ref}
+  alias ExPoser.{Actor, Batch, Error, Material, Parameter, Ref}
 
   @doc group: "Lookup"
   @doc """
@@ -134,6 +134,56 @@ defmodule ExPoser.Figure do
   """
   @spec handle!(t(), keyword()) :: ExPoser.Handle.t()
   def handle!(f, opts \\ []), do: f |> handle(opts) |> Ref.unwrap!()
+
+  @doc group: "Materials"
+  @doc """
+  Finds one of the figure's materials by display name. A name Poser doesn't
+  have gives `:not_found`. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      ExPoser.Figure.material(figure, "Skin")
+      #=> {:ok, #ExPoser.Material<Skin>}
+  """
+  @spec material(t(), String.t(), keyword()) :: {:ok, Material.t()} | {:error, Error.t()}
+  def material(%__MODULE__{} = f, name, opts \\ []) when is_binary(name),
+    do: Material.find(%Material{owner: f, name: name}, run_opts(opts))
+
+  @doc group: "Materials"
+  @doc """
+  Like `material/3`, but returns the struct and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.Figure.material!(figure, "Skin")
+      #=> #ExPoser.Material<Skin>
+  """
+  @spec material!(t(), String.t(), keyword()) :: Material.t()
+  def material!(f, name, opts \\ []), do: f |> material(name, opts) |> Ref.unwrap!()
+
+  @doc group: "Materials"
+  @doc """
+  Lists the figure's materials, in Poser's order. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      ExPoser.Figure.materials(figure)
+      #=> {:ok, [#ExPoser.Material<Skin>, #ExPoser.Material<Hair>]}
+  """
+  @spec materials(t(), keyword()) :: {:ok, [Material.t()]} | {:error, Error.t()}
+  def materials(%__MODULE__{} = f, opts \\ []), do: Material.list(f, run_opts(opts))
+
+  @doc group: "Materials"
+  @doc """
+  Like `materials/2`, but returns the list and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.Figure.materials!(figure)
+      #=> [#ExPoser.Material<Skin>, #ExPoser.Material<Hair>]
+  """
+  @spec materials!(t(), keyword()) :: [Material.t()]
+  def materials!(f, opts \\ []), do: f |> materials(opts) |> Ref.unwrap!()
 
   @doc group: "Lookup"
   @doc """

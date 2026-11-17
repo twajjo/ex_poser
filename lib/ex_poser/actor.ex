@@ -41,7 +41,7 @@ defmodule ExPoser.Actor do
           name: String.t()
         }
 
-  alias ExPoser.{Batch, Error, Parameter, Ref}
+  alias ExPoser.{Batch, Error, Material, Parameter, Ref}
 
   @typedoc "A dial value as Poser reports it; NaN and infinities arrive as atoms."
   @type value :: float() | :nan | :infinity | :neg_infinity
@@ -114,6 +114,56 @@ defmodule ExPoser.Actor do
   """
   @spec handle!(t(), keyword()) :: ExPoser.Handle.t()
   def handle!(a, opts \\ []), do: a |> handle(opts) |> Ref.unwrap!()
+
+  @doc group: "Materials"
+  @doc """
+  Finds one of the actor's materials by display name. A name Poser doesn't
+  have gives `:not_found`. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      ExPoser.Actor.material(actor, "Skin")
+      #=> {:ok, #ExPoser.Material<Skin>}
+  """
+  @spec material(t(), String.t(), keyword()) :: {:ok, Material.t()} | {:error, Error.t()}
+  def material(%__MODULE__{} = a, name, opts \\ []) when is_binary(name),
+    do: Material.find(%Material{owner: a, name: name}, run_opts(opts))
+
+  @doc group: "Materials"
+  @doc """
+  Like `material/3`, but returns the struct and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.Actor.material!(actor, "Skin")
+      #=> #ExPoser.Material<Skin>
+  """
+  @spec material!(t(), String.t(), keyword()) :: Material.t()
+  def material!(a, name, opts \\ []), do: a |> material(name, opts) |> Ref.unwrap!()
+
+  @doc group: "Materials"
+  @doc """
+  Lists the actor's materials, in Poser's order. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      ExPoser.Actor.materials(actor)
+      #=> {:ok, [#ExPoser.Material<Skin>, #ExPoser.Material<Hair>]}
+  """
+  @spec materials(t(), keyword()) :: {:ok, [Material.t()]} | {:error, Error.t()}
+  def materials(%__MODULE__{} = a, opts \\ []), do: Material.list(a, run_opts(opts))
+
+  @doc group: "Materials"
+  @doc """
+  Like `materials/2`, but returns the list and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.Actor.materials!(actor)
+      #=> [#ExPoser.Material<Skin>, #ExPoser.Material<Hair>]
+  """
+  @spec materials!(t(), keyword()) :: [Material.t()]
+  def materials!(a, opts \\ []), do: a |> materials(opts) |> Ref.unwrap!()
 
   @doc group: "Parameters"
   @doc """

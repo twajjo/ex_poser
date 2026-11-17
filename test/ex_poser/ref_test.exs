@@ -128,6 +128,14 @@ defmodule ExPoser.RefChildrenManyTest do
     assert_no_handles(c)
   end
 
+  test "list/4 reads exactly the given methods", %{c: c} do
+    [fig1, _] = Scene.figures!(server: c)
+    assert {:ok, [rows]} = Ref.list([fig1], "Materials", ["Name"], server: c)
+    assert rows == [%{"Name" => "Skin"}, %{"Name" => "Hair"}]
+    assert {:ok, []} = Ref.list([], "Materials", ["Name"], server: c)
+    assert_no_handles(c)
+  end
+
   test "children/4 still returns one flat list", %{c: c, light1: l1} do
     assert {:ok, rows} = Ref.children(l1, "Parameters", ["Value"], server: c)
     assert length(rows) == 5

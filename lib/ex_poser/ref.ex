@@ -69,24 +69,8 @@ defmodule ExPoser.Ref do
   # no request.
   @spec children_many([ref()], String.t(), [String.t()], keyword()) ::
           {:ok, [[%{String.t() => term()}]]} | {:error, ExPoser.Error.t()}
-  def children_many([], _list_method, _extra, _opts), do: {:ok, []}
-
-  def children_many(parents, list_method, extra, opts) do
-    methods = ["InternalName", "Name" | extra]
-
-    batch =
-      Enum.reduce(parents, ExPoser.Batch.new(), &ExPoser.Batch.call(&2, &1, list_method, []))
-
-    with {:ok, handle_lists} <- ExPoser.Batch.run(batch, opts) do
-      try do
-        with {:ok, rows} <- read_children(Enum.concat(handle_lists), methods, opts) do
-          {:ok, regroup(rows, Enum.map(handle_lists, &length/1))}
-        end
-      after
-        release_in(handle_lists, opts)
-      end
-    end
-  end
+  def children_many(parents, list_method, extra, opts),
+    do: list(parents, list_method, ["InternalName", "Name" | extra], opts)
 
   @doc false
   # The handle of `ref`, which `parent` hands out with `method(args)`. The first
@@ -129,6 +113,30 @@ defmodule ExPoser.Ref do
 
         rows ->
           {:error, %ExPoser.Error{kind: :ambiguous, details: %{matches: Enum.map(rows, build)}}}
+      end
+    end
+  end
+
+  @doc false
+  # Like `children_many/4` with the full `methods` list given: for children that
+  # have no `InternalName`, such as materials and layers. Two requests: one lists
+  # every parent's children, one reads `methods` on every child. No parents, no
+  # request.
+  @spec list([ref()], String.t(), [String.t()], keyword()) ::
+          {:ok, [[%{String.t() => term()}]]} | {:error, ExPoser.Error.t()}
+  def list([], _list_method, _methods, _opts), do: {:ok, []}
+
+  def list(parents, list_method, methods, opts) do
+    batch =
+      Enum.reduce(parents, ExPoser.Batch.new(), &ExPoser.Batch.call(&2, &1, list_method, []))
+
+    with {:ok, handle_lists} <- ExPoser.Batch.run(batch, opts) do
+      try do
+        with {:ok, rows} <- read_children(Enum.concat(handle_lists), methods, opts) do
+          {:ok, regroup(rows, Enum.map(handle_lists, &length/1))}
+        end
+      after
+        release_in(handle_lists, opts)
       end
     end
   end
