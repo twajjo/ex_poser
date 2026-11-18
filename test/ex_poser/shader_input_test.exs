@@ -88,6 +88,38 @@ defmodule ExPoser.ShaderInputTest do
     assert_no_handles(c)
   end
 
+  test "unlink, then link by node or by output, restores the source", %{c: c, tree: tree} do
+    diffuse = input(c, tree, "PoserSurface", "Diffuse_Color")
+    img = ShaderTree.node!(tree, "Image_Map", server: c)
+    before = previews(c, tree)
+
+    assert {:ok, %ExPoser.ShaderOutput{internal: "Color", node: %{internal: "Image_Map"}} = out} =
+             ShaderInput.source(diffuse, server: c)
+
+    assert out.node.tree == tree
+    assert ShaderInput.unlink(diffuse, server: c) == {:ok, :ok}
+    assert ShaderInput.source(diffuse, server: c) == {:ok, nil}
+    assert previews(c, tree) == before + 1
+
+    assert ShaderInput.link(diffuse, img, server: c) == {:ok, :ok}
+    assert {:ok, %{internal: "Color"}} = ShaderInput.source(diffuse, server: c)
+    assert previews(c, tree) == before + 2
+
+    assert ShaderInput.unlink!(diffuse, server: c) == :ok
+    assert ShaderInput.link!(diffuse, out, server: c) == :ok
+    assert ShaderInput.source!(diffuse, server: c).internal == "Color"
+    assert previews(c, tree) == before + 4
+    assert_no_handles(c)
+  end
+
+  test "source takes two requests and their releases", %{c: c, tree: tree} do
+    diffuse = input(c, tree, "PoserSurface", "Diffuse_Color")
+    before = Client.request_count(server: c)
+    assert {:ok, %{internal: "Color"}} = ShaderInput.source(diffuse, server: c)
+    assert Client.request_count(server: c) == before + 4
+    assert_no_handles(c)
+  end
+
   defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
 
   defp input(c, tree, node, internal) do

@@ -14,7 +14,7 @@ defmodule ExPoser.ShaderInput do
       "#ExPoser.ShaderInput<Color>"
   """
 
-  alias ExPoser.{Batch, Error, Ref, ShaderNode}
+  alias ExPoser.{Batch, Error, Handle, Ref, ShaderNode, ShaderOutput}
 
   @enforce_keys [:node, :internal]
   defstruct [:node, :internal, :name]
@@ -88,6 +88,36 @@ defmodule ExPoser.ShaderInput do
   @spec handle!(t(), keyword()) :: ExPoser.Handle.t()
   def handle!(input, opts \\ []), do: input |> handle(opts) |> Ref.unwrap!()
 
+  @doc group: "Links"
+  @doc """
+  Connects `from` to the input: a `%ExPoser.ShaderOutput{}`, or a
+  `%ExPoser.ShaderNode{}` (its first output). Poser refreshes the tree's
+  preview afterwards. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      ExPoser.ShaderInput.link(diffuse_color, image_node)
+      #=> {:ok, :ok}
+  """
+  @spec link(t(), ShaderOutput.t() | ShaderNode.t(), keyword()) ::
+          {:ok, :ok} | {:error, Error.t()}
+  def link(%__MODULE__{} = input, from, opts \\ []) do
+    batch = Batch.link(Batch.new(), from, input)
+    with {:ok, _} <- Batch.run(batch, run_opts(opts)), do: {:ok, :ok}
+  end
+
+  @doc group: "Links"
+  @doc """
+  Like `link/3`, but returns `:ok` and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.ShaderInput.link!(diffuse_color, image_node)
+      #=> :ok
+  """
+  @spec link!(t(), ShaderOutput.t() | ShaderNode.t(), keyword()) :: :ok
+  def link!(input, from, opts \\ []), do: input |> link(from, opts) |> Ref.unwrap!()
+
   @doc group: "Values"
   @doc """
   Sets the input's value, chosen by its shape: a string, a `{r, g, b}` tuple
@@ -138,6 +168,46 @@ defmodule ExPoser.ShaderInput do
             "got #{inspect(value)}"
   end
 
+  @doc group: "Links"
+  @doc """
+  The output feeding the input, or `nil` when nothing does. The output's node
+  is in the input's tree. Takes two data requests, plus the handle releases. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      ExPoser.ShaderInput.source(diffuse_color)
+      #=> {:ok, #ExPoser.ShaderOutput<Color>}
+  """
+  @spec source(t(), keyword()) :: {:ok, ShaderOutput.t() | nil} | {:error, Error.t()}
+  def source(%__MODULE__{node: %{tree: tree}} = input, opts \\ []) do
+    opts = run_opts(opts)
+    batch = Batch.new() |> Batch.call(input, "InNode") |> Batch.call(input, "InOutput")
+
+    with {:ok, [node_handle, output_handle]} <- Batch.run(batch, opts) do
+      case {node_handle, output_handle} do
+        {%Handle{}, %Handle{}} ->
+          read_output(tree, node_handle, output_handle, opts)
+
+        _ ->
+          Ref.release_in([node_handle, output_handle], opts)
+          {:ok, nil}
+      end
+    end
+  end
+
+  @doc group: "Links"
+  @doc """
+  Like `source/2`, but returns the output (or `nil`) and raises
+  `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.ShaderInput.source!(diffuse_color)
+      #=> #ExPoser.ShaderOutput<Color>
+  """
+  @spec source!(t(), keyword()) :: ShaderOutput.t() | nil
+  def source!(input, opts \\ []), do: input |> source(opts) |> Ref.unwrap!()
+
   @doc group: "Values"
   @doc """
   The input's type as an atom: `:none`, `:float`, `:color`, `:vector`,
@@ -166,6 +236,44 @@ defmodule ExPoser.ShaderInput do
   """
   @spec type!(t(), keyword()) :: atom() | integer()
   def type!(input, opts \\ []), do: input |> type(opts) |> Ref.unwrap!()
+
+  @doc group: "Links"
+  @doc """
+  Disconnects whatever feeds the input. Poser refreshes the tree's preview
+  afterwards. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      ExPoser.ShaderInput.unlink(diffuse_color)
+      #=> {:ok, :ok}
+  """
+  @spec unlink(t(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
+  def unlink(%__MODULE__{} = input, opts \\ []) do
+    batch = Batch.unlink(Batch.new(), input)
+    with {:ok, _} <- Batch.run(batch, run_opts(opts)), do: {:ok, :ok}
+  end
+
+  @doc group: "Links"
+  @doc """
+  Like `unlink/2`, but returns `:ok` and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.ShaderInput.unlink!(diffuse_color)
+      #=> :ok
+  """
+  @spec unlink!(t(), keyword()) :: :ok
+  def unlink!(input, opts \\ []), do: input |> unlink(opts) |> Ref.unwrap!()
+
+  defp read_output(tree, node_handle, output_handle, opts) do
+    result = Ref.read_children([node_handle, output_handle], ["InternalName", "Name"], opts)
+    Ref.release_in([node_handle, output_handle], opts)
+
+    with {:ok, [node_row, row]} <- result do
+      node = %ShaderNode{tree: tree, internal: node_row["InternalName"], name: node_row["Name"]}
+      {:ok, %ShaderOutput{node: node, internal: row["InternalName"], name: row["Name"]}}
+    end
+  end
 
   defp run_opts(opts), do: Keyword.validate!(opts, [:server, :timeout])
 
