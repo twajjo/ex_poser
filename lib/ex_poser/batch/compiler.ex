@@ -8,7 +8,7 @@ defmodule ExPoser.Batch.Compiler do
   # after the first, the original frame is the placeholder `:original_frame`,
   # which ExPoser.Batch.run/2 substitutes.
 
-  alias ExPoser.Ref
+  alias ExPoser.{Ref, ShaderNode}
 
   @scene {:call, "Scene", []}
   @read_frame {:invoke, {:result, 0}, "Frame", []}
@@ -85,6 +85,18 @@ defmodule ExPoser.Batch.Compiler do
   defp finish(%{cur: cur, done: done} = st),
     do: finish(%{st | cur: nil, done: [close(cur) | done]})
 
+  # After a node's Delete is placed, its memoized lookups (the node, its inputs and
+  # outputs) are stale. Dropping them makes a later op that names the node look it up
+  # again, and get whatever Poser says. A plain `Batch.call(node, "Delete")` is caught here
+  # on purpose too.
+  defp forget(chunk, %{ref: %ShaderNode{} = node, method: "Delete"}) do
+    path = Ref.path(node)
+    memo = Map.reject(chunk.memo, fn {key, _} -> List.starts_with?(key, path) end)
+    %{chunk | memo: memo}
+  end
+
+  defp forget(chunk, _op), do: chunk
+
   # Path prefixes not yet looked up in `chunk`, for the op's target and its
   # struct arguments, each prefix once.
   defp missing(chunk, op) do
@@ -145,7 +157,7 @@ defmodule ExPoser.Batch.Compiler do
     path = Ref.path(op.ref)
     args = Enum.map(op.args, &resolve_arg(&1, chunk))
     wire = {:invoke, {:result, chunk.memo[path]}, op.method, args}
-    chunk = emit(chunk, wire, {:caller, k})
+    chunk = chunk |> emit(wire, {:caller, k}) |> forget(op)
 
     chunk =
       if last? and st.moved, do: emit(chunk, set_frame(chunk, :orig), {:frame, k}), else: chunk

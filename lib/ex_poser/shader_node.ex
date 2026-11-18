@@ -31,6 +31,36 @@ defmodule ExPoser.ShaderNode do
 
   @doc group: "Properties"
   @doc """
+  Deletes the node from its tree, in one batch. Options: `:server`, `:timeout`.
+  Poser refreshes the tree's preview.
+
+  ## Examples
+
+      ExPoser.ShaderNode.delete(node)
+      #=> {:ok, :ok}
+  """
+  @spec delete(t(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
+  def delete(%__MODULE__{} = node, opts \\ []) do
+    opts = run_opts(opts)
+
+    batch = Batch.delete_node(Batch.new(), node)
+    with {:ok, _} <- Batch.run(batch, opts), do: {:ok, :ok}
+  end
+
+  @doc group: "Properties"
+  @doc """
+  Like `delete/2`, but returns `:ok` and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.ShaderNode.delete!(node)
+      #=> :ok
+  """
+  @spec delete!(t(), keyword()) :: :ok
+  def delete!(%__MODULE__{} = node, opts \\ []), do: node |> delete(opts) |> Ref.unwrap!()
+
+  @doc group: "Properties"
+  @doc """
   Reads one property (`:name`, `:type`, `:location` or `:root`) or several (a
   list of them, which gives a map from each key to its value), in one batch.
   `:location` is an `{x, y}` tuple; the others are as Poser gives them.

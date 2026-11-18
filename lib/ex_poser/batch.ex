@@ -134,6 +134,22 @@ defmodule ExPoser.Batch do
     push(b, parm, "DeleteKeyFrame", [frame], nil, :ok)
   end
 
+  @doc group: "Materials"
+  @doc """
+  Deletes a shader node from its tree. Its result is `:ok`. The tree changes, so
+  Poser refreshes its preview once per request chunk. Ops run strictly in order:
+  a later op in the batch that names the deleted node, or one of its inputs or
+  outputs, looks it up again and gets whatever Poser answers (normally
+  `:not_found`), while the delete stays applied.
+
+  ## Examples
+
+      ExPoser.Batch.new() |> ExPoser.Batch.delete_node(image_node)
+  """
+  @spec delete_node(t(), ShaderNode.t()) :: t()
+  def delete_node(b, %ShaderNode{tree: tree} = node),
+    do: push(b, node, "Delete", [], nil, :ok, tree)
+
   @doc group: "Building"
   @doc """
   Reads a parameter's value. Its result is the float value.
