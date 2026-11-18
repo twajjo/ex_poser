@@ -237,6 +237,32 @@ defmodule ExPoser.Ref do
   @spec path_string(ref()) :: String.t()
   def path_string(ref), do: ref |> path() |> Enum.map_join("/", &elem(&1, 1))
 
+  @doc false
+  # Reads each of `methods` on every handle, in one request, and releases the
+  # handles the reads return. The caller still owns `handles`. One row per handle.
+  @spec read_children([ExPoser.Handle.t()], [String.t()], keyword()) ::
+          {:ok, [%{String.t() => term()}]} | {:error, ExPoser.Error.t()}
+  def read_children([], _methods, _opts), do: {:ok, []}
+
+  def read_children(handles, methods, opts) do
+    ops = for h <- handles, m <- methods, do: {:invoke, h, m, []}
+
+    case ExPoser.Client.batch(ops, Keyword.take(opts, [:server, :timeout])) do
+      {:ok, results} ->
+        release_in(results, opts)
+
+        {:ok,
+         results |> Enum.chunk_every(length(methods)) |> Enum.map(&Map.new(Enum.zip(methods, &1)))}
+
+      {:error, %ExPoser.Error{kind: :batch_failed, details: %{partial: partial}} = error} ->
+        release_in(partial, opts)
+        {:error, error}
+
+      {:error, _} = error ->
+        error
+    end
+  end
+
   @doc "True for the structs that name a Poser object: figure, actor, light, camera, parameter, material, layer, shader tree, node, input and output."
   @spec ref?(term()) :: boolean()
   def ref?(%Figure{}), do: true
@@ -269,27 +295,6 @@ defmodule ExPoser.Ref do
 
   # The default `keep`: every row counts.
   defp keep_all(_row), do: true
-
-  defp read_children([], _methods, _opts), do: {:ok, []}
-
-  defp read_children(handles, methods, opts) do
-    ops = for h <- handles, m <- methods, do: {:invoke, h, m, []}
-
-    case ExPoser.Client.batch(ops, Keyword.take(opts, [:server, :timeout])) do
-      {:ok, results} ->
-        release_in(results, opts)
-
-        {:ok,
-         results |> Enum.chunk_every(length(methods)) |> Enum.map(&Map.new(Enum.zip(methods, &1)))}
-
-      {:error, %ExPoser.Error{kind: :batch_failed, details: %{partial: partial}} = error} ->
-        release_in(partial, opts)
-        {:error, error}
-
-      {:error, _} = error ->
-        error
-    end
-  end
 
   defp regroup(rows, sizes) do
     {groups, []} =

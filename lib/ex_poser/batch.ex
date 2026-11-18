@@ -31,7 +31,19 @@ defmodule ExPoser.Batch do
   [Frames and keyframes](frames-and-keyframes.md) for `frame:`.
   """
 
-  alias ExPoser.{Client, Codec, Error, Material, Parameter, Ref, ShaderInput, ShaderNode}
+  alias ExPoser.{
+    Client,
+    Codec,
+    Error,
+    Material,
+    Parameter,
+    Ref,
+    ShaderInput,
+    ShaderNode,
+    ShaderOutput,
+    ShaderTree
+  }
+
   alias ExPoser.Batch.Compiler
 
   @default_chunk 2000
@@ -136,6 +148,21 @@ defmodule ExPoser.Batch do
   def get(b, %Parameter{} = parm, opts \\ []) do
     push(b, parm, "Value", [], frame_opt(opts), :value)
   end
+
+  @doc group: "Materials"
+  @doc """
+  Connects `from`, a shader output or a shader node (its first output), to
+  `input`. Its result is `:ok`. The input's tree changes, so Poser refreshes
+  its preview once per request chunk.
+
+  ## Examples
+
+      ExPoser.Batch.new() |> ExPoser.Batch.link(image_node, diffuse_color)
+  """
+  @spec link(t(), ShaderOutput.t() | ShaderNode.t(), ShaderInput.t()) :: t()
+  def link(b, %type{} = from, %ShaderInput{node: %{tree: tree}} = input)
+      when type in [ShaderOutput, ShaderNode],
+      do: push(b, from, "ConnectToInput", [input], nil, :ok, tree)
 
   @doc group: "Building"
   @doc """
@@ -289,6 +316,30 @@ defmodule ExPoser.Batch do
     push(b, node, method, args, nil, :ok)
   end
 
+  @doc group: "Materials"
+  @doc """
+  Makes `node` the root of its tree for `renderer`: `:preview`, `:firefly`,
+  `:poser4`, `:sketch`, `:superfly` or an integer code. Its result is `:ok`.
+  An unknown atom raises `ArgumentError` now. The tree changes, so Poser
+  refreshes its preview once per request chunk.
+
+  ## Examples
+
+      ExPoser.Batch.new() |> ExPoser.Batch.set_root(image_node, :superfly)
+  """
+  @spec set_root(t(), ShaderNode.t(), atom() | integer()) :: t()
+  def set_root(b, %ShaderNode{tree: tree} = node, renderer) do
+    push(
+      b,
+      tree,
+      "SetRendererRootNode",
+      [node, ShaderTree.renderer_code!(renderer)],
+      nil,
+      :ok,
+      tree
+    )
+  end
+
   @doc group: "Building"
   @doc """
   The number of ops the caller added.
@@ -303,6 +354,19 @@ defmodule ExPoser.Batch do
   """
   @spec size(t()) :: non_neg_integer()
   def size(%__MODULE__{size: size}), do: size
+
+  @doc group: "Materials"
+  @doc """
+  Disconnects whatever feeds `input`. Its result is `:ok`. The input's tree
+  changes, so Poser refreshes its preview once per request chunk.
+
+  ## Examples
+
+      ExPoser.Batch.new() |> ExPoser.Batch.unlink(diffuse_color)
+  """
+  @spec unlink(t(), ShaderInput.t()) :: t()
+  def unlink(b, %ShaderInput{node: %{tree: tree}} = input),
+    do: push(b, input, "Disconnect", [], nil, :ok, tree)
 
   # Caller results of chunks that already ran; the caller never receives them.
   defp acc_handles(st), do: st.acc |> Enum.concat() |> Codec.handles_in()

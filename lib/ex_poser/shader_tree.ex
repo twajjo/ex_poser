@@ -16,13 +16,16 @@ defmodule ExPoser.ShaderTree do
       [{:actor, "ball"}, {:material, "Preview"}, {:tree, :main}]
   """
 
-  alias ExPoser.{Error, Material, MaterialLayer, Ref, ShaderNode}
+  alias ExPoser.{Batch, Error, Material, MaterialLayer, Ref, ShaderNode}
 
   @enforce_keys [:owner]
   defstruct [:owner]
 
   @type owner :: Material.t() | MaterialLayer.t() | :atmosphere | :background
   @type t :: %__MODULE__{owner: owner()}
+
+  # kRenderEngineCode*
+  @renderers %{preview: 0, firefly: 1, poser4: 2, sketch: 3, superfly: 4}
 
   @doc group: "Escape hatch"
   @doc """
@@ -110,12 +113,107 @@ defmodule ExPoser.ShaderTree do
   @spec nodes!(t(), keyword()) :: [ShaderNode.t()]
   def nodes!(tree, opts \\ []), do: tree |> nodes(opts) |> Ref.unwrap!()
 
+  @doc false
+  # A renderer atom's code; an integer passes through; anything else raises.
+  @spec renderer_code!(atom() | integer()) :: integer()
+  def renderer_code!(code) when is_integer(code), do: code
+
+  def renderer_code!(renderer) when is_atom(renderer) do
+    case @renderers do
+      %{^renderer => code} ->
+        code
+
+      _ ->
+        raise ArgumentError,
+              "a renderer is one of #{inspect(Map.keys(@renderers))} or an integer, " <>
+                "got #{inspect(renderer)}"
+    end
+  end
+
+  def renderer_code!(other),
+    do: raise(ArgumentError, "a renderer is an atom or an integer, got #{inspect(other)}")
+
+  @doc group: "Roots"
+  @doc """
+  The node that is the tree's root for `renderer`, or `nil` when it has none.
+  A renderer is `:preview`, `:firefly`, `:poser4`, `:sketch`, `:superfly` or
+  an integer code; an unknown atom raises `ArgumentError` before any request.
+  Takes two data requests, plus the handle releases. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      ExPoser.ShaderTree.root(tree, :firefly)
+      #=> {:ok, #ExPoser.ShaderNode<PoserSurface>}
+  """
+  @spec root(t(), atom() | integer(), keyword()) ::
+          {:ok, ShaderNode.t() | nil} | {:error, Error.t()}
+  def root(%__MODULE__{} = tree, renderer, opts \\ []) do
+    code = renderer_code!(renderer)
+    opts = run_opts(opts)
+
+    with {:ok, [handle]} <-
+           Batch.new() |> Batch.call(tree, "RendererRootNode", [code]) |> Batch.run(opts) do
+      read_node(tree, handle, opts)
+    end
+  end
+
+  @doc group: "Roots"
+  @doc """
+  Like `root/3`, but returns the node (or `nil`) and raises `ExPoser.Error` on
+  failure.
+
+  ## Examples
+
+      ExPoser.ShaderTree.root!(tree, :superfly)
+      #=> nil
+  """
+  @spec root!(t(), atom() | integer(), keyword()) :: ShaderNode.t() | nil
+  def root!(tree, renderer, opts \\ []), do: tree |> root(renderer, opts) |> Ref.unwrap!()
+
+  @doc group: "Roots"
+  @doc """
+  Makes `node` the root of its tree for `renderer` (see `root/3`). Poser
+  refreshes the tree's preview afterwards. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      ExPoser.ShaderTree.set_root(image_node, :superfly)
+      #=> {:ok, :ok}
+  """
+  @spec set_root(ShaderNode.t(), atom() | integer(), keyword()) ::
+          {:ok, :ok} | {:error, Error.t()}
+  def set_root(%ShaderNode{} = node, renderer, opts \\ []) do
+    batch = Batch.set_root(Batch.new(), node, renderer)
+    with {:ok, _} <- Batch.run(batch, run_opts(opts)), do: {:ok, :ok}
+  end
+
+  @doc group: "Roots"
+  @doc """
+  Like `set_root/3`, but returns `:ok` and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.ShaderTree.set_root!(image_node, :superfly)
+      #=> :ok
+  """
+  @spec set_root!(ShaderNode.t(), atom() | integer(), keyword()) :: :ok
+  def set_root!(node, renderer, opts \\ []), do: node |> set_root(renderer, opts) |> Ref.unwrap!()
+
   defp build(tree, row),
     do: %ShaderNode{tree: tree, internal: row["InternalName"], name: row["Name"]}
 
   defp parent_of(:atmosphere), do: {:scene, "AtmosphereShaderTree"}
   defp parent_of(:background), do: {:scene, "BackgroundShaderTree"}
   defp parent_of(owner), do: {owner, "ShaderTree"}
+
+  defp read_node(_tree, nil, _opts), do: {:ok, nil}
+
+  defp read_node(tree, handle, opts) do
+    result = Ref.read_children([handle], ["InternalName", "Name"], opts)
+    Ref.release_in(handle, opts)
+
+    with {:ok, [row]} <- result, do: {:ok, build(tree, row)}
+  end
 
   defp run_opts(opts), do: Keyword.validate!(opts, [:server, :timeout])
 
