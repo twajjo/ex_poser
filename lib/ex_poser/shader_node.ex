@@ -13,13 +13,71 @@ defmodule ExPoser.ShaderNode do
       "#ExPoser.ShaderNode<Image_Map>"
   """
 
-  alias ExPoser.{Error, Ref, ShaderInput, ShaderOutput, ShaderTree}
+  alias ExPoser.{Batch, Error, Ref, ShaderInput, ShaderOutput, ShaderTree}
 
   @enforce_keys [:tree, :internal]
   defstruct [:tree, :internal, :name]
 
   @type internal :: String.t() | {:created, non_neg_integer()}
   @type t :: %__MODULE__{tree: ShaderTree.t(), internal: internal(), name: String.t() | nil}
+
+  # key => {getter, setter}
+  @props %{
+    location: {"Location", "SetLocation"},
+    name: {"Name", "SetName"},
+    root: {"IsRoot", nil},
+    type: {"Type", nil}
+  }
+
+  @doc group: "Properties"
+  @doc """
+  Reads one property (`:name`, `:type`, `:location` or `:root`) or several (a
+  list of them, which gives a map from each key to its value), in one batch.
+  `:location` is an `{x, y}` tuple; the others are as Poser gives them.
+  Options: `:server`, `:timeout`. An unknown key or option raises
+  `ArgumentError` before any request.
+
+  ## Examples
+
+      ExPoser.ShaderNode.get(node, :location)
+      #=> {:ok, {120, 40}}
+      ExPoser.ShaderNode.get(node, [:type, :root])
+      #=> {:ok, %{type: "image_map", root: 0}}
+  """
+  @spec get(t(), atom() | [atom()], keyword()) :: {:ok, term()} | {:error, Error.t()}
+  def get(node, key_or_keys, opts \\ [])
+
+  def get(%__MODULE__{} = node, keys, opts) when is_list(keys) do
+    Enum.each(keys, &fetch_prop!/1)
+    opts = run_opts(opts)
+
+    batch =
+      Enum.reduce(keys, Batch.new(), fn key, b ->
+        {getter, _setter} = fetch_prop!(key)
+        Batch.call(b, node, getter)
+      end)
+
+    with {:ok, results} <- Batch.run(batch, opts) do
+      {:ok,
+       keys |> Enum.zip(results) |> Map.new(fn {key, value} -> {key, decode(key, value)} end)}
+    end
+  end
+
+  def get(%__MODULE__{} = node, key, opts) do
+    with {:ok, map} <- get(node, [key], opts), do: {:ok, Map.fetch!(map, key)}
+  end
+
+  @doc group: "Properties"
+  @doc """
+  Like `get/3`, but returns the value and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.ShaderNode.get!(node, :name)
+      #=> "Image_Map"
+  """
+  @spec get!(t(), atom() | [atom()], keyword()) :: term()
+  def get!(node, key_or_keys, opts \\ []), do: node |> get(key_or_keys, opts) |> Ref.unwrap!()
 
   @doc group: "Escape hatch"
   @doc """
@@ -141,6 +199,141 @@ defmodule ExPoser.ShaderNode do
   """
   @spec outputs!(t(), keyword()) :: [ShaderOutput.t()]
   def outputs!(node, opts \\ []), do: node |> outputs(opts) |> Ref.unwrap!()
+
+  @doc group: "Properties"
+  @doc """
+  Sets several properties (`set(node, %{key => value})`), in one batch. `:name`
+  takes a string and `:location` an `{x, y}` pair of integers. Keys and values
+  are checked before anything is sent: a bad one raises `ArgumentError` and
+  changes nothing. Options: `:server`, `:timeout`. Renaming or moving a node
+  does not refresh Poser's preview.
+
+  ## Examples
+
+      ExPoser.ShaderNode.set(node, %{name: "Colour map", location: {120, 40}})
+      #=> {:ok, :ok}
+  """
+  @spec set(t(), map()) :: {:ok, :ok} | {:error, Error.t()}
+  def set(%__MODULE__{} = node, attrs) when is_map(attrs), do: set(node, attrs, [])
+
+  @doc group: "Properties"
+  @doc """
+  Sets a map of properties with options, or one property and value. See `set/2`.
+
+  ## Examples
+
+      ExPoser.ShaderNode.set(node, %{name: "Colour map"}, timeout: 5_000)
+      #=> {:ok, :ok}
+      ExPoser.ShaderNode.set(node, :location, {120, 40})
+      #=> {:ok, :ok}
+  """
+  @spec set(t(), map(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
+  @spec set(t(), atom(), term()) :: {:ok, :ok} | {:error, Error.t()}
+  def set(%__MODULE__{} = node, attrs, opts) when is_map(attrs) and is_list(opts) do
+    pairs = Map.to_list(attrs)
+    Enum.each(pairs, fn {key, value} -> set_call!(key, value) end)
+    opts = run_opts(opts)
+
+    batch =
+      Enum.reduce(pairs, Batch.new(), fn {key, value}, b ->
+        Batch.set_node(b, node, key, value)
+      end)
+
+    with {:ok, _} <- Batch.run(batch, opts), do: {:ok, :ok}
+  end
+
+  def set(%__MODULE__{} = node, key, value) when not is_map(key) and not is_list(value),
+    do: set(node, key, value, [])
+
+  @doc group: "Properties"
+  @doc """
+  Sets one property and value, with options. See `set/2`.
+
+  ## Examples
+
+      ExPoser.ShaderNode.set(node, :name, "Colour map", timeout: 5_000)
+      #=> {:ok, :ok}
+  """
+  @spec set(t(), atom(), term(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
+  def set(%__MODULE__{} = node, key, value, opts), do: set(node, %{key => value}, opts)
+
+  @doc group: "Properties"
+  @doc """
+  Like `set/2`, `set/3` and `set/4`, but returns `:ok` and raises
+  `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.ShaderNode.set!(node, :name, "Colour map")
+      #=> :ok
+  """
+  @spec set!(t(), map()) :: :ok
+  def set!(%__MODULE__{} = node, attrs) when is_map(attrs), do: set!(node, attrs, [])
+
+  @doc group: "Properties"
+  @doc """
+  Sets a map of properties with options, or one property and value, and
+  returns `:ok`. See `set!/2`.
+
+  ## Examples
+
+      ExPoser.ShaderNode.set!(node, %{name: "Colour map"}, timeout: 5_000)
+      #=> :ok
+  """
+  @spec set!(t(), map(), keyword()) :: :ok
+  @spec set!(t(), atom(), term()) :: :ok
+  def set!(%__MODULE__{} = node, attrs, opts) when is_map(attrs) and is_list(opts),
+    do: node |> set(attrs, opts) |> Ref.unwrap!()
+
+  def set!(%__MODULE__{} = node, key, value) when not is_map(key) and not is_list(value),
+    do: set!(node, key, value, [])
+
+  @doc group: "Properties"
+  @doc """
+  Sets one property and value, with options, and returns `:ok`. See `set!/2`.
+
+  ## Examples
+
+      ExPoser.ShaderNode.set!(node, :name, "Colour map", timeout: 5_000)
+      #=> :ok
+  """
+  @spec set!(t(), atom(), term(), keyword()) :: :ok
+  def set!(%__MODULE__{} = node, key, value, opts),
+    do: node |> set(key, value, opts) |> Ref.unwrap!()
+
+  @doc false
+  # Checks `key` and `value` and returns the setter's `{method, args}`.
+  # Raises `ArgumentError` for an unknown or read-only key or a bad value.
+  @spec set_call!(term(), term()) :: {String.t(), list()}
+  def set_call!(:name, value) when is_binary(value), do: {"SetName", [value]}
+
+  def set_call!(:location, {x, y}) when is_integer(x) and is_integer(y),
+    do: {"SetLocation", [x, y]}
+
+  def set_call!(:name, value),
+    do: raise(ArgumentError, ":name takes a string, got #{inspect(value)}")
+
+  def set_call!(:location, value),
+    do: raise(ArgumentError, ":location takes an {x, y} pair of integers, got #{inspect(value)}")
+
+  def set_call!(key, _value) do
+    raise ArgumentError,
+          "cannot set node key #{inspect(key)}, expected :name or :location"
+  end
+
+  defp decode(:location, [x, y]), do: {x, y}
+  defp decode(_key, value), do: value
+
+  defp fetch_prop!(key) do
+    case @props do
+      %{^key => prop} ->
+        prop
+
+      _ ->
+        raise ArgumentError,
+              "unknown node key #{inspect(key)}, expected one of #{inspect(Map.keys(@props))}"
+    end
+  end
 
   defp run_opts(opts), do: Keyword.validate!(opts, [:server, :timeout])
 

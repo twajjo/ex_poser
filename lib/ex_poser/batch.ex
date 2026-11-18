@@ -31,7 +31,7 @@ defmodule ExPoser.Batch do
   [Frames and keyframes](frames-and-keyframes.md) for `frame:`.
   """
 
-  alias ExPoser.{Client, Codec, Error, Material, Parameter, Ref, ShaderInput}
+  alias ExPoser.{Client, Codec, Error, Material, Parameter, Ref, ShaderInput, ShaderNode}
   alias ExPoser.Batch.Compiler
 
   @default_chunk 2000
@@ -270,6 +270,23 @@ defmodule ExPoser.Batch do
   def set_material(b, %Material{} = material, key, value) do
     {method, args} = Material.set_call!(key, value)
     push(b, material, method, args, nil, :ok)
+  end
+
+  @doc group: "Materials"
+  @doc """
+  Sets a shader node's `:name` (a string) or `:location` (an `{x, y}` pair of
+  integers). Its result is `:ok`. The key and value are checked now: a bad
+  one raises `ArgumentError`. Renaming or moving a node does not change the
+  tree, so no preview refresh follows.
+
+  ## Examples
+
+      ExPoser.Batch.new() |> ExPoser.Batch.set_node(node, :location, {120, 40})
+  """
+  @spec set_node(t(), ShaderNode.t(), atom(), term()) :: t()
+  def set_node(b, %ShaderNode{} = node, key, value) do
+    {method, args} = ShaderNode.set_call!(key, value)
+    push(b, node, method, args, nil, :ok)
   end
 
   @doc group: "Building"
