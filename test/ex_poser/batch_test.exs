@@ -3,7 +3,18 @@ defmodule ExPoser.BatchTest do
 
   import PoserTest.ClientCase
 
-  alias ExPoser.{Actor, Batch, Client, Error, Figure, Parameter}
+  alias ExPoser.{
+    Actor,
+    Batch,
+    Client,
+    Error,
+    Figure,
+    Material,
+    Parameter,
+    ShaderInput,
+    ShaderNode
+  }
+
   alias ExPoser.Api.ActorType
 
   doctest ExPoser
@@ -116,6 +127,65 @@ defmodule ExPoser.BatchTest do
       assert_raise ArgumentError, fn ->
         Batch.new() |> Batch.get(@p) |> Batch.compile(chunk: 4)
       end
+    end
+  end
+
+  describe "compile/2 with UpdatePreview" do
+    test "two set_input ops on one tree emit one UpdatePreview, last" do
+      {tree, [i1, i2 | _]} = tree_inputs()
+
+      b = Batch.new() |> Batch.set_input(i1, 1.0) |> Batch.set_input(i2, 2.0)
+      assert [{wire, roles}] = Batch.compile(b, chunk: 2000)
+      assert {:invoke, {:result, t}, "UpdatePreview", []} = List.last(wire)
+      assert roles[t] == {:lookup, ExPoser.Ref.path(tree), 0}
+      assert roles[length(wire) - 1] == {:preview, 1}
+      assert Enum.count(wire, &match?({:invoke, _, "UpdatePreview", _}, &1)) == 1
+    end
+
+    test "ops on two trees emit two, in first-change order" do
+      {_, [i1 | _]} = tree_inputs()
+      other = %Material{owner: @hip, name: "Hair"} |> Material.tree()
+      node = %ShaderNode{tree: other, internal: "Image_Map"}
+      i2 = %ShaderInput{node: node, internal: "U_Offset"}
+
+      b = Batch.new() |> Batch.set_input(i1, 1.0) |> Batch.set_input(i2, 1.0)
+      assert [{wire, roles}] = Batch.compile(b, chunk: 2000)
+      previews = Enum.filter(0..(length(wire) - 1), &match?({:preview, _}, roles[&1]))
+      assert Enum.map(previews, &roles[&1]) == [{:preview, 0}, {:preview, 1}]
+      assert Enum.take(wire, -2) == for(i <- previews, do: Enum.at(wire, i))
+    end
+
+    test "each chunk gets its own preview" do
+      {_, [i1, i2 | _]} = tree_inputs()
+
+      b =
+        Enum.reduce(1..4, Batch.new(), fn n, b ->
+          Batch.set_input(b, if(rem(n, 2) == 1, do: i1, else: i2), n)
+        end)
+
+      # 8 lookups (7 shared, 1 for the second input), 2 calls and 1 preview fill a chunk of exactly 11.
+      chunks = Batch.compile(b, chunk: 11)
+      assert length(chunks) == 2
+
+      for {wire, _} <- chunks do
+        assert length(wire) == 11
+        assert Enum.count(wire, &match?({:invoke, _, "SetFloat", _}, &1)) == 2
+        assert Enum.count(wire, &match?({:invoke, _, "UpdatePreview", _}, &1)) == 1
+        assert match?({:invoke, _, "UpdatePreview", _}, List.last(wire))
+      end
+    end
+
+    test "reads and flat ops emit no preview" do
+      {tree, _} = tree_inputs()
+      skin = %Material{owner: @hip, name: "Skin"}
+
+      b =
+        Batch.new()
+        |> Batch.call(tree, "PreviewCount")
+        |> Batch.set_material(skin, :ns, 1.0)
+
+      assert [{wire, _}] = Batch.compile(b, chunk: 2000)
+      refute Enum.any?(wire, &match?({:invoke, _, "UpdatePreview", _}, &1))
     end
   end
 
@@ -409,6 +479,13 @@ defmodule ExPoser.BatchTest do
       Client.batch([@scene, {:invoke, {:result, 0}, "SetFrame", [n]}], server: c)
 
     {:ok, _} = Client.release([scene], server: c)
+  end
+
+  defp tree_inputs do
+    tree = Material.tree(%Material{owner: @hip, name: "Skin"})
+    node = %ShaderNode{tree: tree, internal: "PoserSurface"}
+
+    {tree, for(n <- ["Diffuse_Value", "Bump"], do: %ShaderInput{node: node, internal: n})}
   end
 
   defp value(c, parm, frame),

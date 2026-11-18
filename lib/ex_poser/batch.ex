@@ -31,7 +31,7 @@ defmodule ExPoser.Batch do
   [Frames and keyframes](frames-and-keyframes.md) for `frame:`.
   """
 
-  alias ExPoser.{Client, Codec, Error, Material, Parameter, Ref}
+  alias ExPoser.{Client, Codec, Error, Material, Parameter, Ref, ShaderInput}
   alias ExPoser.Batch.Compiler
 
   @default_chunk 2000
@@ -48,7 +48,8 @@ defmodule ExPoser.Batch do
            method: String.t(),
            args: list(),
            frame: non_neg_integer() | nil,
-           result: :ok | :value
+           result: :ok | :value,
+           changes: ExPoser.ShaderTree.t() | nil
          }
 
   @typedoc "Wire index → what the wire op is for."
@@ -56,6 +57,7 @@ defmodule ExPoser.Batch do
           {:lookup, [Ref.step()], non_neg_integer()}
           | {:caller, non_neg_integer()}
           | {:frame, non_neg_integer()}
+          | {:preview, non_neg_integer()}
 
   @doc group: "Building"
   @doc """
@@ -237,6 +239,25 @@ defmodule ExPoser.Batch do
 
   @doc group: "Materials"
   @doc """
+  Sets a shader input's value, by the value's shape: a string goes to
+  `SetString`, a `{r, g, b}` tuple of numbers to `SetColor`, a number to
+  `SetFloat`. Its result is `:ok`. Any other value raises `ArgumentError`
+  now. Poser refreshes the tree's preview once per request chunk, after the
+  last op that changed it.
+
+  ## Examples
+
+      ExPoser.Batch.new() |> ExPoser.Batch.set_input(color_input, {1, 0, 0})
+  """
+  @spec set_input(t(), ShaderInput.t(), String.t() | {number(), number(), number()} | number()) ::
+          t()
+  def set_input(b, %ShaderInput{node: %{tree: tree}} = input, value) do
+    {method, args} = ShaderInput.set_call!(value)
+    push(b, input, method, args, nil, :ok, tree)
+  end
+
+  @doc group: "Materials"
+  @doc """
   Sets one flat setting of a material (a key from `ExPoser.Material.props/0`).
   Its result is `:ok`. The key and value are checked now: a bad one raises
   `ArgumentError`.
@@ -325,8 +346,16 @@ defmodule ExPoser.Batch do
   defp orig(nil, [_, @read_frame | _], [_, frame | _]), do: frame
   defp orig(orig, _wire, _results), do: orig
 
-  defp push(%__MODULE__{ops: ops, size: size} = b, ref, method, args, frame, result) do
-    op = %{ref: ref, method: method, args: args, frame: frame, result: result}
+  defp push(
+         %__MODULE__{ops: ops, size: size} = b,
+         ref,
+         method,
+         args,
+         frame,
+         result,
+         changes \\ nil
+       ) do
+    op = %{ref: ref, method: method, args: args, frame: frame, result: result, changes: changes}
     %{b | ops: [op | ops], size: size + 1}
   end
 

@@ -2,8 +2,11 @@ defmodule ExPoser.Batch.Compiler do
   @moduledoc false
   # Compiles a batch's ops into chunked wire batches, with a role table per
   # chunk: wire index → {:lookup, path_prefix, caller_op} | {:caller, k} |
-  # {:frame, caller_op}. In chunks after the first, the original frame is the
-  # placeholder `:original_frame`, which ExPoser.Batch.run/2 substitutes.
+  # {:frame, caller_op} | {:preview, caller_op}. An op with `:changes` (a tree
+  # ref) makes its chunk end with an UpdatePreview of that tree, once per
+  # tree, with the role {:preview, last caller op that changed it}. In chunks
+  # after the first, the original frame is the placeholder `:original_frame`,
+  # which ExPoser.Batch.run/2 substitutes.
 
   alias ExPoser.Ref
 
@@ -34,14 +37,24 @@ defmodule ExPoser.Batch.Compiler do
   defp add_op(%{cur: nil} = st, op, k, last?), do: st |> open(k) |> place(op, k, last?)
 
   defp add_op(st, op, k, last?) do
-    if st.cur.n + cost(st, st.cur, op, last?) <= st.limit do
+    if reserved(st.cur) + cost(st, st.cur, op, last?) <= st.limit do
       place(st, op, k, last?)
     else
-      %{st | cur: nil, done: [st.cur | st.done]} |> open(k) |> place(op, k, last?)
+      %{st | cur: nil, done: [close(st.cur) | st.done]} |> open(k) |> place(op, k, last?)
     end
   end
 
+  defp changes(op), do: Map.get(op, :changes)
+
   defp chunk_out(chunk), do: {Enum.reverse(chunk.wire), chunk.roles}
+
+  # Ends a chunk: one UpdatePreview per changed tree, in first-change order.
+  defp close(chunk) do
+    chunk.previews
+    |> Enum.reduce(%{chunk | previews: []}, fn {path, k}, chunk ->
+      emit(chunk, {:invoke, {:result, chunk.memo[path]}, "UpdatePreview", []}, {:preview, k})
+    end)
+  end
 
   # Wire ops `op` needs in `chunk`: missing lookups, a SetFrame, itself, and
   # the final restore when it is the batch's last op.
@@ -49,7 +62,7 @@ defmodule ExPoser.Batch.Compiler do
     target = target_frame(op)
     moves = if target != st.frame, do: 1, else: 0
     restore = if last? and (st.moved or moves == 1), do: 1, else: 0
-    length(missing(chunk, op)) + moves + 1 + restore
+    length(missing(chunk, op)) + moves + 1 + restore + preview_cost(chunk, op)
   end
 
   defp emit(chunk, wire, role) do
@@ -68,12 +81,14 @@ defmodule ExPoser.Batch.Compiler do
   end
 
   defp finish(%{cur: nil, done: done}), do: done |> Enum.reverse() |> Enum.map(&chunk_out/1)
-  defp finish(%{cur: cur, done: done} = st), do: finish(%{st | cur: nil, done: [cur | done]})
+
+  defp finish(%{cur: cur, done: done} = st),
+    do: finish(%{st | cur: nil, done: [close(cur) | done]})
 
   # Path prefixes not yet looked up in `chunk`, for the op's target and its
   # struct arguments, each prefix once.
   defp missing(chunk, op) do
-    for ref <- [op.ref | Enum.filter(op.args, &Ref.ref?/1)],
+    for ref <- [op.ref | Enum.filter(op.args, &Ref.ref?/1)] ++ List.wrap(changes(op)),
         path = Ref.path(ref),
         i <- 1..length(path)//1,
         prefix = Enum.take(path, i),
@@ -82,8 +97,25 @@ defmodule ExPoser.Batch.Compiler do
         do: prefix
   end
 
+  defp note_change(chunk, op, k) do
+    case changes(op) do
+      nil ->
+        chunk
+
+      tree ->
+        path = Ref.path(tree)
+        %{chunk | previews: List.keystore(chunk.previews, path, 0, {path, k})}
+    end
+  end
+
   defp open(st, k) do
-    chunk = %{wire: [@scene], n: 1, roles: %{0 => {:lookup, [], k}}, memo: %{[] => 0}}
+    chunk = %{
+      wire: [@scene],
+      n: 1,
+      previews: [],
+      roles: %{0 => {:lookup, [], k}},
+      memo: %{[] => 0}
+    }
 
     case st do
       %{done: [], framed?: true} ->
@@ -95,7 +127,7 @@ defmodule ExPoser.Batch.Compiler do
   end
 
   defp place(st, op, k, last?) do
-    if st.cur.n + cost(st, st.cur, op, last?) > st.limit do
+    if reserved(st.cur) + cost(st, st.cur, op, last?) > st.limit do
       raise ArgumentError,
             "chunk: #{st.limit} is too small for op #{k} on #{inspect(op.ref)}"
     end
@@ -118,8 +150,19 @@ defmodule ExPoser.Batch.Compiler do
     chunk =
       if last? and st.moved, do: emit(chunk, set_frame(chunk, :orig), {:frame, k}), else: chunk
 
-    %{st | cur: chunk}
+    %{st | cur: note_change(chunk, op, k)}
   end
+
+  # One more wire op when the op's tree has no preview in the chunk yet.
+  defp preview_cost(chunk, op) do
+    case changes(op) do
+      nil -> 0
+      tree -> if List.keymember?(chunk.previews, Ref.path(tree), 0), do: 0, else: 1
+    end
+  end
+
+  # The chunk's wire ops so far plus the previews it will end with.
+  defp reserved(chunk), do: chunk.n + length(chunk.previews)
 
   defp resolve_arg(arg, chunk) do
     if Ref.ref?(arg), do: {:result, chunk.memo[Ref.path(arg)]}, else: arg
