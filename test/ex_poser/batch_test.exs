@@ -198,6 +198,29 @@ defmodule ExPoser.BatchTest do
       assert Enum.count(wire, &match?({:invoke, _, "Delete", []}, &1)) == 1
     end
 
+    test "create_node emits CreateNode, InternalName and Name, then one preview" do
+      {tree, _} = tree_inputs()
+      b = Batch.new() |> Batch.create_node(tree, "image_map")
+      assert [{wire, roles}] = Batch.compile(b, chunk: 2000)
+
+      assert [
+               {:call, "Scene", []},
+               {:invoke, {:result, 0}, "FigureByInternalName", ["figure 1"]},
+               {:invoke, {:result, 1}, "ActorByInternalName", ["hip"]},
+               {:invoke, {:result, 2}, "Material", ["Skin"]},
+               {:invoke, {:result, 3}, "ShaderTree", []},
+               {:invoke, {:result, 4}, "CreateNode", ["image_map"]},
+               {:invoke, {:result, 5}, "InternalName", []},
+               {:invoke, {:result, 5}, "Name", []},
+               {:invoke, {:result, 4}, "UpdatePreview", []}
+             ] = wire
+
+      assert roles[5] == {:caller, 0}
+      assert roles[6] == {:created, 0}
+      assert roles[7] == {:created, 0}
+      assert roles[8] == {:preview, 0}
+    end
+
     test "a batch without a delete compiles as before" do
       {_, [i1, i2]} = tree_inputs()
       b = Batch.new() |> Batch.set_input(i1, 1.0) |> Batch.set_input(i2, 2.0)

@@ -27,6 +27,36 @@ defmodule ExPoser.ShaderTree do
   # kRenderEngineCode*
   @renderers %{preview: 0, firefly: 1, poser4: 2, sketch: 3, superfly: 4}
 
+  @doc group: "Nodes"
+  @doc """
+  Creates a node of Poser's type `type` (such as `"image_map"`, passed through
+  unchanged) in the tree, in one batch. Poser refreshes the tree's preview.
+  An unknown type gives Poser's error. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      ExPoser.ShaderTree.create_node(tree, "image_map")
+      #=> {:ok, #ExPoser.ShaderNode<image_map>}
+  """
+  @spec create_node(t(), String.t(), keyword()) :: {:ok, ShaderNode.t()} | {:error, Error.t()}
+  def create_node(%__MODULE__{} = tree, type, opts \\ []) when is_binary(type) do
+    batch = Batch.create_node(Batch.new(), tree, type)
+
+    with {:ok, [node]} <- Batch.run(batch, run_opts(opts)), do: {:ok, node}
+  end
+
+  @doc group: "Nodes"
+  @doc """
+  Like `create_node/3`, but returns the node and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.ShaderTree.create_node!(tree, "image_map")
+      #=> #ExPoser.ShaderNode<image_map>
+  """
+  @spec create_node!(t(), String.t(), keyword()) :: ShaderNode.t()
+  def create_node!(tree, type, opts \\ []), do: tree |> create_node(type, opts) |> Ref.unwrap!()
+
   @doc group: "Escape hatch"
   @doc """
   The tree's `%ExPoser.Handle{}`, for calls this library doesn't wrap.

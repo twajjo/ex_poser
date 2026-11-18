@@ -60,7 +60,7 @@ defmodule ExPoser.Batch do
            method: String.t(),
            args: list(),
            frame: non_neg_integer() | nil,
-           result: :ok | :value,
+           result: :ok | :value | {:created, ExPoser.ShaderTree.t()},
            changes: ExPoser.ShaderTree.t() | nil
          }
 
@@ -69,6 +69,7 @@ defmodule ExPoser.Batch do
           {:lookup, [Ref.step()], non_neg_integer()}
           | {:caller, non_neg_integer()}
           | {:frame, non_neg_integer()}
+          | {:created, non_neg_integer()}
           | {:preview, non_neg_integer()}
 
   @doc group: "Building"
@@ -120,6 +121,22 @@ defmodule ExPoser.Batch do
   @spec compile(t(), keyword()) :: [{list(), %{non_neg_integer() => role()}}]
   def compile(%__MODULE__{} = b, opts),
     do: b |> ops() |> Compiler.compile(Keyword.get(opts, :chunk, @default_chunk))
+
+  @doc group: "Materials"
+  @doc """
+  Creates a node of Poser's type `type` (a string, such as `"image_map"`, passed
+  through unchanged) in `tree`. Its result is an `ExPoser.ShaderNode` with the
+  internal and display names Poser gave it, available once the batch has run.
+  The tree changes, so Poser refreshes its preview once per request chunk.
+  Poser's error for an unknown type is the batch's error.
+
+  ## Examples
+
+      ExPoser.Batch.new() |> ExPoser.Batch.create_node(tree, "image_map")
+  """
+  @spec create_node(t(), ShaderTree.t(), String.t()) :: t()
+  def create_node(b, %ShaderTree{} = tree, type) when is_binary(type),
+    do: push(b, tree, "CreateNode", [type], nil, {:created, tree}, tree)
 
   @doc group: "Building"
   @doc """
@@ -400,8 +417,25 @@ defmodule ExPoser.Batch do
 
   defp caller_results(results, roles, kinds) do
     for {result, i} <- Enum.with_index(results), {:caller, k} <- [roles[i]] do
-      if elem(kinds, k) == :ok, do: :ok, else: result
+      case elem(kinds, k) do
+        :ok -> :ok
+        {:created, tree} -> created_node(tree, results, i)
+        :value -> result
+      end
     end
+  end
+
+  # The CreateNode handles of a finished chunk; the caller never gets them.
+  defp created_handles(results, roles, kinds) do
+    for {result, i} <- Enum.with_index(results),
+        {:caller, k} <- [roles[i]],
+        match?({:created, _}, elem(kinds, k)),
+        do: result
+  end
+
+  # The CreateNode handle is at `i`; its InternalName and Name reads follow.
+  defp created_node(tree, results, i) do
+    %ShaderNode{tree: tree, internal: Enum.at(results, i + 1), name: Enum.at(results, i + 2)}
   end
 
   defp frame_opt(opts), do: check_frame!(Keyword.validate!(opts, [:frame])[:frame])
@@ -483,7 +517,7 @@ defmodule ExPoser.Batch do
 
     case Client.batch(wire, opts) do
       {:ok, results} ->
-        release(lookup_handles(results, roles), opts)
+        release(lookup_handles(results, roles) ++ created_handles(results, roles, kinds), opts)
         st = %{st | orig: orig(st.orig, wire, results), moved: st.moved or moves?(wire, roles)}
 
         run_chunks(rest, kinds, opts, %{

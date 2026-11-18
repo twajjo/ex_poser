@@ -2,9 +2,10 @@ defmodule ExPoser.Batch.Compiler do
   @moduledoc false
   # Compiles a batch's ops into chunked wire batches, with a role table per
   # chunk: wire index → {:lookup, path_prefix, caller_op} | {:caller, k} |
-  # {:frame, caller_op} | {:preview, caller_op}. An op with `:changes` (a tree
-  # ref) makes its chunk end with an UpdatePreview of that tree, once per
-  # tree, with the role {:preview, last caller op that changed it}. In chunks
+  # {:frame, caller_op} | {:created, caller_op} | {:preview, caller_op}. An
+  # op with `:changes` (a tree ref) makes its chunk end with an UpdatePreview
+  # of that tree, once per tree, with the role {:preview, last caller op that
+  # changed it}. In chunks
   # after the first, the original frame is the placeholder `:original_frame`,
   # which ExPoser.Batch.run/2 substitutes.
 
@@ -62,8 +63,29 @@ defmodule ExPoser.Batch.Compiler do
     target = target_frame(op)
     moves = if target != st.frame, do: 1, else: 0
     restore = if last? and (st.moved or moves == 1), do: 1, else: 0
-    length(missing(chunk, op)) + moves + 1 + restore + preview_cost(chunk, op)
+
+    length(missing(chunk, op)) + moves + 1 + restore + preview_cost(chunk, op) +
+      created_cost(op)
   end
+
+  # After a CreateNode: read the new node's InternalName and Name (role
+  # {:created, k}), and memoize the node's path, with `{:created, k}` as its
+  # name, to the CreateNode wire index.
+  defp created(chunk, %{result: {:created, tree}}, k) do
+    index = chunk.n - 1
+    target = {:result, index}
+
+    chunk
+    |> emit({:invoke, target, "InternalName", []}, {:created, k})
+    |> emit({:invoke, target, "Name", []}, {:created, k})
+    |> put_in([:memo, Ref.path(tree) ++ [{:node, {:created, k}}]], index)
+  end
+
+  defp created(chunk, _op, _k), do: chunk
+
+  # A create_node op reads the new node's InternalName and Name right after it.
+  defp created_cost(%{result: {:created, _}}), do: 2
+  defp created_cost(_op), do: 0
 
   defp emit(chunk, wire, role) do
     %{
@@ -157,7 +179,7 @@ defmodule ExPoser.Batch.Compiler do
     path = Ref.path(op.ref)
     args = Enum.map(op.args, &resolve_arg(&1, chunk))
     wire = {:invoke, {:result, chunk.memo[path]}, op.method, args}
-    chunk = chunk |> emit(wire, {:caller, k}) |> forget(op)
+    chunk = chunk |> emit(wire, {:caller, k}) |> forget(op) |> created(op, k)
 
     chunk =
       if last? and st.moved, do: emit(chunk, set_frame(chunk, :orig), {:frame, k}), else: chunk
