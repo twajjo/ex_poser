@@ -18,6 +18,7 @@ defmodule ExPoser.Batch.Compiler do
           {list(), %{non_neg_integer() => ExPoser.Batch.role()}}
         ]
   def compile(ops, limit) do
+    check_created!(ops)
     last = length(ops) - 1
 
     st = %{
@@ -46,6 +47,37 @@ defmodule ExPoser.Batch.Compiler do
   end
 
   defp changes(op), do: Map.get(op, :changes)
+
+  # Every `{:created, j}` step of op k's refs must name an earlier create_node op of
+  # this batch, on the same tree.
+  defp check_created!(ops) do
+    indexed = Enum.with_index(ops)
+
+    for {op, k} <- indexed,
+        ref <- refs(op),
+        path = Ref.path(ref),
+        {step, i} <- Enum.with_index(path),
+        {:node, {:created, j}} <- [step] do
+      unless j < k and creates_on?(Enum.at(ops, j), Enum.take(path, i)) do
+        raise ArgumentError,
+              "op #{k} uses {:created, #{j}}, which must be a create_node op of this batch " <>
+                "on the same tree, earlier than op #{k}"
+      end
+    end
+
+    :ok
+  end
+
+  # A created node's lookup is missing from the chunk only when the create_node
+  # was placed in an earlier chunk. Temporary: later chunks will name it by its
+  # InternalName.
+  defp check_same_chunk!(missing, k) do
+    if Enum.any?(missing, &match?({:node, {:created, _}}, List.last(&1))) do
+      raise ArgumentError,
+            "op #{k} uses a created node in a later request chunk than its create_node; " <>
+              "a created node can only be used in the same request chunk for now"
+    end
+  end
 
   defp chunk_out(chunk), do: {Enum.reverse(chunk.wire), chunk.roles}
 
@@ -87,6 +119,10 @@ defmodule ExPoser.Batch.Compiler do
   defp created_cost(%{result: {:created, _}}), do: 2
   defp created_cost(_op), do: 0
 
+  # Whether `op` is a create_node on the tree at `tree_path`.
+  defp creates_on?(%{result: {:created, tree}}, tree_path), do: Ref.path(tree) == tree_path
+  defp creates_on?(_op, _tree_path), do: false
+
   defp emit(chunk, wire, role) do
     %{
       chunk
@@ -122,7 +158,7 @@ defmodule ExPoser.Batch.Compiler do
   # Path prefixes not yet looked up in `chunk`, for the op's target and its
   # struct arguments, each prefix once.
   defp missing(chunk, op) do
-    for ref <- [op.ref | Enum.filter(op.args, &Ref.ref?/1)] ++ List.wrap(changes(op)),
+    for ref <- refs(op),
         path = Ref.path(ref),
         i <- 1..length(path)//1,
         prefix = Enum.take(path, i),
@@ -166,7 +202,9 @@ defmodule ExPoser.Batch.Compiler do
             "chunk: #{st.limit} is too small for op #{k} on #{inspect(op.ref)}"
     end
 
-    chunk = Enum.reduce(missing(st.cur, op), st.cur, &emit_lookup(&2, &1, k))
+    missing = missing(st.cur, op)
+    check_same_chunk!(missing, k)
+    chunk = Enum.reduce(missing, st.cur, &emit_lookup(&2, &1, k))
     target = target_frame(op)
 
     {chunk, st} =
@@ -194,6 +232,8 @@ defmodule ExPoser.Batch.Compiler do
       tree -> if List.keymember?(chunk.previews, Ref.path(tree), 0), do: 0, else: 1
     end
   end
+
+  defp refs(op), do: [op.ref | Enum.filter(op.args, &Ref.ref?/1)] ++ List.wrap(changes(op))
 
   # The chunk's wire ops so far plus the previews it will end with.
   defp reserved(chunk), do: chunk.n + length(chunk.previews)
