@@ -175,6 +175,49 @@ defmodule ExPoser.BatchTest do
       end
     end
 
+    test "delete_node forgets the node's memo keys; other nodes stay memoized" do
+      {tree, [i1, _]} = tree_inputs()
+      other = %ShaderNode{tree: tree, internal: "Image_Map"}
+      keep = %ShaderInput{node: other, internal: "U_Offset"}
+      node = i1.node
+
+      b =
+        Batch.new()
+        |> Batch.set_input(i1, 1.0)
+        |> Batch.set_input(keep, 1.0)
+        |> Batch.delete_node(node)
+        |> Batch.set_input(i1, 2.0)
+        |> Batch.set_input(keep, 2.0)
+
+      assert [{wire, roles}] = Batch.compile(b, chunk: 2000)
+      lookups = for {i, {:lookup, prefix, k}} <- roles, k >= 3, do: {i, prefix, k}
+      # op 3 looks the deleted node and its input up again; op 4 reuses the other node's.
+      got = lookups |> Enum.map(fn {_, prefix, k} -> {List.last(prefix), k} end) |> Enum.sort()
+      assert got == [{{:input, "Diffuse_Value"}, 3}, {{:node, "PoserSurface"}, 3}]
+
+      assert Enum.count(wire, &match?({:invoke, _, "Delete", []}, &1)) == 1
+    end
+
+    test "a batch without a delete compiles as before" do
+      {_, [i1, i2]} = tree_inputs()
+      b = Batch.new() |> Batch.set_input(i1, 1.0) |> Batch.set_input(i2, 2.0)
+      assert [{wire, _}] = Batch.compile(b, chunk: 2000)
+
+      assert wire == [
+               {:call, "Scene", []},
+               {:invoke, {:result, 0}, "FigureByInternalName", ["figure 1"]},
+               {:invoke, {:result, 1}, "ActorByInternalName", ["hip"]},
+               {:invoke, {:result, 2}, "Material", ["Skin"]},
+               {:invoke, {:result, 3}, "ShaderTree", []},
+               {:invoke, {:result, 4}, "NodeByInternalName", ["PoserSurface"]},
+               {:invoke, {:result, 5}, "InputByInternalName", ["Diffuse_Value"]},
+               {:invoke, {:result, 6}, "SetFloat", [1.0]},
+               {:invoke, {:result, 5}, "InputByInternalName", ["Bump"]},
+               {:invoke, {:result, 8}, "SetFloat", [2.0]},
+               {:invoke, {:result, 4}, "UpdatePreview", []}
+             ]
+    end
+
     test "reads and flat ops emit no preview" do
       {tree, _} = tree_inputs()
       skin = %Material{owner: @hip, name: "Skin"}

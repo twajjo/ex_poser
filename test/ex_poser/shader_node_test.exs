@@ -82,6 +82,39 @@ defmodule ExPoser.ShaderNodeTest do
     assert_no_handles(c)
   end
 
+  test "delete removes the node and refreshes the preview", %{c: c, tree: tree} do
+    img = node(c, tree, "Image_Map")
+    before = previews(c, tree)
+
+    assert ShaderNode.delete(img, server: c) == {:ok, :ok}
+    assert {:ok, nodes} = ShaderTree.nodes(tree, server: c)
+    refute Enum.any?(nodes, &(&1.internal == "Image_Map"))
+    assert previews(c, tree) == before + 1
+    assert_no_handles(c)
+  end
+
+  test "delete! returns :ok", %{c: c, tree: tree} do
+    img = node(c, tree, "Image_Map")
+    assert ShaderNode.delete!(img, server: c) == :ok
+    assert_no_handles(c)
+  end
+
+  test "an op on a deleted node's input in the same batch is not found; the delete stays",
+       %{c: c, tree: tree} do
+    img = node(c, tree, "Image_Map")
+    offset = ShaderNode.input(img, "U_Offset")
+
+    assert {:error, %ExPoser.Error{kind: :not_found, details: %{index: 1}}} =
+             Batch.new()
+             |> Batch.delete_node(img)
+             |> Batch.set_input(offset, 1.0)
+             |> Batch.run(server: c)
+
+    assert {:ok, nodes} = ShaderTree.nodes(tree, server: c)
+    refute Enum.any?(nodes, &(&1.internal == "Image_Map"))
+    assert_no_handles(c)
+  end
+
   defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
 
   defp node(c, tree, internal), do: ShaderTree.node!(tree, internal, server: c)
