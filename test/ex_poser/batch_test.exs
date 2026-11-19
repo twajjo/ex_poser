@@ -333,13 +333,20 @@ defmodule ExPoser.BatchTest do
       end
     end
 
-    test "a placeholder in a later chunk than its create_node raises for now" do
+    test "a placeholder in a later chunk looks the node up by its marker" do
       {tree, _} = tree_inputs()
       b = Batch.new() |> Batch.create_node(tree, "image_map")
       input = b |> Batch.created() |> ShaderNode.input("Image_Source")
       b = Batch.set_input(b, input, "a.png")
 
-      assert_raise ArgumentError, ~r/same request chunk/, fn -> Batch.compile(b, chunk: 9) end
+      assert [_, {wire, _}] = Batch.compile(b, chunk: 9)
+
+      assert Enum.any?(
+               wire,
+               &match?({:invoke, _, "NodeByInternalName", [{:created_name, 0}]}, &1)
+             )
+
+      assert Enum.any?(wire, &match?({:invoke, _, "SetString", ["a.png"]}, &1))
     end
   end
 
@@ -368,17 +375,95 @@ defmodule ExPoser.BatchTest do
       assert_no_handles(c)
     end
 
-    test "a placeholder in a later chunk raises with nothing sent", %{c: c} do
+    test "create, set an input and link across chunks", %{c: c} do
       {tree, _} = tree_inputs()
-      b = Batch.new() |> Batch.create_node(tree, "image_map")
-      input = b |> Batch.created() |> ShaderNode.input("Image_Source")
-      b = Batch.set_input(b, input, "a.png")
+      surface = %ShaderNode{tree: tree, internal: "PoserSurface"}
+      diffuse = ShaderNode.input(surface, "Diffuse_Color")
+      b = Batch.create_node(Batch.new(), tree, "image_map")
+      node = Batch.created(b)
+      image_source = ShaderNode.input(node, "Image_Source")
+      b = b |> Batch.set_input(image_source, "a.png") |> Batch.link(node, diffuse)
+
+      assert length(Batch.compile(b, chunk: 10)) > 1
+
+      assert {:ok, [%ShaderNode{internal: "image_map"} = made, :ok, :ok]} =
+               Batch.run(b, server: c, chunk: 10)
+
+      assert ShaderInput.get(ShaderNode.input(made, "Image_Source"), server: c) == {:ok, "a.png"}
+      assert {:ok, %{internal: "Color"}} = ShaderInput.source(diffuse, server: c)
+      assert_no_handles(c)
+    end
+
+    test "a created node deleted and used again in its chunk gives Poser's error", %{c: c} do
+      {tree, _} = tree_inputs()
+      b = Batch.create_node(Batch.new(), tree, "image_map")
+      node = Batch.created(b)
+
+      b =
+        b |> Batch.delete_node(node) |> Batch.set_input(ShaderNode.input(node, "Image_Source"), 1)
+
+      assert [_] = Batch.compile(b, chunk: 2000)
+      assert {:error, %Error{kind: :not_found, details: %{index: 2}}} = Batch.run(b, server: c)
+      assert_no_handles(c)
+    end
+
+    test "two created nodes, one used in its chunk and in two later chunks", %{c: c} do
+      {tree, _} = tree_inputs()
+      b = Batch.create_node(Batch.new(), tree, "image_map")
+      first = Batch.created(b)
+      b = Batch.create_node(b, tree, "image_map")
+      second = Batch.created(b)
+
+      b =
+        b
+        |> Batch.set_input(ShaderNode.input(first, "Image_Source"), "a.png")
+        |> Batch.set_input(ShaderNode.input(second, "Image_Source"), "b.png")
+        |> Batch.set_input(ShaderNode.input(first, "Image_Source"), "c.png")
+
+      assert length(Batch.compile(b, chunk: 10)) >= 3
+
+      assert {:ok, [made1, made2, :ok, :ok, :ok]} = Batch.run(b, server: c, chunk: 10)
+      assert ShaderInput.get(ShaderNode.input(made1, "Image_Source"), server: c) == {:ok, "c.png"}
+      assert ShaderInput.get(ShaderNode.input(made2, "Image_Source"), server: c) == {:ok, "b.png"}
+      assert_no_handles(c)
+    end
+
+    test "a failing CreateNode stops later chunks that use the node", %{c: c} do
+      {tree, _} = tree_inputs()
+      b = Batch.create_node(Batch.new(), tree, "no_such_type")
+      b = Batch.set_input(b, ShaderNode.input(Batch.created(b), "Image_Source"), "a.png")
+
+      assert length(Batch.compile(b, chunk: 10)) == 2
+      assert {:error, %Error{details: %{index: 0}}} = Batch.run(b, server: c, chunk: 10)
+      assert_no_handles(c)
+    end
+
+    test "a later chunk's lookup of a deleted created node fails", %{c: c} do
+      {tree, _} = tree_inputs()
+      b = Batch.create_node(Batch.new(), tree, "image_map")
+      node = Batch.created(b)
+      b = Batch.delete_node(b, node)
+      b = Batch.set_input(b, ShaderNode.input(node, "Image_Source"), "a.png")
+
+      assert length(Batch.compile(b, chunk: 10)) == 2
+
+      assert {:error, %Error{kind: :not_found, details: %{index: 2}}} =
+               Batch.run(b, server: c, chunk: 10)
+
+      assert_no_handles(c)
+    end
+
+    test "a placeholder that points forward raises with nothing sent", %{c: c} do
+      {tree, _} = tree_inputs()
+      early = %ShaderNode{tree: tree, internal: {:created, 1}}
+
+      b =
+        Batch.new()
+        |> Batch.set_input(ShaderNode.input(early, "Image_Source"), "a.png")
+        |> Batch.create_node(tree, "image_map")
+
       before = Client.request_count(server: c)
-
-      assert_raise ArgumentError, ~r/same request chunk/, fn ->
-        Batch.run(b, server: c, chunk: 9)
-      end
-
+      assert_raise ArgumentError, ~r/earlier/, fn -> Batch.run(b, server: c, chunk: 10) end
       assert Client.request_count(server: c) == before
       assert_no_handles(c)
     end

@@ -7,7 +7,9 @@ defmodule ExPoser.Batch.Compiler do
   # of that tree, once per tree, with the role {:preview, last caller op that
   # changed it}. In chunks
   # after the first, the original frame is the placeholder `:original_frame`,
-  # which ExPoser.Batch.run/2 substitutes.
+  # which ExPoser.Batch.run/2 substitutes. A created node whose create_node op
+  # sits in an earlier chunk is looked up with NodeByInternalName of the marker
+  # `{:created_name, k}`, which run/2 also substitutes.
 
   alias ExPoser.{Ref, ShaderNode}
 
@@ -68,17 +70,6 @@ defmodule ExPoser.Batch.Compiler do
     :ok
   end
 
-  # A created node's lookup is missing from the chunk only when the create_node
-  # was placed in an earlier chunk. Temporary: later chunks will name it by its
-  # InternalName.
-  defp check_same_chunk!(missing, k) do
-    if Enum.any?(missing, &match?({:node, {:created, _}}, List.last(&1))) do
-      raise ArgumentError,
-            "op #{k} uses a created node in a later request chunk than its create_node; " <>
-              "a created node can only be used in the same request chunk for now"
-    end
-  end
-
   defp chunk_out(chunk), do: {Enum.reverse(chunk.wire), chunk.roles}
 
   # Ends a chunk: one UpdatePreview per changed tree, in first-change order.
@@ -111,6 +102,7 @@ defmodule ExPoser.Batch.Compiler do
     |> emit({:invoke, target, "InternalName", []}, {:created, k})
     |> emit({:invoke, target, "Name", []}, {:created, k})
     |> put_in([:memo, Ref.path(tree) ++ [{:node, {:created, k}}]], index)
+    |> put_in([:names, k], index + 1)
   end
 
   defp created(chunk, _op, _k), do: chunk
@@ -135,6 +127,7 @@ defmodule ExPoser.Batch.Compiler do
   defp emit_lookup(chunk, prefix, k) do
     {parent_path, [step]} = Enum.split(prefix, -1)
     op = Ref.lookup_op(step, {:result, chunk.memo[parent_path]}, scope(parent_path))
+    op = name_in_chunk(op, step, chunk)
     chunk |> emit(op, {:lookup, prefix, k}) |> put_in([:memo, prefix], chunk.n)
   end
 
@@ -167,6 +160,14 @@ defmodule ExPoser.Batch.Compiler do
         do: prefix
   end
 
+  # A created node of this very chunk is looked up by the wire index of its
+  # InternalName read, which run/2 can't substitute before the chunk is sent.
+  defp name_in_chunk({:invoke, parent, method, _}, {:node, {:created, k}}, %{names: names})
+       when is_map_key(names, k),
+       do: {:invoke, parent, method, [{:result, names[k]}]}
+
+  defp name_in_chunk(op, _step, _chunk), do: op
+
   defp note_change(chunk, op, k) do
     case changes(op) do
       nil ->
@@ -184,7 +185,8 @@ defmodule ExPoser.Batch.Compiler do
       n: 1,
       previews: [],
       roles: %{0 => {:lookup, [], k}},
-      memo: %{[] => 0}
+      memo: %{[] => 0},
+      names: %{}
     }
 
     case st do
@@ -203,7 +205,6 @@ defmodule ExPoser.Batch.Compiler do
     end
 
     missing = missing(st.cur, op)
-    check_same_chunk!(missing, k)
     chunk = Enum.reduce(missing, st.cur, &emit_lookup(&2, &1, k))
     target = target_frame(op)
 
