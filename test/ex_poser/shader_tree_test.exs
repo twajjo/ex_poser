@@ -125,6 +125,33 @@ defmodule ExPoser.ShaderTreeTest do
     assert_no_handles(c)
   end
 
+  test "create_node makes a node, refreshes the preview and leaves no handles", %{
+    c: c,
+    tree: tree
+  } do
+    before = previews(c, tree)
+
+    assert {:ok, %ShaderNode{tree: ^tree, internal: "image_map", name: "image_map"}} =
+             ShaderTree.create_node(tree, "image_map", server: c)
+
+    assert {:ok, nodes} = ShaderTree.nodes(tree, server: c)
+    assert "image_map" in Enum.map(nodes, & &1.internal)
+    assert previews(c, tree) == before + 1
+    assert_no_handles(c)
+  end
+
+  test "create_node! returns the node", %{c: c, tree: tree} do
+    assert %ShaderNode{internal: "image_map"} =
+             ShaderTree.create_node!(tree, "image_map", server: c)
+
+    assert_no_handles(c)
+  end
+
+  test "create_node with an unknown type is Poser's error", %{c: c, tree: tree} do
+    assert {:error, %Error{}} = ShaderTree.create_node(tree, "nope", server: c)
+    assert_no_handles(c)
+  end
+
   defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
 
   defp previews(c, tree),
