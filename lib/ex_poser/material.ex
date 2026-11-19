@@ -44,6 +44,37 @@ defmodule ExPoser.Material do
     selected: {"Selected", "SetSelected", :int}
   }
 
+  @doc group: "Layers"
+  @doc """
+  Creates a layer named `name` on the material and returns it, with the
+  requested name. If Poser gives the layer a different name, the struct still
+  carries the requested one. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      ExPoser.Material.create_layer(skin, "Wet")
+      #=> {:ok, #ExPoser.MaterialLayer<Wet>}
+  """
+  @spec create_layer(t(), String.t(), keyword()) :: {:ok, MaterialLayer.t()} | {:error, Error.t()}
+  def create_layer(%__MODULE__{} = material, name, opts \\ []) when is_binary(name) do
+    with {:ok, [layer]} <-
+           Batch.new() |> Batch.create_layer(material, name) |> Batch.run(run_opts(opts)),
+         do: {:ok, layer}
+  end
+
+  @doc group: "Layers"
+  @doc """
+  Like `create_layer/3`, but returns the struct and raises `ExPoser.Error` on failure.
+
+  ## Examples
+
+      ExPoser.Material.create_layer!(skin, "Wet")
+      #=> #ExPoser.MaterialLayer<Wet>
+  """
+  @spec create_layer!(t(), String.t(), keyword()) :: MaterialLayer.t()
+  def create_layer!(material, name, opts \\ []),
+    do: material |> create_layer(name, opts) |> Ref.unwrap!()
+
   @doc false
   # One request: reads the name through the path, so a missing material is
   # `:not_found` with its path.
