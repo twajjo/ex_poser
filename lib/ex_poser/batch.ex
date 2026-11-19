@@ -23,7 +23,10 @@ defmodule ExPoser.Batch do
       iex> fig = %ExPoser.Figure{internal: "figure 1", name: "Andy"}
       iex> hip = %ExPoser.Actor{figure: fig, internal: "hip", name: "Hip"}
       iex> xrot = %ExPoser.Parameter{actor: hip, internal: "xrot", name: "xRotate"}
-      iex> b = Enum.reduce(0..29, ExPoser.Batch.new(), &ExPoser.Batch.set(&2, xrot, &1 * 3.0, frame: &1))
+      iex> b =
+      ...>   Enum.reduce(0..29, ExPoser.Batch.new(), fn n, b ->
+      ...>     ExPoser.Batch.set(b, xrot, n * 3.0, frame: n)
+      ...>   end)
       iex> ExPoser.Batch.size(b)
       30
 
@@ -137,6 +140,28 @@ defmodule ExPoser.Batch do
   @spec create_node(t(), ShaderTree.t(), String.t()) :: t()
   def create_node(b, %ShaderTree{} = tree, type) when is_binary(type),
     do: push(b, tree, "CreateNode", [type], nil, {:created, tree}, tree)
+
+  @doc group: "Materials"
+  @doc """
+  A placeholder `ExPoser.ShaderNode` for the node the batch's last op, a
+  `create_node/3`, will create. Name its inputs and outputs in later ops of
+  the same batch, as `ExPoser.ShaderNode.input/2` and `output/2` allow. For
+  now, those ops must fall in the same request chunk as the `create_node/3`;
+  `compile/2` raises `ArgumentError` otherwise. Raises `ArgumentError` when the
+  last op isn't a `create_node/3`.
+
+  ## Examples
+
+      b = ExPoser.Batch.new() |> ExPoser.Batch.create_node(tree, "image_map")
+      node = ExPoser.Batch.created(b)
+      b |> ExPoser.Batch.link(node, diffuse_color)
+  """
+  @spec created(t()) :: ShaderNode.t()
+  def created(%__MODULE__{ops: [%{result: {:created, tree}} | _], size: size}),
+    do: %ShaderNode{tree: tree, internal: {:created, size - 1}, name: nil}
+
+  def created(%__MODULE__{}),
+    do: raise(ArgumentError, "created/1 needs the batch's last op to be a create_node")
 
   @doc group: "Building"
   @doc """
@@ -382,7 +407,10 @@ defmodule ExPoser.Batch do
       iex> fig = %ExPoser.Figure{internal: "figure 1", name: "Figure 1"}
       iex> hip = %ExPoser.Actor{figure: fig, internal: "hip", name: "hip"}
       iex> p = %ExPoser.Parameter{actor: hip, internal: "xtran", name: "xTran"}
-      iex> ExPoser.Batch.new() |> ExPoser.Batch.get(p) |> ExPoser.Batch.set(p, 1.0) |> ExPoser.Batch.size()
+      iex> ExPoser.Batch.new()
+      ...> |> ExPoser.Batch.get(p)
+      ...> |> ExPoser.Batch.set(p, 1.0)
+      ...> |> ExPoser.Batch.size()
       2
   """
   @spec size(t()) :: non_neg_integer()
@@ -525,7 +553,8 @@ defmodule ExPoser.Batch do
           | acc: [caller_results(results, roles, kinds) | st.acc]
         })
 
-      {:error, %Error{kind: :batch_failed, details: %{index: i, cause: cause, partial: partial}}} ->
+      {:error, %Error{kind: :batch_failed, details: details}} ->
+        %{index: i, cause: cause, partial: partial} = details
         release(Codec.handles_in(partial) ++ acc_handles(st), opts)
         orig = orig(st.orig, wire, partial)
         if st.moved or moves?(Enum.take(wire, i), roles), do: restore(orig, opts)
