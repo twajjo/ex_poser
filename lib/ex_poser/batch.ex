@@ -145,9 +145,10 @@ defmodule ExPoser.Batch do
   @doc """
   A placeholder `ExPoser.ShaderNode` for the node the batch's last op, a
   `create_node/3`, will create. Name its inputs and outputs in later ops of
-  the same batch, as `ExPoser.ShaderNode.input/2` and `output/2` allow. For
-  now, those ops must fall in the same request chunk as the `create_node/3`;
-  `compile/2` raises `ArgumentError` otherwise. Raises `ArgumentError` when the
+  the same batch, as `ExPoser.ShaderNode.input/2` and `output/2` allow, in the
+  `create_node/3`'s request chunk or a later one. An op naming a created node
+  must come after its `create_node/3`, on the same tree, or `run/2` raises
+  `ArgumentError` before sending anything. Raises `ArgumentError` when the
   last op isn't a `create_node/3`.
 
   ## Examples
@@ -284,7 +285,7 @@ defmodule ExPoser.Batch do
     else
       chunks = compile(b, chunk: chunk)
       kinds = b |> ops() |> Enum.map(& &1.result) |> List.to_tuple()
-      run_chunks(chunks, kinds, client_opts, %{orig: nil, moved: false, acc: []})
+      run_chunks(chunks, kinds, client_opts, %{orig: nil, moved: false, acc: [], created: %{}})
     end
   end
 
@@ -461,6 +462,15 @@ defmodule ExPoser.Batch do
         do: result
   end
 
+  # k => InternalName for each CreateNode of a finished chunk, for later chunks.
+  defp created_names(results, roles, kinds) do
+    for {_, i} <- Enum.with_index(results),
+        {:caller, k} <- [roles[i]],
+        match?({:created, _}, elem(kinds, k)),
+        into: %{},
+        do: {k, Enum.at(results, i + 1)}
+  end
+
   # The CreateNode handle is at `i`; its InternalName and Name reads follow.
   defp created_node(tree, results, i) do
     %ShaderNode{tree: tree, internal: Enum.at(results, i + 1), name: Enum.at(results, i + 2)}
@@ -541,12 +551,18 @@ defmodule ExPoser.Batch do
   defp run_chunks([], _kinds, _opts, st), do: {:ok, st.acc |> Enum.reverse() |> Enum.concat()}
 
   defp run_chunks([{wire, roles} | rest], kinds, opts, st) do
-    wire = substitute(wire, st.orig)
+    wire = substitute(wire, st.orig, st.created)
 
     case Client.batch(wire, opts) do
       {:ok, results} ->
         release(lookup_handles(results, roles) ++ created_handles(results, roles, kinds), opts)
-        st = %{st | orig: orig(st.orig, wire, results), moved: st.moved or moves?(wire, roles)}
+
+        st = %{
+          st
+          | orig: orig(st.orig, wire, results),
+            moved: st.moved or moves?(wire, roles),
+            created: Map.merge(st.created, created_names(results, roles, kinds))
+        }
 
         run_chunks(rest, kinds, opts, %{
           st
@@ -576,12 +592,17 @@ defmodule ExPoser.Batch do
     end
   end
 
-  defp substitute(wire, nil), do: wire
-
-  defp substitute(wire, orig) do
+  defp substitute(wire, orig, created) do
     Enum.map(wire, fn
-      {:invoke, t, "SetFrame", [:original_frame]} -> {:invoke, t, "SetFrame", [orig]}
-      op -> op
+      {:invoke, t, "SetFrame", [:original_frame]} when orig != nil ->
+        {:invoke, t, "SetFrame", [orig]}
+
+      # Markers only come from creates in earlier chunks, whose names are recorded.
+      {:invoke, t, "NodeByInternalName", [{:created_name, k}]} ->
+        {:invoke, t, "NodeByInternalName", [Map.fetch!(created, k)]}
+
+      op ->
+        op
     end)
   end
 
