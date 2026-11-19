@@ -39,6 +39,7 @@ defmodule ExPoser.Batch do
     Codec,
     Error,
     Material,
+    MaterialLayer,
     Parameter,
     Ref,
     ShaderInput,
@@ -63,7 +64,8 @@ defmodule ExPoser.Batch do
            method: String.t(),
            args: list(),
            frame: non_neg_integer() | nil,
-           result: :ok | :value | {:created, ExPoser.ShaderTree.t()},
+           result:
+             :ok | :value | {:created, ExPoser.ShaderTree.t()} | {:layer, MaterialLayer.t()},
            changes: ExPoser.ShaderTree.t() | nil
          }
 
@@ -124,6 +126,29 @@ defmodule ExPoser.Batch do
   @spec compile(t(), keyword()) :: [{list(), %{non_neg_integer() => role()}}]
   def compile(%__MODULE__{} = b, opts),
     do: b |> ops() |> Compiler.compile(Keyword.get(opts, :chunk, @default_chunk))
+
+  @doc group: "Materials"
+  @doc """
+  Creates a layer named `name` on `material`. Its result is the
+  `ExPoser.MaterialLayer` for the requested name; Poser's own return value is
+  ignored. If Poser gives the layer a different name, the struct still carries
+  the requested one.
+
+  ## Examples
+
+      ExPoser.Batch.new() |> ExPoser.Batch.create_layer(skin, "Wet")
+  """
+  @spec create_layer(t(), Material.t(), String.t()) :: t()
+  def create_layer(b, %Material{} = material, name) when is_binary(name) do
+    push(
+      b,
+      material,
+      "CreateLayer",
+      [name],
+      nil,
+      {:layer, %MaterialLayer{material: material, name: name}}
+    )
+  end
 
   @doc group: "Materials"
   @doc """
@@ -449,6 +474,7 @@ defmodule ExPoser.Batch do
       case elem(kinds, k) do
         :ok -> :ok
         {:created, tree} -> created_node(tree, results, i)
+        {:layer, layer} -> layer
         :value -> result
       end
     end
