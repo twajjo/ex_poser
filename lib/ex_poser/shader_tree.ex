@@ -16,7 +16,8 @@ defmodule ExPoser.ShaderTree do
       [{:actor, "ball"}, {:material, "Preview"}, {:tree, :main}]
   """
 
-  alias ExPoser.{Batch, Error, Material, MaterialLayer, Ref, ShaderNode}
+  alias ExPoser.{Batch, Client, Error, Material, MaterialLayer, Ref, ShaderNode}
+  alias ExPoser.ShaderTree.Snapshot
 
   @enforce_keys [:owner]
   defstruct [:owner]
@@ -26,6 +27,7 @@ defmodule ExPoser.ShaderTree do
 
   # kRenderEngineCode*
   @renderers %{preview: 0, firefly: 1, poser4: 2, sketch: 3, superfly: 4}
+  @node_methods ["InternalName", "Name", "Type", "Location", "IsRoot"]
 
   @doc group: "Nodes"
   @doc """
@@ -229,8 +231,69 @@ defmodule ExPoser.ShaderTree do
   @spec set_root!(ShaderNode.t(), atom() | integer(), keyword()) :: :ok
   def set_root!(node, renderer, opts \\ []), do: node |> set_root(renderer, opts) |> Ref.unwrap!()
 
+  @doc group: "Snapshots"
+  @doc """
+  Reads the tree's nodes (internal name, name, type, location, root flag) and
+  its root node's internal name for each renderer, as an
+  `ExPoser.ShaderTree.Snapshot`. Each node's `inputs` and `outputs` are empty
+  lists for now. It takes two batches, each followed by a request that
+  releases its handles, so four requests in all. Options: `:server`, `:timeout`.
+
+  ## Examples
+
+      ExPoser.ShaderTree.snapshot(tree)
+      #=> {:ok, %ExPoser.ShaderTree.Snapshot{tree: tree, nodes: [...], roots: %{...}}}
+  """
+  @spec snapshot(t(), keyword()) :: {:ok, Snapshot.t()} | {:error, Error.t()}
+  def snapshot(%__MODULE__{} = tree, opts \\ []) do
+    opts = run_opts(opts)
+    batch = Batch.call(Batch.new(), tree, "Nodes", [])
+
+    batch =
+      Enum.reduce(renderer_codes(), batch, fn {_renderer, code}, acc ->
+        Batch.call(acc, tree, "RendererRootNode", [code])
+      end)
+
+    with {:ok, [nodes | roots] = handles} <- Batch.run(batch, opts) do
+      try do
+        read_snapshot(tree, nodes, roots, opts)
+      after
+        Ref.release_in(handles, opts)
+      end
+    end
+  end
+
+  @doc group: "Snapshots"
+  @doc """
+  Like `snapshot/2`, but returns the snapshot and raises `ExPoser.Error` on
+  failure.
+
+  ## Examples
+
+      ExPoser.ShaderTree.snapshot!(tree)
+      #=> %ExPoser.ShaderTree.Snapshot{tree: tree, nodes: [...], roots: %{...}}
+  """
+  @spec snapshot!(t(), keyword()) :: Snapshot.t()
+  def snapshot!(tree, opts \\ []), do: tree |> snapshot(opts) |> Ref.unwrap!()
+
   defp build(tree, row),
     do: %ShaderNode{tree: tree, internal: row["InternalName"], name: row["Name"]}
+
+  defp node_maps(values) do
+    values
+    |> Enum.chunk_every(length(@node_methods))
+    |> Enum.map(fn [internal, name, type, location, root] ->
+      %{
+        internal: internal,
+        name: name,
+        type: type,
+        location: location,
+        root: root,
+        inputs: [],
+        outputs: []
+      }
+    end)
+  end
 
   defp parent_of(:atmosphere), do: {:scene, "AtmosphereShaderTree"}
   defp parent_of(:background), do: {:scene, "BackgroundShaderTree"}
@@ -243,6 +306,36 @@ defmodule ExPoser.ShaderTree do
     Ref.release_in(handle, opts)
 
     with {:ok, [row]} <- result, do: {:ok, build(tree, row)}
+  end
+
+  # Every value read here is plain data (no handles), so nothing needs releasing.
+  defp read_snapshot(tree, nodes, roots, opts) do
+    live_roots = Enum.reject(roots, &is_nil/1)
+
+    ops =
+      for(h <- nodes, m <- @node_methods, do: {:invoke, h, m, []}) ++
+        for h <- live_roots, do: {:invoke, h, "InternalName", []}
+
+    with {:ok, values} <- Client.batch(ops, opts) do
+      {node_values, root_values} = Enum.split(values, length(nodes) * length(@node_methods))
+
+      {:ok,
+       %Snapshot{tree: tree, nodes: node_maps(node_values), roots: root_map(roots, root_values)}}
+    end
+  end
+
+  defp renderer_codes, do: Enum.sort_by(@renderers, fn {_renderer, code} -> code end)
+
+  defp root_map(roots, root_values) do
+    {pairs, []} =
+      renderer_codes()
+      |> Enum.zip(roots)
+      |> Enum.map_reduce(root_values, fn
+        {{renderer, _code}, nil}, rest -> {{renderer, nil}, rest}
+        {{renderer, _code}, _handle}, [internal | rest] -> {{renderer, internal}, rest}
+      end)
+
+    Map.new(pairs)
   end
 
   defp run_opts(opts), do: Keyword.validate!(opts, [:server, :timeout])
