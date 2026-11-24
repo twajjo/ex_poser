@@ -8,7 +8,7 @@ defmodule ExPoser.LivePoserTest do
   import PoserTest.ClientCase
 
   alias ExPoser.{Actor, Api.MaterialType, Batch, Camera, Client, Error, Figure, Handle, Light}
-  alias ExPoser.{Material, Parameter, Scene, ShaderTree}
+  alias ExPoser.{Material, Parameter, Scene, ShaderInput, ShaderNode, ShaderTree}
 
   @moduletag :poser
 
@@ -320,12 +320,115 @@ defmodule ExPoser.LivePoserTest do
       assert ShaderTree.snapshot!(tree, server: c) == snap
       assert_no_handles(c)
     end
+
+    # The crash regression test for #83: the node is gone by the end of the
+    # batch, so it checks only the result shapes and that the tree is restored.
+    test "one batch creates an image_map, sets its source, links it and deletes it", %{c: c} do
+      tree = Material.tree(hd(Figure.materials!(hd(Scene.figures!(server: c)), server: c)))
+
+      before =
+        restoring_tree(tree, c, fn snap ->
+          input = chosen_input(tree, snap)
+          path = image_path(snap)
+
+          build = fn ->
+            b = Batch.create_node(Batch.new(), tree, "image_map")
+            node = Batch.created(b)
+
+            b
+            |> Batch.set_input(ShaderNode.input(node, "Image_Source"), path)
+            |> Batch.link(ShaderNode.output(node, "Color"), input)
+            |> Batch.delete_node(node)
+          end
+
+          names = Enum.map(ShaderTree.nodes!(tree, server: c), & &1.internal)
+          IO.puts("probe 3: tree nodes before the run: #{inspect(names)}")
+
+          assert {:ok, [%ShaderNode{} = made, :ok, :ok, :ok]} = Batch.run(build.(), server: c)
+
+          IO.puts("probe 3: first run created internal=#{inspect(made.internal)}")
+          IO.puts("probe 3: first run created name=#{inspect(made.name)}")
+
+          assert {:ok, [%ShaderNode{} = again, :ok, :ok, :ok]} = Batch.run(build.(), server: c)
+          IO.puts("probe 3: second run created internal=#{inspect(again.internal)}")
+          IO.puts("probe 3: internal names equal: #{made.internal == again.internal}")
+        end)
+
+      assert ShaderTree.snapshot!(tree, server: c) == before
+      assert_no_handles(c)
+    end
+
+    test "linking a node uses which output, observed", %{c: c} do
+      tree = Material.tree(hd(Figure.materials!(hd(Scene.figures!(server: c)), server: c)))
+
+      before =
+        restoring_tree(tree, c, fn snap ->
+          input = chosen_input(tree, snap)
+          node = ShaderTree.create_node!(tree, "image_map", server: c)
+          :ok = ShaderInput.link!(input, node, server: c)
+
+          after_link = ShaderTree.snapshot!(tree, server: c)
+          from = linked_from(after_link, input)
+          outputs = after_link.nodes |> Enum.find(&(&1.internal == node.internal)) |> outputs_of()
+
+          IO.puts("probe 4: input #{input.internal} from=#{inspect(from)}")
+          IO.puts("probe 4: new node #{node.internal} outputs in order: #{inspect(outputs)}")
+
+          :ok = ShaderNode.delete!(node, server: c)
+        end)
+
+      assert ShaderTree.snapshot!(tree, server: c) == before
+      assert_no_handles(c)
+    end
   end
 
   defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
 
+  # The first input of the root node, other than Diffuse_Color, that is
+  # unlinked and has Diffuse_Color's type, so linking it leaves the usual
+  # colour slot alone.
+  defp chosen_input(tree, snap) do
+    root = Enum.find(snap.nodes, &(&1.internal == snap.roots.preview))
+    diffuse = Enum.find(root.inputs, &(&1.internal == "Diffuse_Color"))
+    assert diffuse, "#{root.internal} has no Diffuse_Color input"
+
+    chosen =
+      Enum.find(root.inputs, fn i ->
+        i.internal != "Diffuse_Color" and i.from == nil and i.type == diffuse.type
+      end)
+
+    assert chosen, "no unlinked input of type #{inspect(diffuse.type)} on #{root.internal}"
+    IO.puts("chosen input: #{chosen.internal} on #{root.internal}")
+
+    ShaderNode.input(
+      %ShaderNode{tree: tree, internal: root.internal, name: root.name},
+      chosen.internal
+    )
+  end
+
   defp close?({r1, g1, b1}, {r2, g2, b2}),
     do: abs(r1 - r2) < 1.0e-3 and abs(g1 - g2) < 1.0e-3 and abs(b1 - b2) < 1.0e-3
+
+  # The Image_Source value of an existing node, so no path is guessed.
+  defp image_path(snap) do
+    sources =
+      for n <- snap.nodes,
+          i <- n.inputs,
+          i.internal == "Image_Source",
+          is_binary(i.value) and i.value != "",
+          do: i.value
+
+    assert [path | _] = sources, "no node in the tree has a non-empty Image_Source"
+    IO.puts("image path: #{inspect(path)}")
+    path
+  end
+
+  defp linked_from(snap, input) do
+    node = Enum.find(snap.nodes, &(&1.internal == input.node.internal))
+    Enum.find_value(node.inputs, &(&1.internal == input.internal && &1.from))
+  end
+
+  defp outputs_of(node_map), do: Enum.map(node_map.outputs, & &1.internal)
 
   defp probe(c) do
     {:ok, [fig | _]} = Scene.figures(server: c)
@@ -440,6 +543,50 @@ defmodule ExPoser.LivePoserTest do
       Light.apply!(lights, mode: :replace, server: c)
       Scene.set_current_camera!(camera, server: c)
     end
+  end
+
+  # Snapshots the tree, runs `fun` with the snapshot, then deletes every node
+  # that wasn't in it. Returns the snapshot, for the caller to compare with.
+  # A body failure is re-raised after the cleanup, so a cleanup failure (such
+  # as a dead Poser) never hides it.
+  defp restoring_tree(tree, c, fun) do
+    snap = ShaderTree.snapshot!(tree, server: c)
+    known = MapSet.new(snap.nodes, & &1.internal)
+
+    body =
+      try do
+        fun.(snap)
+        :ok
+      catch
+        kind, why -> {:raised, kind, why, __STACKTRACE__}
+      end
+
+    failures =
+      try do
+        case ShaderTree.nodes(tree, server: c) do
+          {:ok, nodes} ->
+            for node <- nodes,
+                node.internal not in known,
+                {:error, _} = err <- [ShaderNode.delete(node, server: c)],
+                do: {node.internal, err}
+
+          {:error, _} = err ->
+            [{:nodes, err}]
+        end
+      catch
+        kind, why -> [{:cleanup, {kind, why}}]
+      end
+
+    case body do
+      {:raised, kind, why, st} ->
+        if failures != [], do: IO.puts("cleanup also failed: #{inspect(failures)}")
+        :erlang.raise(kind, why, st)
+
+      :ok ->
+        assert failures == [], "cleanup failed: #{inspect(failures)}"
+    end
+
+    snap
   end
 
   # Snapshots frame, keys and the value at 5, sets a distinct value at frame 5
