@@ -3,7 +3,7 @@ defmodule ExPoser.ShaderTreeSnapshotTest do
 
   import PoserTest.ClientCase
 
-  alias ExPoser.{Actor, Client, Error, Figure, Material, ShaderTree}
+  alias ExPoser.{Actor, Client, Error, Figure, Material, ShaderInput, ShaderOutput, ShaderTree}
   alias ExPoser.ShaderTree.Snapshot
 
   setup do
@@ -23,11 +23,57 @@ defmodule ExPoser.ShaderTreeSnapshotTest do
              %{internal: "Image_Map", name: "Image_Map", type: "image_map"}
            ] = nodes
 
-    for node <- nodes do
-      assert node.inputs == []
-      assert node.outputs == []
-    end
+    assert_no_handles(c)
+  end
 
+  test "snapshot reads inputs with their links", %{c: c, skin: skin} do
+    assert {:ok, %Snapshot{nodes: [surface, image]}} =
+             skin |> Material.tree() |> ShaderTree.snapshot(server: c)
+
+    assert [diffuse, value, bump] = surface.inputs
+
+    assert %{internal: "Diffuse_Color", name: "Diffuse_Color", from: {"Image_Map", "Color"}} =
+             diffuse
+
+    assert diffuse.type == 1
+    assert diffuse.value == {0.0, 0.0, 0.0}
+    assert %{internal: "Diffuse_Value", from: nil, type: 0} = value
+    assert value.value == 0.0
+    assert %{internal: "Bump", from: nil} = bump
+    assert [%{internal: "Image_Source", from: nil}, %{internal: "U_Offset"}] = image.inputs
+    assert_no_handles(c)
+  end
+
+  test "snapshot pairs each linked input with its own source", %{c: c, skin: skin} do
+    tree = Material.tree(skin)
+    surface = ShaderTree.node!(tree, "PoserSurface", server: c)
+    extra = ShaderTree.create_node!(tree, "image_map", server: c)
+    bump = %ShaderInput{node: surface, internal: "Bump"}
+    ShaderInput.link!(bump, %ShaderOutput{node: extra, internal: "Color"}, server: c)
+
+    assert {:ok, %Snapshot{nodes: [snap_surface | _]}} = ShaderTree.snapshot(tree, server: c)
+    assert [diffuse, _value, snap_bump] = snap_surface.inputs
+    assert diffuse.from == {"Image_Map", "Color"}
+    assert snap_bump.from == {extra.internal, "Color"}
+    assert_no_handles(c)
+  end
+
+  test "snapshot reads outputs", %{c: c, skin: skin} do
+    assert {:ok, %Snapshot{nodes: [surface, image]}} =
+             skin |> Material.tree() |> ShaderTree.snapshot(server: c)
+
+    assert [%{internal: "Color", name: "Color"}] = image.outputs
+    assert [%{internal: "out"}] = surface.outputs
+    assert_no_handles(c)
+  end
+
+  test "snapshot of a tree with no links sends no link request", %{c: c} do
+    tree = %ShaderTree{owner: :background}
+    before = Client.request_count(server: c)
+    assert {:ok, %Snapshot{nodes: nodes}} = ShaderTree.snapshot(tree, server: c)
+    assert [_ | _] = nodes
+    assert Enum.all?(nodes, fn node -> Enum.all?(node.inputs, &(&1.from == nil)) end)
+    assert Client.request_count(server: c) == before + 6
     assert_no_handles(c)
   end
 
@@ -97,10 +143,19 @@ defmodule ExPoser.ShaderTreeSnapshotTest do
     assert_no_handles(c)
   end
 
-  test "snapshot takes four requests with releases", %{c: c, skin: skin} do
+  test "snapshot takes eight requests however many nodes", %{c: c, skin: skin} do
+    tree = Material.tree(skin)
     before = Client.request_count(server: c)
-    assert {:ok, _} = skin |> Material.tree() |> ShaderTree.snapshot(server: c)
-    assert Client.request_count(server: c) == before + 4
+    assert {:ok, _} = ShaderTree.snapshot(tree, server: c)
+    assert Client.request_count(server: c) == before + 8
+
+    for _ <- 1..5, do: ShaderTree.create_node!(tree, "image_map", server: c)
+
+    before = Client.request_count(server: c)
+    assert {:ok, %Snapshot{nodes: nodes}} = ShaderTree.snapshot(tree, server: c)
+    assert length(nodes) == 7
+    assert Client.request_count(server: c) == before + 8
+    assert_no_handles(c)
   end
 
   defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
