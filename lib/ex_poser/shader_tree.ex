@@ -27,7 +27,9 @@ defmodule ExPoser.ShaderTree do
 
   # kRenderEngineCode*
   @renderers %{preview: 0, firefly: 1, poser4: 2, sketch: 3, superfly: 4}
-  @node_methods ["InternalName", "Name", "Type", "Location", "IsRoot"]
+  @node_methods ["InternalName", "Name", "Type", "Location", "IsRoot", "Inputs", "Outputs"]
+  @input_methods ["InternalName", "Name", "Type", "Value", "InNode", "InOutput"]
+  @output_methods ["InternalName", "Name"]
 
   @doc group: "Nodes"
   @doc """
@@ -233,11 +235,18 @@ defmodule ExPoser.ShaderTree do
 
   @doc group: "Snapshots"
   @doc """
-  Reads the tree's nodes (internal name, name, type, location, root flag) and
-  its root node's internal name for each renderer, as an
-  `ExPoser.ShaderTree.Snapshot`. Each node's `inputs` and `outputs` are empty
-  lists for now. It takes two batches, each followed by a request that
-  releases its handles, so four requests in all. Options: `:server`, `:timeout`.
+  Reads the tree's nodes (internal name, name, type, location, root flag, and
+  each node's inputs and outputs with the links between them) and its root
+  node's internal name for each renderer, as an `ExPoser.ShaderTree.Snapshot`.
+  It takes four batch round trips: the nodes and roots, each node's fields with
+  its inputs and outputs lists, the inputs' and outputs' own reads, and the
+  names of the nodes and outputs the inputs are connected to. Each of the
+  first three returns handles, which a request after it releases; the fourth
+  returns only names. Releasing the connected nodes' and outputs' handles
+  takes one more request, so eight requests in all, however many nodes there
+  are, while the reads fit in one `ExPoser.Batch` chunk (2000 wire ops). When
+  no input is connected, the fourth round trip and that release are not sent,
+  so six. Options: `:server`, `:timeout`.
 
   ## Examples
 
@@ -279,20 +288,53 @@ defmodule ExPoser.ShaderTree do
   defp build(tree, row),
     do: %ShaderNode{tree: tree, internal: row["InternalName"], name: row["Name"]}
 
-  defp node_maps(values) do
-    values
-    |> Enum.chunk_every(length(@node_methods))
-    |> Enum.map(fn [internal, name, type, location, root] ->
-      %{
-        internal: internal,
-        name: name,
-        type: type,
-        location: location,
-        root: root,
-        inputs: [],
-        outputs: []
-      }
-    end)
+  defp input_maps(in_rows, links) do
+    {maps, []} =
+      Enum.map_reduce(in_rows, links, fn
+        [internal, name, type, value, node, output], rest when node != nil and output != nil ->
+          [[node_internal, output_internal] | rest] = rest
+
+          {%{
+             internal: internal,
+             name: name,
+             type: type,
+             value: value,
+             from: {node_internal, output_internal}
+           }, rest}
+
+        [internal, name, type, value, _node, _output], rest ->
+          {%{internal: internal, name: name, type: type, value: value, from: nil}, rest}
+      end)
+
+    maps
+  end
+
+  defp node_maps(rows, inputs, outputs) do
+    {maps, {[], []}} =
+      Enum.map_reduce(rows, {inputs, outputs}, fn
+        [internal, name, type, location, root, in_handles, out_handles], {ins, outs} ->
+          {mine_in, rest_in} = Enum.split(ins, length(in_handles))
+          {mine_out, rest_out} = Enum.split(outs, length(out_handles))
+
+          node = %{
+            internal: internal,
+            name: name,
+            type: type,
+            location: location,
+            root: root,
+            inputs: mine_in,
+            outputs: mine_out
+          }
+
+          {node, {rest_in, rest_out}}
+      end)
+
+    maps
+  end
+
+  defp output_maps(out_values) do
+    for [internal, name] <- Enum.chunk_every(out_values, length(@output_methods)),
+        do: %{internal: internal, name: name}
   end
 
   defp parent_of(:atmosphere), do: {:scene, "AtmosphereShaderTree"}
@@ -308,7 +350,46 @@ defmodule ExPoser.ShaderTree do
     with {:ok, [row]} <- result, do: {:ok, build(tree, row)}
   end
 
-  # Every value read here is plain data (no handles), so nothing needs releasing.
+  # Step 4: the internal names of the nodes and outputs the inputs are connected to.
+  defp read_links(in_rows, opts) do
+    ops =
+      for [_, _, _, _, node, output] <- in_rows,
+          node != nil and output != nil,
+          h <- [node, output],
+          do: {:invoke, h, "InternalName", []}
+
+    case ops do
+      [] -> {:ok, []}
+      _ -> with {:ok, names} <- run_batch(ops, opts), do: {:ok, Enum.chunk_every(names, 2)}
+    end
+  end
+
+  # Step 3: every input's and output's own reads, then step 4. The step-2 handles
+  # are released by the caller; the InNode and InOutput handles here, after step 4.
+  defp read_ports(rows, opts) do
+    in_handles = for [_, _, _, _, _, ins, _outs] <- rows, h <- ins, do: h
+    out_handles = for [_, _, _, _, _, _ins, outs] <- rows, h <- outs, do: h
+
+    ops =
+      for(h <- in_handles, m <- @input_methods, do: {:invoke, h, m, []}) ++
+        for h <- out_handles, m <- @output_methods, do: {:invoke, h, m, []}
+
+    with {:ok, values} <- run_batch(ops, opts) do
+      try do
+        {in_values, out_values} = Enum.split(values, length(in_handles) * length(@input_methods))
+        in_rows = Enum.chunk_every(in_values, length(@input_methods))
+
+        with {:ok, links} <- read_links(in_rows, opts) do
+          {:ok, {input_maps(in_rows, links), output_maps(out_values)}}
+        end
+      after
+        Ref.release_in(values, opts)
+      end
+    end
+  end
+
+  # Step 2: the nodes' own reads, with their Inputs() and Outputs() handle lists.
+  # Those are released after step 3, on success and on failure.
   defp read_snapshot(tree, nodes, roots, opts) do
     live_roots = Enum.reject(roots, &is_nil/1)
 
@@ -316,11 +397,22 @@ defmodule ExPoser.ShaderTree do
       for(h <- nodes, m <- @node_methods, do: {:invoke, h, m, []}) ++
         for h <- live_roots, do: {:invoke, h, "InternalName", []}
 
-    with {:ok, values} <- Client.batch(ops, opts) do
-      {node_values, root_values} = Enum.split(values, length(nodes) * length(@node_methods))
+    with {:ok, values} <- run_batch(ops, opts) do
+      try do
+        {node_values, root_values} = Enum.split(values, length(nodes) * length(@node_methods))
+        rows = Enum.chunk_every(node_values, length(@node_methods))
 
-      {:ok,
-       %Snapshot{tree: tree, nodes: node_maps(node_values), roots: root_map(roots, root_values)}}
+        with {:ok, {inputs, outputs}} <- read_ports(rows, opts) do
+          {:ok,
+           %Snapshot{
+             tree: tree,
+             nodes: node_maps(rows, inputs, outputs),
+             roots: root_map(roots, root_values)
+           }}
+        end
+      after
+        Ref.release_in(values, opts)
+      end
     end
   end
 
@@ -336,6 +428,18 @@ defmodule ExPoser.ShaderTree do
       end)
 
     Map.new(pairs)
+  end
+
+  # Client.batch, releasing the handles of a failed batch's partial results.
+  defp run_batch(ops, opts) do
+    case Client.batch(ops, opts) do
+      {:error, %Error{kind: :batch_failed, details: %{partial: partial}}} = error ->
+        Ref.release_in(partial, opts)
+        error
+
+      other ->
+        other
+    end
   end
 
   defp run_opts(opts), do: Keyword.validate!(opts, [:server, :timeout])
