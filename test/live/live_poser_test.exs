@@ -7,7 +7,8 @@ defmodule ExPoser.LivePoserTest do
 
   import PoserTest.ClientCase
 
-  alias ExPoser.{Actor, Batch, Camera, Client, Error, Figure, Handle, Light, Parameter, Scene}
+  alias ExPoser.{Actor, Api.MaterialType, Batch, Camera, Client, Error, Figure, Handle, Light}
+  alias ExPoser.{Material, Parameter, Scene, ShaderTree}
 
   @moduletag :poser
 
@@ -276,13 +277,117 @@ defmodule ExPoser.LivePoserTest do
     end
   end
 
+  describe "materials" do
+    test "the first figure's materials are listed and looked up by name", %{c: c} do
+      fig = hd(Scene.figures!(server: c))
+      mats = Figure.materials!(fig, server: c)
+      assert [_ | _] = mats
+      assert Figure.material!(fig, hd(mats).name, server: c) == hd(mats)
+
+      for m <- Enum.take(mats, 5), do: probe_1(fig, m, c)
+      probe_2(hd(mats), c)
+
+      assert_no_handles(c)
+    end
+
+    test "a flat colour is set, read back and restored", %{c: c} do
+      m = hd(Figure.materials!(hd(Scene.figures!(server: c)), server: c))
+      orig = Material.get!(m, :diffuse_color, server: c)
+
+      new =
+        if close?(orig, {0.1, 0.7, 0.3}), do: {0.9, 0.2, 0.5}, else: {0.1, 0.7, 0.3}
+
+      try do
+        :ok = Material.set!(m, :diffuse_color, new, server: c)
+        assert close?(Material.get!(m, :diffuse_color, server: c), new)
+      after
+        Material.set!(m, :diffuse_color, orig, server: c)
+      end
+
+      assert close?(Material.get!(m, :diffuse_color, server: c), orig)
+      assert_no_handles(c)
+    end
+
+    test "the first material's tree snapshots, observed", %{c: c} do
+      m = hd(Figure.materials!(hd(Scene.figures!(server: c)), server: c))
+      tree = Material.tree(m)
+
+      {us, snap} = :timer.tc(fn -> ShaderTree.snapshot!(tree, server: c) end)
+      IO.puts("ShaderTree.snapshot (#{length(snap.nodes)} nodes): #{div(us, 1000)} ms")
+      IO.puts("node types: #{inspect(Enum.map(snap.nodes, & &1.type))}")
+      IO.puts("roots: #{inspect(snap.roots)}")
+
+      assert ShaderTree.snapshot!(tree, server: c) == snap
+      assert_no_handles(c)
+    end
+  end
+
   defp assert_no_handles(c), do: assert({:ok, %{"handles" => 0}} = Client.stats(server: c))
+
+  defp close?({r1, g1, b1}, {r2, g2, b2}),
+    do: abs(r1 - r2) < 1.0e-3 and abs(g1 - g2) < 1.0e-3 and abs(b1 - b2) < 1.0e-3
 
   defp probe(c) do
     {:ok, [fig | _]} = Scene.figures(server: c)
     {:ok, body} = Figure.actor(fig, "BODY:1", server: c)
     {:ok, parm} = Actor.parameter(body, "yRotate", server: c)
     {fig, body, parm}
+  end
+
+  defp probe_1(fig, m, c) do
+    h = Material.handle!(m, server: c)
+
+    try do
+      {:ok, name} = MaterialType.name(h, server: c)
+      {:ok, ext} = MaterialType.ext_name(h, server: c)
+
+      found =
+        case Figure.material(fig, ext, server: c) do
+          {:ok, _} -> "ok"
+          {:error, %Error{kind: k, message: msg}} -> "error #{inspect(k)} #{inspect(msg)}"
+        end
+
+      IO.puts(
+        "probe 1: name=#{inspect(name)} ext_name=#{inspect(ext)} lookup by ext_name: #{found}"
+      )
+    after
+      Client.release([h], server: c)
+    end
+  end
+
+  defp probe_2(m, c) do
+    h = Material.handle!(m, server: c)
+
+    try do
+      {:ok, n} = MaterialType.num_layers(h, server: c)
+
+      if n == 0 do
+        IO.puts("probe 2: no layers")
+      else
+        for i <- 0..(n - 1), do: probe_2_layer(h, i, c)
+      end
+    after
+      Client.release([h], server: c)
+    end
+  end
+
+  defp probe_2_layer(h, i, c) do
+    {:ok, name} = MaterialType.layer_name(h, i, server: c)
+    {:ok, ext} = MaterialType.layer_ext_name(h, i, server: c)
+
+    found =
+      case MaterialType.layer_by_name(h, ext, server: c) do
+        {:ok, %Handle{} = lh} ->
+          Client.release([lh], server: c)
+          "handle"
+
+        other ->
+          "no handle (#{inspect(other)})"
+      end
+
+    IO.puts(
+      "probe 2: layer #{i} name=#{inspect(name)} ext_name=#{inspect(ext)} by ext_name: #{found}"
+    )
   end
 
   defp restore_5(parm, %{frame0: frame0, keys0: keys0, orig5: orig5}, c) do
