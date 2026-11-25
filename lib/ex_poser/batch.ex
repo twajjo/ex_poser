@@ -399,6 +399,10 @@ defmodule ExPoser.Batch do
   An unknown atom raises `ArgumentError` now. The tree changes, so Poser
   refreshes its preview once per request chunk.
 
+  Poser only honours this for `:firefly` and `:superfly`. For `:preview`,
+  `:poser4` and `:sketch` it returns `:ok` but changes nothing, and
+  `ExPoser.ShaderTree.root/3` for those renderers reports firefly's root.
+
   ## Examples
 
       ExPoser.Batch.new() |> ExPoser.Batch.set_root(image_node, :superfly)
