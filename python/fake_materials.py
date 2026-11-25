@@ -210,9 +210,13 @@ class ShaderTreeType(object):
 
 
 class MaterialLayerType(object):
-    def __init__(self, name):
+    def __init__(self, name, ext_name=None):
         self._name = name
+        self._ext = name if ext_name is None else ext_name
         self._tree = ShaderTreeType()
+
+    def ExtName(self):
+        return self._ext
 
     def Name(self):
         return self._name
@@ -263,8 +267,14 @@ class MaterialType(object):
                 return layer
         raise _error("material has no layer named %s" % name)
 
+    # As in Poser: the name becomes the display name (ExtName), and the layer's
+    # Name is Poser's own Layer_<n>.
     def CreateLayer(self, name):
-        self._layers.append(MaterialLayerType(name))
+        taken = set(layer.Name() for layer in self._layers)
+        n = 1
+        while "Layer_%d" % n in taken:
+            n += 1
+        self._layers.append(MaterialLayerType("Layer_%d" % n, name))
 
     def DeleteLayer(self, index):
         if not 0 <= index < len(self._layers):
@@ -302,7 +312,8 @@ for _key in _MAPS + list(_NUMBERS) + ["Selected"]:
 
 
 def seed_figure_materials():
-    """Skin and Hair for figure 1; Skin is also the hip's material."""
+    """Skin and Hair for figure 1; Skin is also the hip's material. Hair has two
+    layers that share a Name, which CreateLayer can't make, for :ambiguous."""
     skin = MaterialType("Skin")
     surface = skin._tree._add("PoserSurface", "PoserSurface")
     skin._tree.SetRendererRootNode(1, surface)
@@ -312,6 +323,7 @@ def seed_figure_materials():
     skin._layers[0]._tree._add("PoserSurface", "PoserSurface")
     hair = MaterialType("Hair")
     hair._tree._add("PoserSurface", "PoserSurface")
+    hair._layers = [MaterialLayerType("Dup"), MaterialLayerType("Dup")]
     return skin, hair
 
 
