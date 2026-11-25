@@ -57,3 +57,15 @@ def read_config(path=None):
     except OSError:
         return {}
     return data if isinstance(data, dict) else {}
+
+
+def read_build(path=None):
+    """The stamp scripts/deploy_addon.sh writes to build.txt in this
+    package's folder (jj commit id and deploy time), or "unknown"."""
+    path = path or os.path.join(os.path.dirname(os.path.abspath(__file__)), "build.txt")
+    try:
+        with open(path) as f:
+            stamp = f.read().strip()
+    except OSError:
+        return "unknown"
+    return stamp or "unknown"
