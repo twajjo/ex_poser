@@ -7,8 +7,9 @@ defmodule ExPoser.LivePoserTest do
 
   import PoserTest.ClientCase
 
-  alias ExPoser.{Actor, Api.MaterialType, Batch, Camera, Client, Error, Figure, Handle, Light}
-  alias ExPoser.{Material, Parameter, Scene, ShaderInput, ShaderNode, ShaderTree}
+  alias ExPoser.{Actor, Api.MaterialType, Api.SceneType, Batch, Camera, Client, Error, Figure}
+  alias ExPoser.{Handle, Light, Material, MaterialLayer, Parameter, Scene, ShaderInput}
+  alias ExPoser.{ShaderNode, ShaderTree}
 
   @moduletag :poser
 
@@ -375,6 +376,77 @@ defmodule ExPoser.LivePoserTest do
           IO.puts("probe 4: new node #{node.internal} outputs in order: #{inspect(outputs)}")
 
           :ok = ShaderNode.delete!(node, server: c)
+        end)
+
+      assert ShaderTree.snapshot!(tree, server: c) == before
+      assert_no_handles(c)
+    end
+
+    # CreateLayer acts only when the material's actor is the current actor,
+    # so the test selects the figure's Body first and restores the selection.
+    test "a layer is created and deleted", %{c: c} do
+      fig = hd(Scene.figures!(server: c))
+      m = hd(Figure.materials!(fig, server: c))
+      actors = Figure.actors!(fig, server: c)
+      body = Enum.find(actors, hd(actors), &(&1.name == "Body"))
+      before = Material.layers!(m, server: c)
+      IO.puts("layers before: #{inspect(Enum.map(before, & &1.name))}")
+
+      {:ok, scene} = Client.call("Scene", [], server: c)
+      {:ok, previous} = SceneType.current_actor(scene, server: c)
+      body_handle = Actor.handle!(body, server: c)
+
+      try do
+        {:ok, nil} = SceneType.select_actor(scene, body_handle, server: c)
+        :ok = Material.create_layer!(m, "ExPoser live test", server: c)
+
+        assert [layer] = Material.layers!(m, server: c) -- before
+        IO.puts("new layer's name: #{inspect(layer.name)}")
+
+        :ok = MaterialLayer.delete!(layer, server: c)
+      after
+        with {:ok, now} <- Material.layers(m, server: c) do
+          for l <- now -- before, do: MaterialLayer.delete(l, server: c)
+        end
+
+        SceneType.select_actor(scene, previous, server: c)
+        Client.release([scene, previous, body_handle], server: c)
+      end
+
+      assert Material.layers!(m, server: c) == before
+      assert_no_handles(c)
+    end
+
+    # Only the firefly and superfly roots can be set: Poser ignores
+    # SetRendererRootNode for preview, poser4 and sketch, which report
+    # firefly's root.
+    test "the atmosphere tree's root is set and restored", %{c: c} do
+      tree = Scene.atmosphere_tree()
+
+      before =
+        restoring_tree(tree, c, fn snap ->
+          IO.puts("atmosphere roots: #{inspect(snap.roots)}")
+          IO.puts("atmosphere nodes: #{inspect(Enum.map(snap.nodes, &{&1.internal, &1.type}))}")
+
+          renderer = Enum.find([:firefly, :superfly], &snap.roots[&1])
+          assert renderer, "no renderer has a root node"
+          IO.puts("chosen renderer: #{inspect(renderer)}")
+
+          original = ShaderTree.root!(tree, renderer, server: c)
+          assert original.internal == snap.roots[renderer]
+
+          type = Enum.find(snap.nodes, &(&1.internal == original.internal)).type
+          made = ShaderTree.create_node!(tree, type, server: c)
+          IO.puts("created #{inspect(type)} node: #{inspect(made.internal)}")
+
+          try do
+            :ok = ShaderTree.set_root!(made, renderer, server: c)
+            assert ShaderTree.root!(tree, renderer, server: c).internal == made.internal
+          after
+            ShaderTree.set_root(original, renderer, server: c)
+          end
+
+          :ok = ShaderNode.delete!(made, server: c)
         end)
 
       assert ShaderTree.snapshot!(tree, server: c) == before
