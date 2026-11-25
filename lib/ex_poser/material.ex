@@ -46,32 +46,33 @@ defmodule ExPoser.Material do
 
   @doc group: "Layers"
   @doc """
-  Creates a layer named `name` on the material and returns it, with the
-  requested name. If Poser gives the layer a different name, the struct still
-  carries the requested one. Options: `:server`, `:timeout`.
+  Creates a layer on the material, as `ExPoser.Batch.create_layer/3` does, and
+  returns `{:ok, :ok}`. Poser keeps `name` as the display name and names the
+  layer itself, so find the new layer with `layers/2`. The material's actor
+  must be the scene's current actor. Options: `:server`, `:timeout`.
 
   ## Examples
 
       ExPoser.Material.create_layer(skin, "Wet")
-      #=> {:ok, #ExPoser.MaterialLayer<Wet>}
+      #=> {:ok, :ok}
   """
-  @spec create_layer(t(), String.t(), keyword()) :: {:ok, MaterialLayer.t()} | {:error, Error.t()}
+  @spec create_layer(t(), String.t(), keyword()) :: {:ok, :ok} | {:error, Error.t()}
   def create_layer(%__MODULE__{} = material, name, opts \\ []) when is_binary(name) do
-    with {:ok, [layer]} <-
+    with {:ok, _} <-
            Batch.new() |> Batch.create_layer(material, name) |> Batch.run(run_opts(opts)),
-         do: {:ok, layer}
+         do: {:ok, :ok}
   end
 
   @doc group: "Layers"
   @doc """
-  Like `create_layer/3`, but returns the struct and raises `ExPoser.Error` on failure.
+  Like `create_layer/3`, but returns `:ok` and raises `ExPoser.Error` on failure.
 
   ## Examples
 
       ExPoser.Material.create_layer!(skin, "Wet")
-      #=> #ExPoser.MaterialLayer<Wet>
+      #=> :ok
   """
-  @spec create_layer!(t(), String.t(), keyword()) :: MaterialLayer.t()
+  @spec create_layer!(t(), String.t(), keyword()) :: :ok
   def create_layer!(material, name, opts \\ []),
     do: material |> create_layer(name, opts) |> Ref.unwrap!()
 

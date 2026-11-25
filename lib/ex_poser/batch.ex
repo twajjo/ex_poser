@@ -39,7 +39,6 @@ defmodule ExPoser.Batch do
     Codec,
     Error,
     Material,
-    MaterialLayer,
     Parameter,
     Ref,
     ShaderInput,
@@ -65,7 +64,7 @@ defmodule ExPoser.Batch do
            args: list(),
            frame: non_neg_integer() | nil,
            result:
-             :ok | :value | {:created, ExPoser.ShaderTree.t()} | {:layer, MaterialLayer.t()},
+             :ok | :value | {:created, ExPoser.ShaderTree.t()},
            changes: ExPoser.ShaderTree.t() | nil
          }
 
@@ -129,26 +128,20 @@ defmodule ExPoser.Batch do
 
   @doc group: "Materials"
   @doc """
-  Creates a layer named `name` on `material`. Its result is the
-  `ExPoser.MaterialLayer` for the requested name; Poser's own return value is
-  ignored. If Poser gives the layer a different name, the struct still carries
-  the requested one.
+  Creates a layer on `material`. Its result is `:ok`, as `CreateLayer` returns
+  nothing. Poser keeps `name` as the layer's display name (`ExtName`) and gives
+  the layer its own name, such as `"Layer_1"`, which is the name
+  `ExPoser.MaterialLayer` uses; `ExPoser.Material.layers/2` lists it. The
+  material's actor must be the scene's current actor: otherwise Poser refuses,
+  with a message such as "Cannot add Material Layer to Light".
 
   ## Examples
 
       ExPoser.Batch.new() |> ExPoser.Batch.create_layer(skin, "Wet")
   """
   @spec create_layer(t(), Material.t(), String.t()) :: t()
-  def create_layer(b, %Material{} = material, name) when is_binary(name) do
-    push(
-      b,
-      material,
-      "CreateLayer",
-      [name],
-      nil,
-      {:layer, %MaterialLayer{material: material, name: name}}
-    )
-  end
+  def create_layer(b, %Material{} = material, name) when is_binary(name),
+    do: push(b, material, "CreateLayer", [name], nil, :ok)
 
   @doc group: "Materials"
   @doc """
@@ -476,7 +469,6 @@ defmodule ExPoser.Batch do
       case elem(kinds, k) do
         :ok -> :ok
         {:created, tree} -> created_node(tree, results, i)
-        {:layer, layer} -> layer
         :value -> result
       end
     end

@@ -113,12 +113,19 @@ class FakeMaterialsTest(unittest.TestCase):
         self.assertEqual(tree.NumNodes(), 1)
 
     def test_layers(self):
-        self.skin.CreateLayer("Dup")
-        self.skin.CreateLayer("Dup")
+        self.skin.CreateLayer("Wet")
+        self.skin.CreateLayer("Wet")
         self.assertEqual(self.skin.NumLayers(), 3)
-        self.assertIs(self.skin.LayerByName("Dup"), self.skin.Layers()[1])
+        # As in Poser: the name is the ExtName, Name is Layer_<n>, and
+        # LayerByName matches Name only.
+        self.assertEqual([l.Name() for l in self.skin.Layers()],
+                         ["Layer_1", "Layer_2", "Layer_3"])
+        self.assertEqual([l.ExtName() for l in self.skin.Layers()], ["Layer_1", "Wet", "Wet"])
+        self.assertIs(self.skin.LayerByName("Layer_2"), self.skin.Layers()[1])
+        with self.assertRaises(self.poser.error):
+            self.skin.LayerByName("Wet")
         self.skin.DeleteLayer(0)
-        self.assertEqual([l.Name() for l in self.skin.Layers()], ["Dup", "Dup"])
+        self.assertEqual([l.Name() for l in self.skin.Layers()], ["Layer_2", "Layer_3"])
         with self.assertRaises(self.poser.error):
             self.skin.DeleteLayer(5)
 
