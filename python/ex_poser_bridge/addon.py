@@ -58,7 +58,8 @@ class Bridge(poseraddon.Addon, poseraddon.SceneObserver):
         self.server = server
         path = net.write_session({"port": net.DEV_PORT, "token": server.token,
                                   "protocol": PROTOCOL, "hosts": hosts})
-        print("ex_poser_bridge: loaded (%s mode), session file %s" % (policy.mode, path))
+        print("ex_poser_bridge: loaded build %s (%s mode), session file %s"
+              % (net.read_build(), policy.mode, path))
 
     def unload(self):
         if self.server:

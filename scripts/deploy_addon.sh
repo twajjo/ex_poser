@@ -11,5 +11,10 @@ addons="${POSER_ADDONS:-/mnt/d/Program Files/Poser Software/Poser 14/Runtime/Pyt
 
 rsync -a --delete --exclude __pycache__ "$src" "$addons/ex_poser_bridge/"
 cp "$root/priv/poser_api.json" "$addons/ex_poser_bridge/poser_api.json"  # strict-mode allowlist
-echo "deployed to $addons/ex_poser_bridge/"
+# Build stamp the add-on prints when it loads: the working copy's jj commit id
+# (it changes with every edit) and the deploy time.
+commit="$(jj -R "$root" log -r @ --no-graph -T 'commit_id.short(8)' 2>/dev/null || echo unknown)"
+stamp="$commit $(date '+%Y-%m-%d %H:%M')"
+echo "$stamp" > "$addons/ex_poser_bridge/build.txt"
+echo "deployed build $stamp to $addons/ex_poser_bridge/"
 echo "restart Poser to load it (add-ons are imported once, at startup)"
