@@ -103,6 +103,18 @@ class DispatchTest(unittest.TestCase):
         self.assertEqual(len(reason[3]), 1)
         self.assertEqual(reason[3][0][1], "SceneType")
 
+    def test_batch_labels_each_result_before_later_ops_run(self):
+        # In Poser, touching an input of a deleted node crashes Poser, so each
+        # result must be wrapped (and labelled) before a later op deletes it.
+        poser = _DeletingPoser()
+        d = Dispatcher(poser, HandleTable(lambda: 0), Policy.dev())
+        r = d.run((B, 1, [(C, "Node", [], {}),
+                          (I, (RESULT, 0), "Input", [], {}),
+                          (I, (RESULT, 0), "Delete", [], {})]))
+        self.assertEqual(r[0], A_R, r)
+        self.assertEqual([h[4] for h in r[2][:2]], ["node", "input"])
+        self.assertEqual(poser.touched_after_delete, [])
+
     def test_batch_bad_reference(self):
         reason = self.err((B, 1, [(I, (RESULT, 0), "Frame", [], {})]))
         self.assertEqual(reason[0], atom("batch_failed"))
@@ -124,6 +136,43 @@ class DispatchTest(unittest.TestCase):
 
     def test_cyclic_result_is_python_error(self):
         self.assertEqual(self.err((C, 1, "Cyclic", [], {}))[1], "ValueError")
+
+
+class _DeletingPoser(object):
+    """A poser module with one node type; records Name() calls after Delete()."""
+
+    def __init__(self):
+        self.touched_after_delete = []
+
+    def Node(self):
+        return _DeletingNode(self)
+
+
+class _DeletingNode(object):
+    def __init__(self, poser):
+        self._poser = poser
+        self.deleted = False
+
+    def Delete(self):
+        self.deleted = True
+
+    def Input(self):
+        return _DeletingInput(self)
+
+    def Name(self):
+        if self.deleted:
+            self._poser.touched_after_delete.append("node")
+        return "node"
+
+
+class _DeletingInput(object):
+    def __init__(self, node):
+        self._node = node
+
+    def Name(self):
+        if self._node.deleted:
+            self._node._poser.touched_after_delete.append("input")
+        return "input"
 
 
 if __name__ == "__main__":

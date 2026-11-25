@@ -46,16 +46,19 @@ class Dispatcher(object):
     def _batch(self, msg):
         _expect(msg, 3, list)
         mid, ops = msg[1], msg[2]
-        raw = []
+        # Each result is wrapped as soon as its op runs: wrapping reads the
+        # object's Name(), and a later op may delete it, and in Poser touching
+        # an input of a deleted node crashes Poser. Later ops use the raw values.
+        raw, wrapped = [], []
         for i, op in enumerate(ops):
             try:
                 if type(op) is not tuple or not op:
                     raise BadRequest("batch op must be a tuple")
                 raw.append(self._exec((op[0], None) + op[1:], raw))
+                wrapped.append(self.handles.wrap(raw[-1]))
             except Exception as e:
-                partial = [self.handles.wrap(v) for v in raw]
-                return (A_E, mid, (A_BATCH_FAILED, i, _reason(e, op), partial))
-        return (A_R, mid, [self.handles.wrap(v) for v in raw])
+                return (A_E, mid, (A_BATCH_FAILED, i, _reason(e, op), wrapped))
+        return (A_R, mid, wrapped)
 
     def _exec(self, msg, refs):
         """Run one C/I/G/X request (id at index 1 is ignored) and return the raw value."""
