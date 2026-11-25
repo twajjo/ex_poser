@@ -63,8 +63,7 @@ defmodule ExPoser.Batch do
            method: String.t(),
            args: list(),
            frame: non_neg_integer() | nil,
-           result:
-             :ok | :value | {:created, ExPoser.ShaderTree.t()},
+           result: :ok | :value | {:created, ExPoser.ShaderTree.t()},
            changes: ExPoser.ShaderTree.t() | nil
          }
 
