@@ -180,7 +180,11 @@ class ShaderTreeType(object):
     def RendererRootNode(self, code):
         return self._roots.get(code)
 
-    def SetRendererRootNode(self, node, code):
+    # Poser takes the renderer code first, though its docstring says
+    # SetRendererRootNode(node, renderer); the documented order is a parse error.
+    def SetRendererRootNode(self, code, node):
+        if not isinstance(code, int) or not isinstance(node, ShaderNodeType):
+            raise _error("Error parsing SetRendererRootNode()")
         self._roots[code] = node
 
     def UpdatePreview(self):
@@ -301,7 +305,7 @@ def seed_figure_materials():
     """Skin and Hair for figure 1; Skin is also the hip's material."""
     skin = MaterialType("Skin")
     surface = skin._tree._add("PoserSurface", "PoserSurface")
-    skin._tree.SetRendererRootNode(surface, 1)
+    skin._tree.SetRendererRootNode(1, surface)
     image = skin._tree._add("Image_Map", "image_map")
     image.OutputByInternalName("Color").ConnectToInput(surface.InputByInternalName("Diffuse_Color"))
     skin.CreateLayer("Layer_1")

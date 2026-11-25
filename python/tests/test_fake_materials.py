@@ -125,8 +125,14 @@ class FakeMaterialsTest(unittest.TestCase):
     def test_root_node(self):
         tree = self.skin.ShaderTree()
         image = tree.NodeByInternalName("Image_Map")
-        tree.SetRendererRootNode(image, 4)
+        tree.SetRendererRootNode(4, image)
         self.assertIs(tree.RendererRootNode(4), image)
+
+    def test_root_node_documented_order_is_rejected(self):
+        tree = self.skin.ShaderTree()
+        image = tree.NodeByInternalName("Image_Map")
+        with self.assertRaises(Exception):
+            tree.SetRendererRootNode(image, 4)
 
     def test_preview_count(self):
         tree = self.skin.ShaderTree()
