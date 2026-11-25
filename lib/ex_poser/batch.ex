@@ -413,11 +413,13 @@ defmodule ExPoser.Batch do
   """
   @spec set_root(t(), ShaderNode.t(), atom() | integer()) :: t()
   def set_root(b, %ShaderNode{tree: tree} = node, renderer) do
+    # Poser takes the renderer code first, though its docstring documents
+    # SetRendererRootNode(node, renderer); that order is a parse error.
     push(
       b,
       tree,
       "SetRendererRootNode",
-      [node, ShaderTree.renderer_code!(renderer)],
+      [ShaderTree.renderer_code!(renderer), node],
       nil,
       :ok,
       tree
