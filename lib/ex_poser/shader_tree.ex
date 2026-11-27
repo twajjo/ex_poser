@@ -209,6 +209,10 @@ defmodule ExPoser.ShaderTree do
   Makes `node` the root of its tree for `renderer` (see `root/3`). Poser
   refreshes the tree's preview afterwards. Options: `:server`, `:timeout`.
 
+  Poser only honours this for `:firefly` and `:superfly`. For `:preview`,
+  `:poser4` and `:sketch` it returns `:ok` but changes nothing, and `root/3`
+  for those renderers reports firefly's root.
+
   ## Examples
 
       ExPoser.ShaderTree.set_root(image_node, :superfly)
