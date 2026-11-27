@@ -40,15 +40,72 @@ original one-batch test, on a scene with Irika. No handles were left open.
 
 ### 11c (layers and roots)
 
+2026-11-24, first run: 21 of 23 passed. Both failures were checked in Poser's
+own Python shell, one line at a time, and both are Poser behaviour, not the
+bridge.
+
+- Atmosphere root: `SetRendererRootNode(node, 0)`, the order Poser's docstring
+  gives, fails with `Error parsing SetRendererRootNode() Usage:
+  SetRendererRootNode(<StringType> renderer, <ShaderNodeType> node)`, in the
+  shell too. `SetRendererRootNode(0, node)` is accepted: the code comes first.
+  Fixed in #86 (`Batch.set_root` sends `[code, node]`). The generated
+  `set_renderer_root_node` still follows the docstring; a generator override
+  comes after 3b-2. The run reported the failure from the test's restore step,
+  which hid the body's own failure; the restore no longer raises.
+  The atmosphere tree has one node, `Atmosphere` (type `atmosphere`), and it is
+  every renderer's root. `CreateNode` of type `atmosphere` gave `Atmosphere_2`.
+- Layer: `CreateLayer(name)` on the first figure material (`4_InnerMouth`)
+  fails with `Cannot add Material Layer to Light`, also from an actor's
+  material. The scene's current actor was a light (`Reye Light 2`). After
+  `SelectActor(Body)` the same call works: CreateLayer needs the material's
+  actor to be the current actor.
+  The new layer's `Name()` is `Layer_1`, not the name asked for; the requested
+  name is its `ExtName()`. So `create_layer` returns `:ok` (#87), as
+  `CreateLayer` does, and the test finds the new layer by listing.
+
+2026-11-25, rerun with the order fixed: 22 of 23 passed; the layer test passed
+(the new layer's `Name()` was `Layer_1`). The atmosphere test failed:
+`set_root!` on `:preview` returned `:ok`, but the preview root was still
+`Atmosphere`. Shell probes, one line each:
+
+1. Atmosphere tree, `SetRendererRootNode(0, Atmosphere_2)`: no error, root
+   still `Atmosphere`.
+2. Irika's first material tree, `SetRendererRootNode(0, PoserSurface_2)`: no
+   error, root still `PoserSurface`. So it is not specific to the atmosphere.
+3. `UpdatePreview()` and reading again: still `PoserSurface`.
+4. A string renderer (`'preview'`, `'Preview'`, `'PREVIEW'`): a parse error
+   each time, although the usage message says `<StringType> renderer`. The
+   renderer is an integer.
+5. Codes 0 to 4 in turn, reading each after its set: code 0 (preview) keeps
+   `PoserSurface`; codes 1 to 4 all read `PoserSurface_2`. This was misleading,
+   as probes 6 to 8 show: the set for code 1 had already changed codes 2 and 3.
+6. Code 1 (firefly) set back to `PoserSurface`: codes 0 to 3 all read
+   `PoserSurface`; code 4 (superfly) still reads `PoserSurface_2`.
+7. Code 2 (poser4) set to `PoserSurface_2`: nothing changes.
+8. Code 3 (sketch) set to `PoserSurface_2`: nothing changes. Code 4 set to
+   `PoserSurface`: code 4 reads `PoserSurface`.
+
+So, on a material tree at least, only the firefly and superfly roots can be
+set. Poser accepts the call for preview, poser4 and sketch and ignores it, and
+those three report firefly's root. The test now sets firefly's root, or
+superfly's if firefly has none.
+
+2026-11-25, rerun with the test setting firefly: 23 of 23 passed. On the
+atmosphere tree, firefly's root was set to a new `Atmosphere_3` and restored.
+The scene still held the probes' leftovers (`Atmosphere_2`, `PoserSurface_2`).
+
 ## Probe answers
 
 1. Not settled. For the 5 materials listed (Base, Preview, LongHair,
    LongHair_Front, Hair_Falling), `Name()` equals `ExtName()`, and looking up by it
    works. A material whose two names differ is needed to tell which one
    `Material(name)` matches.
-2. Not settled. The first material has one layer, `Base`, whose `Name()` equals
-   its `ExtName()`, and `LayerByName` finds it. A layer whose names differ is
-   needed.
+2. Settled: `LayerByName` matches `Name()` only. The first material has one
+   layer, `Base`, whose `Name()` equals its `ExtName()`. A layer made by
+   `CreateLayer('ExPoser probe')` has `Name()` `Layer_1` and `ExtName()`
+   `ExPoser probe`: `LayerByName('Layer_1')` finds it, and
+   `LayerByName('ExPoser probe')` fails with `Layer with such name does not
+   exist in this Material`.
 3. Partly settled. A new `image_map` gets an internal name `Image_Map_<n>`,
    and its `Name()` equals that internal name. Names are reused after `Delete`:
    two create-then-delete runs got the same name. The rule for `<n>` is not
